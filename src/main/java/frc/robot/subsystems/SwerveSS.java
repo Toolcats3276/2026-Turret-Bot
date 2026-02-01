@@ -219,20 +219,7 @@ public class SwerveSS extends SubsystemBase {
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
         }
 
-        
-        SmartDashboard.putNumber("Rotation Output", RotationCalculateFL());
-        SmartDashboard.putNumber("Rotation TX", FrontTX());
 
 
-
-    }
-
-
-    public double FrontTX(){
-        return LLAssistantFL.getTX()-LLAssistantFR.getTX();
-    }
-
-    public double RotationCalculateFL(){
-        return LLTranslationFR.calculate(FrontTX(), 0);
     }
 }

@@ -9,7 +9,11 @@ public final class CTREConfigs {
     public TalonFXConfiguration swerveDriveFXConfig = new TalonFXConfiguration();
     public CANcoderConfiguration swerveCANcoderConfig = new CANcoderConfiguration();
 
-    public CANcoderConfiguration armCANcoderConfig = new CANcoderConfiguration();
+    public TalonFXConfiguration shooterBottomConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration shooterTopConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration leftTurretConfig = new TalonFXConfiguration();
+
+    public CANcoderConfiguration turretCANcoderConfig = new CANcoderConfiguration();
     public CANcoderConfiguration elevatorCANCoderConfig = new CANcoderConfiguration();
     public CANcoderConfiguration wristCANcoderConfig = new CANcoderConfiguration();
 
@@ -21,8 +25,8 @@ public final class CTREConfigs {
 
         elevatorCANCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
 
-        armCANcoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        armCANcoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+        turretCANcoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        turretCANcoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 
         // wristCANcoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         wristCANcoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;

@@ -15,16 +15,6 @@ import frc.lib.util.SwerveModuleConstants;
 public final class Constants {
     public static final double stickDeadband = 0.1;
 
-
-    public static final class FrontLeftTurret{
-        public static final int Shoot_Motor_Bottom = 61;
-        public static final int Shoot_Motor_Top = 62;
-
-        public static final int Turret_Rotation = 63;
-        public static final int Turret_Rotation_Encoder = 64;
-
-    }
-
     public static final class Swerve {
         public static final int pigeonID = 5;
 

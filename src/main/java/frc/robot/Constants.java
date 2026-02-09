@@ -15,13 +15,39 @@ import frc.lib.util.SwerveModuleConstants;
 public final class Constants {
     public static final double stickDeadband = 0.1;
 
-    public static final class FrontLeftTurret{
-        public static final int Shoot_Motor_Bottom = 61;
-        public static final int Shoot_Motor_Top = 62;
+    public static final class RobotConstants{
 
-        public static final int Turret_Rotation = 63;
-        public static final int Turret_Rotation_Encoder = 64;
+        public static final class FrontLeftTurret{
+            /*Motors for Turret */
+            public static final int Shoot_Motor_Left_Motor = 61;
+            public static final int Shoot_Motor_Right_Motor = 62;
+            public static final int Turret_Rotation_Motor = 63;
+            /*Encoders for Turret */
+            public static final int Turret_Rotation_Encoder = 6;
+        }
 
+        public static final class FrontRightTurret{
+            /*Motors for Turret */
+            public static final int Shoot_Motor_Left_Motor = 71;
+            public static final int Shoot_Motor_Right_Motor = 72;
+            public static final int Turret_Rotation_Motor = 73;
+            /*Encoders for Turret */
+            public static final int Turret_Rotation_Encoder = 7;
+        }
+
+        public static final class Indexer{
+            /*Motors for Belt System */
+            public static final int Indexer_Motor = 51;
+        }
+
+        public static final class Infeed{
+            /*Motors for Infeed */
+            public static final int Infeed_Motor = 41;
+            public static final int Infeed_Rotation_Motor = 42;
+            /*Encoders for Infeed*/
+            public static final int Infeed_Rotation_Encoder = 4;
+
+        }
     }
 
     public static final class Swerve {

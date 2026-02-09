@@ -9,19 +9,21 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.Constants.FrontLeftTurret;
+import frc.robot.Constants.RobotConstants;
+import frc.robot.vision.LimelightAssistant;
 
 /* SEE WristSS FOR EXPLANATIONS */
 
 public class LeftTurretSS extends SubsystemBase{
-
-    private TalonFX m_Turret;
+    /*General Turret Rotation*/
+    private TalonFX m_TurretMotor;
     private CANcoder e_TurretEncoder;
 
     private PIDController TurretPIDController;
@@ -33,23 +35,34 @@ public class LeftTurretSS extends SubsystemBase{
     private double output;
     private double setPoint;
     private double maxSpeed;
+    
+    /*Limelight*/
 
-    private double turretVal;
+    private final LimelightAssistant LeftLimelight;
+    private final LimelightAssistant RightLimelight;
 
-
+    private final PIDController LLRotationPidController;
+        private final double LLkP = 0;
+        private final double LLkI = 0;
+        private final double LLkD = 0;
     
     public LeftTurretSS() {
-        m_Turret = new TalonFX(FrontLeftTurret.Turret_Rotation);
-        m_Turret.getConfigurator().apply(Robot.ctreConfigs.leftTurretConfig);
-        m_Turret.setNeutralMode(NeutralModeValue.Brake);
+        /*Turret General Rotation*/
+        m_TurretMotor = new TalonFX(RobotConstants.FrontLeftTurret.Turret_Rotation_Motor);
+        m_TurretMotor.getConfigurator().apply(Robot.ctreConfigs.leftTurretConfig);
+        m_TurretMotor.setNeutralMode(NeutralModeValue.Brake);
 
-        e_TurretEncoder = new CANcoder(FrontLeftTurret.Turret_Rotation_Encoder);
+        e_TurretEncoder = new CANcoder(RobotConstants.FrontLeftTurret.Turret_Rotation_Encoder);
         e_TurretEncoder.getConfigurator().apply(Robot.ctreConfigs.turretCANcoderConfig);
         e_TurretEncoder.setPosition(e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
 
         TurretPIDController = new PIDController(kP, kI, kD);
 
-        
+        /*Limelight*/
+        LeftLimelight = new LimelightAssistant("limelight-llt", VecBuilder.fill(0,0,0), false);
+        RightLimelight = new LimelightAssistant("limelight-lrt", VecBuilder.fill(0,0,0), false);
+
+        LLRotationPidController = new PIDController(LLkP, LLkI, LLkD);
     }
 
      public enum Mode{
@@ -68,14 +81,14 @@ public class LeftTurretSS extends SubsystemBase{
         switch(TurretMode) {
 
             case Stop:{
-                m_Turret.set(0);
+                m_TurretMotor.set(0);
                 break;
             }
 
             case PID:{
                 TurretPIDController.reset();
                 output = -MathUtil.clamp(TurretPIDController.calculate(e_TurretEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
-                m_Turret.set(output);
+                m_TurretMotor.set(output);
                 break;
             }
 
@@ -105,8 +118,6 @@ public class LeftTurretSS extends SubsystemBase{
     public Boolean atSetPoint(){
         return TurretPIDController.atSetpoint();
     }
-    
-    
 }
 
 

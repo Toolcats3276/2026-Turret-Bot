@@ -13,23 +13,18 @@ import frc.robot.Constants.RobotConstants;
 
 /* SEE WristSS FOR EXPLANATIONS */
 
-public class LeftShooterSS extends SubsystemBase {
+public class IndexerSS extends SubsystemBase {
 
-    private TalonFX m_shooterBottomMotor;
-    private TalonFX m_shooterTopMotor;
+    private TalonFX m_BeltSystemMotor;
     private double speed;
 
 
   
-    public LeftShooterSS(){
-            m_shooterBottomMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Left_Motor);
-            m_shooterBottomMotor.getConfigurator().apply(Robot.ctreConfigs.shooterBottomConfig);
-            m_shooterBottomMotor.setNeutralMode(NeutralModeValue.Coast);
+    public IndexerSS(){
+            m_BeltSystemMotor = new TalonFX(RobotConstants.Indexer.Indexer_Motor);
+            m_BeltSystemMotor.getConfigurator().apply(Robot.ctreConfigs.shooterBottomConfig);
+            m_BeltSystemMotor.setNeutralMode(NeutralModeValue.Coast);
 
-            m_shooterTopMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Right_Motor);
-            m_shooterTopMotor.getConfigurator().apply(Robot.ctreConfigs.shooterTopConfig);
-            m_shooterTopMotor.setNeutralMode(NeutralModeValue.Coast);
-            m_shooterTopMotor.setControl(new StrictFollower(m_shooterBottomMotor.getDeviceID()));
     }
 
 
@@ -47,17 +42,17 @@ public class LeftShooterSS extends SubsystemBase {
         switch(ShooterMode) {
 
             case Stop:{
-                m_shooterBottomMotor.set(0);
+                m_BeltSystemMotor.set(0);
                 break;
             }
 
             case SetSpeed:{
-                m_shooterBottomMotor.set(speed);
+                m_BeltSystemMotor.set(speed);
             }
         }
 
         SmartDashboard.putNumber("ShooterSetSpeed", speed);
-        SmartDashboard.putNumber("ShooterCurrentSpeed", m_shooterBottomMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("ShooterCurrentSpeed", m_BeltSystemMotor.getVelocity().getValueAsDouble());
     }
 
     public void Stop(){

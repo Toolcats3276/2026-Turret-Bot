@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import frc.robot.SwerveModule;
-import frc.robot.vision.LimelightAssistant;
 import frc.robot.Constants.Swerve;
 import frc.robot.Robot;
 
@@ -17,17 +16,12 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.VecBuilder;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -35,21 +29,13 @@ public class SwerveSS extends SubsystemBase {
     public SwerveDriveOdometry swerveOdometry;
     public SwerveModule[] mSwerveMods;
     public static Pigeon2 gyro;
-    
-    public static PIDController LLTranslationFR;
-    public static PIDController LLStrafeFR;
-    public static PIDController LLTranslationFL;
-    public static PIDController LLStrafeFL;
-
-    public static LimelightAssistant LLAssistantFR;
-    public static LimelightAssistant LLAssistantFL;
-
 
     public static SwerveDrivePoseEstimator m_poseEstimator;
 
     public Field2d LLPose;
     public Field2d BotPose;
-    public boolean scoreLeft;
+
+
 
 
     @SuppressWarnings("unused")
@@ -72,18 +58,8 @@ public class SwerveSS extends SubsystemBase {
             };
     
             swerveOdometry = new SwerveDriveOdometry(Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
-
-
-            LLTranslationFR = new PIDController(.09, 0, 0.02);
-            LLStrafeFR = new PIDController(0.01, 0, 0.0005);
-            LLTranslationFL = new PIDController(.037, 0, 0.03);
-            LLStrafeFL = new PIDController(0.007, 0, 0.0009);
-
-            LLAssistantFR = new LimelightAssistant("limelight-fr", VecBuilder.fill(0,0,0), false);
-            LLAssistantFL = new LimelightAssistant("limelight-fl", VecBuilder.fill(0,0,0), false);
             
-    
-                
+        
         }
     
         public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {

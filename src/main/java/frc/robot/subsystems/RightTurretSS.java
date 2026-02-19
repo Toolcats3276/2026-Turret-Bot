@@ -14,7 +14,7 @@ import frc.robot.vision.LimelightAssistant;
 
 /* SEE WristSS FOR EXPLANATIONS */
 
-public class LeftTurretSS extends SubsystemBase{
+public class RightTurretSS extends SubsystemBase{
     /*General Turret Rotation*/
     private TalonFX m_TurretMotor;
     private CANcoder e_TurretEncoder;
@@ -31,8 +31,8 @@ public class LeftTurretSS extends SubsystemBase{
     private double ManualVal;
     private double TX;
 
-    private double StartingDeadStop = 0.02;
-    private double FinalDeadStop = 10.46875;
+    private double StartingDeadStop = 0.5;
+    private double FinalDeadStop = 11;
     
     /*Limelight*/
 
@@ -44,7 +44,7 @@ public class LeftTurretSS extends SubsystemBase{
         private final double LLkI = 0;
         private final double LLkD = 0;
     
-    public LeftTurretSS() {
+    public RightTurretSS() {
         /*Turret General Rotation*/
         m_TurretMotor = new TalonFX(RobotConstants.FrontRightTurret.Turret_Rotation_Motor);
         m_TurretMotor.getConfigurator().apply(Robot.ctreConfigs.RightTurretConfig);
@@ -57,8 +57,8 @@ public class LeftTurretSS extends SubsystemBase{
         TurretPIDController = new PIDController(kP, kI, kD);
 
         /*Limelight*/
-        LeftLimelight = new LimelightAssistant("limelight-llt", VecBuilder.fill(0,0,0), false);
-        RightLimelight = new LimelightAssistant("limelight-lrt", VecBuilder.fill(0,0,0), false);
+        LeftLimelight = new LimelightAssistant("limelight-rlt", VecBuilder.fill(0,0,0), false);
+        RightLimelight = new LimelightAssistant("limelight-rrt", VecBuilder.fill(0,0,0), false);
 
         LLRotationPidController = new PIDController(LLkP, LLkI, LLkD);
     }
@@ -90,12 +90,18 @@ public class LeftTurretSS extends SubsystemBase{
                 break;
             }
 
-            case Manual:
-                output = MathUtil.clamp(ManualVal, -1, 1);
+            case Manual:{
+                if(e_TurretEncoder.getPosition().getValueAsDouble() > StartingDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < FinalDeadStop){
+                output = MathUtil.clamp(ManualVal, -.1, .1);
                 m_TurretMotor.set(output);
+                }
+                else {
+                    output = 0;
+                }
                 break;
+            }
 
-            case AutoAim:
+            case AutoAim:{
                 if(e_TurretEncoder.getPosition().getValueAsDouble() > StartingDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < FinalDeadStop){
                     output = MathUtil.clamp(LLRotationPidController.calculate(TxValue(), 0), -maxSpeed, maxSpeed);
                     m_TurretMotor.set(output);
@@ -123,18 +129,19 @@ public class LeftTurretSS extends SubsystemBase{
                     m_TurretMotor.set(output);
                 }
                 break;
+            }
 
         }
 
-        SmartDashboard.putNumber("LeftTurret Output", output);
-        SmartDashboard.putNumber("LeftTurret setPoint", setPoint);
-        SmartDashboard.putNumber("LeftTurret Encoder Pose", e_TurretEncoder.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("LeftTurret AbsEncoder Pose", e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
-        SmartDashboard.putNumber("LeftTurret_P", kP);
-        SmartDashboard.putNumber("TX LeftTurret", TX);
-        SmartDashboard.putBoolean("LeftTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() < StartingDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() > FinalDeadStop);
-        SmartDashboard.putBoolean("LeftTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < FinalDeadStop);
-        SmartDashboard.putBoolean("LeftTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > StartingDeadStop);
+        SmartDashboard.putNumber("RightTurret Output", output);
+        SmartDashboard.putNumber("RightTurret setPoint", setPoint);
+        SmartDashboard.putNumber("RightTurret Encoder Pose", e_TurretEncoder.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("RightTurret AbsEncoder Pose", e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
+        SmartDashboard.putNumber("RightTurret_P", kP);
+        SmartDashboard.putNumber("TX RightTurret", TX);
+        SmartDashboard.putBoolean("RightTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() < StartingDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() > FinalDeadStop);
+        SmartDashboard.putBoolean("RightTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < FinalDeadStop);
+        SmartDashboard.putBoolean("RightTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > StartingDeadStop);
     }
     
     public void Stop(){

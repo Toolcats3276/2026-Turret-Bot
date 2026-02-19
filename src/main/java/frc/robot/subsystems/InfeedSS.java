@@ -27,22 +27,20 @@ public class InfeedSS extends SubsystemBase{
     private double output;
     private double setPoint;
     private double maxSpeed;
-
-    private double InfeedVal;
-
-
+    private double ManualVal;
+    private double speed;
     
     public InfeedSS() {
         m_Infeed = new TalonFX(RobotConstants.Infeed.Infeed_Motor);
-        m_Infeed.getConfigurator().apply(Robot.ctreConfigs.leftTurretConfig);
+        m_Infeed.getConfigurator().apply(Robot.ctreConfigs.InfeedConfig);
         m_Infeed.setNeutralMode(NeutralModeValue.Brake);
 
         m_InfeedPivot = new TalonFX(RobotConstants.Infeed.Infeed_Rotation_Motor);
-        m_InfeedPivot.getConfigurator().apply(Robot.ctreConfigs.leftTurretConfig);
+        m_InfeedPivot.getConfigurator().apply(Robot.ctreConfigs.InfeedPivotConfig);
         m_InfeedPivot.setNeutralMode(NeutralModeValue.Brake);
 
         e_InfeedEncoder = new CANcoder(RobotConstants.Infeed.Infeed_Rotation_Encoder);
-        e_InfeedEncoder.getConfigurator().apply(Robot.ctreConfigs.turretCANcoderConfig);
+        e_InfeedEncoder.getConfigurator().apply(Robot.ctreConfigs.InfeedCancoderConfig);
         e_InfeedEncoder.setPosition(e_InfeedEncoder.getAbsolutePosition().getValueAsDouble());
 
         InfeedPIDController = new PIDController(kP, kI, kD);
@@ -53,20 +51,26 @@ public class InfeedSS extends SubsystemBase{
      public enum Mode{
         Stop,
         PID,
-        AutoAim,
-
+        SetInfeedSpeed,
+        Manual
     }
 
-    Mode TurretMode = Mode.Stop;
+    Mode InfeedMode = Mode.Stop;
     
     @Override
 
     public void periodic() {
 
-        switch(TurretMode) {
+        switch(InfeedMode) {
 
             case Stop:{
-                m_InfeedPivot.set(0);
+                m_Infeed.set(0);
+                break;
+            }
+
+            case Manual:{
+                output = MathUtil.clamp(ManualVal, -1, 1);
+                m_InfeedPivot.set(output);
                 break;
             }
 
@@ -74,6 +78,11 @@ public class InfeedSS extends SubsystemBase{
                 InfeedPIDController.reset();
                 output = -MathUtil.clamp(InfeedPIDController.calculate(e_InfeedEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
                 m_InfeedPivot.set(output);
+                break;
+            }
+
+            case SetInfeedSpeed:{
+                m_Infeed.set(speed);
                 break;
             }
 
@@ -86,14 +95,19 @@ public class InfeedSS extends SubsystemBase{
     }
     
     public void Stop(){
-        TurretMode = Mode.Stop;
+        InfeedMode = Mode.Stop;
+    }
+
+     public void Manual(double ManualVal){
+        this.ManualVal = ManualVal;
+        InfeedMode = Mode.Manual;
     }
     
     public void PID(double setPoint, double maxSpeed){
         this.setPoint = setPoint;
         this.maxSpeed = maxSpeed;
         InfeedPIDController.reset();
-        TurretMode = Mode.PID;
+        InfeedMode = Mode.PID;
     }
 
     public double returnSetPoint(){
@@ -102,6 +116,11 @@ public class InfeedSS extends SubsystemBase{
 
     public Boolean atSetPoint(){
         return InfeedPIDController.atSetpoint();
+    }
+
+    public void SetSpeed(double speed){
+        this.speed = speed;
+        InfeedMode = Mode.SetInfeedSpeed;
     }
     
     

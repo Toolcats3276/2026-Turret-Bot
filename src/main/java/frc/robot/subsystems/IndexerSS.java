@@ -19,7 +19,7 @@ public class IndexerSS extends SubsystemBase {
   
     public IndexerSS(){
             m_BeltSystemMotor = new TalonFX(RobotConstants.Indexer.Indexer_Motor);
-            m_BeltSystemMotor.getConfigurator().apply(Robot.ctreConfigs.shooterBottomConfig);
+            m_BeltSystemMotor.getConfigurator().apply(Robot.ctreConfigs.IndexerConfig);
             m_BeltSystemMotor.setNeutralMode(NeutralModeValue.Coast);
 
     }
@@ -30,13 +30,13 @@ public class IndexerSS extends SubsystemBase {
         SetSpeed,
     }
 
-    Mode ShooterMode = Mode.Stop;
+    Mode IndexerMode = Mode.Stop;
     
     @Override
 
     public void periodic() {
 
-        switch(ShooterMode) {
+        switch(IndexerMode) {
 
             case Stop:{
                 m_BeltSystemMotor.set(0);
@@ -53,12 +53,12 @@ public class IndexerSS extends SubsystemBase {
     }
 
     public void Stop(){
-        ShooterMode = Mode.Stop;
+        IndexerMode = Mode.Stop;
     }
     
     public void setSpeed(double speed){
         this.speed = speed;
-        ShooterMode = Mode.SetSpeed;
+        IndexerMode = Mode.SetSpeed;
     }
 
     

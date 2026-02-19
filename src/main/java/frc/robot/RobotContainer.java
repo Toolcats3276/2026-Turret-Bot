@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import frc.robot.autos.*;
 import frc.robot.commands.*;
+import frc.robot.commands.BaseCommands.RightTurret.ManualRightTurretCommand;
+import frc.robot.commands.BaseCommands.RightTurret.RightTurretAutoAim;
 import frc.robot.subsystems.*;
 
 /**
@@ -27,17 +29,27 @@ public class RobotContainer {
     private final int strafeAxis = Joystick.AxisType.kX.value;
     private final int rotationAxis = Joystick.AxisType.kZ.value;
 
-    private final int armAxis = XboxController.Axis.kLeftY.value;
-    private final int elevatorAxisUp = XboxController.Axis.kLeftTrigger.value;
-    private final int elevatorAxisDown = XboxController.Axis.kRightTrigger.value;
-    private final int wristAxis = XboxController.Axis.kRightY.value;
+    private final int rightTurretSup = XboxController.Axis.kRightY.value;
+    private final int leftTurretSup = XboxController.Axis.kLeftY.value;
 
     /* Driver Buttons */
     private final JoystickButton zeroGyro = new JoystickButton(driver, 11);
     private final JoystickButton robotCentric = new JoystickButton(driver, 0);
 
+    private final JoystickButton Shoot = new JoystickButton(driver, 1);
+
+    private final JoystickButton Setpoint1 = new JoystickButton(driver, 3);
+    private final JoystickButton Setpoint2 = new JoystickButton(driver, 4);
+
+
+    /* Xbox Buttons */
+    private final JoystickButton RightTurretManual = new JoystickButton(xboxController, 1);
+
     /* Subsystems */
     private final SwerveSS s_Swerve = new SwerveSS();
+    private final LeftTurretSS s_LeftTurret = new LeftTurretSS();
+    private final RightTurretSS s_RightTurret = new RightTurretSS();
+    private final RightShooterSS s_RightShooter = new RightShooterSS();
 
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -47,7 +59,7 @@ public class RobotContainer {
                 s_Swerve, 
                 () -> driver.getRawAxis(translationAxis), 
                 () -> driver.getRawAxis(strafeAxis), 
-                () -> -driver.getRawAxis(rotationAxis), 
+                () -> driver.getRawAxis(rotationAxis), 
                 () -> robotCentric.getAsBoolean()
             )
         );
@@ -65,6 +77,14 @@ public class RobotContainer {
     private void configureButtonBindings() {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
+
+        Setpoint1.onTrue(new RightTurretAutoAim(s_RightTurret, .25));
+
+        Shoot.onTrue(new InstantCommand(() -> s_RightShooter.setSpeed(1)));
+
+        /* Xbox Controller */
+        RightTurretManual.onTrue(new ManualRightTurretCommand(s_RightTurret, () -> xboxController.getRawAxis(rightTurretSup)));
+
     }
 
     /**

@@ -2,6 +2,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 public final class CTREConfigs {
@@ -9,28 +10,33 @@ public final class CTREConfigs {
     public TalonFXConfiguration swerveDriveFXConfig = new TalonFXConfiguration();
     public CANcoderConfiguration swerveCANcoderConfig = new CANcoderConfiguration();
 
-    public TalonFXConfiguration shooterBottomConfig = new TalonFXConfiguration();
-    public TalonFXConfiguration shooterTopConfig = new TalonFXConfiguration();
-    public TalonFXConfiguration leftTurretConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration LeftshooterBottomConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration LeftshooterTopConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration LeftTurretConfig = new TalonFXConfiguration();
+    public CANcoderConfiguration LeftTurretCancoderConfig = new CANcoderConfiguration();
 
-    public CANcoderConfiguration turretCANcoderConfig = new CANcoderConfiguration();
-    public CANcoderConfiguration elevatorCANCoderConfig = new CANcoderConfiguration();
-    public CANcoderConfiguration wristCANcoderConfig = new CANcoderConfiguration();
+    public TalonFXConfiguration RightshooterBottomConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration RightshooterTopConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration RightTurretConfig = new TalonFXConfiguration();
+    public CANcoderConfiguration RightTurretCancoderConfig = new CANcoderConfiguration();
 
-    public TalonFXConfiguration rightInfeedConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration IndexerConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration InfeedConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration InfeedPivotConfig = new TalonFXConfiguration();
+    public CANcoderConfiguration InfeedCancoderConfig = new CANcoderConfiguration();
 
     public CTREConfigs(){
         /** Swerve CANCoder Configuration */
         swerveCANcoderConfig.MagnetSensor.SensorDirection = Constants.Swerve.cancoderInvert;
 
-        elevatorCANCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
 
-        turretCANcoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        turretCANcoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+        RightTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        RightTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
 
-        // wristCANcoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        wristCANcoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
-        wristCANcoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+        LeftTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        LeftTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+
+        RightshooterBottomConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
 
         /** Swerve Angle Motor Configurations */

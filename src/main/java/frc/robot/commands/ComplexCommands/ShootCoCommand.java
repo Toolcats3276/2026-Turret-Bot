@@ -8,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.trajectory.ExponentialProfile;
 import edu.wpi.first.units.measure.Power;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -31,17 +32,30 @@ public class ShootCoCommand extends SequentialCommandGroup {
   public ShootCoCommand(IndexerSS s_Indexer, RightShooterSS s_RightShooter, LeftShooterSS s_LeftShooter, RightTurretSS s_RightTurret, LeftTurretSS s_LeftTurret) {
 
     addCommands(
-      
-        new ParallelCommandGroup(
-          new ShootRightTurretAuto(s_RightShooter),
-          // new RightTurretLinearActuator(s_RightTurret, s_RightTurret.LinearActuatorAngle()), 
-          new ShootLeftTurretAuto(s_LeftShooter),
-          // new LeftTurretLinearActuator(s_LeftTurret, s_LeftTurret.LinearActuatorAngle()),
+        new ConditionalCommand(
+          //ontrue
+          new ParallelCommandGroup(
+            new ShootRightTurret(s_RightShooter, .7125),
+            new ShootLeftTurret(s_LeftShooter, .7125),
 
-          new SequentialCommandGroup(
-            new WaitCommand(.35)
-            // new IndexerCommand(s_Indexer, 1)
-          )
+            new SequentialCommandGroup(
+              new WaitCommand(.35),
+              new IndexerCommand(s_Indexer, 1)
+            )
+          ),
+            //onfalse
+            new ParallelCommandGroup(
+              new ShootRightTurret(s_RightShooter, .6),
+              new ShootLeftTurret(s_LeftShooter, .6),
+
+              new SequentialCommandGroup(
+                new WaitCommand(.35),
+                new IndexerCommand(s_Indexer, 1)
+              )
+            ),
+            //condition
+            () -> s_RightTurret.LinearActuatorSetPoint() == .375
+          
         )
     );
     addRequirements(s_Indexer, s_LeftShooter, s_RightShooter, s_LeftTurret, s_RightTurret);

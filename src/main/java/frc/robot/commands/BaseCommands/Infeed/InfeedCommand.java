@@ -15,12 +15,12 @@ public class InfeedCommand extends Command {
   }
 
   @Override
-  public void initialize() {
-    s_Infeed.SetSpeed(speed);
-  }
+  public void initialize() {}
 
   @Override
-  public void execute() {}
+  public void execute() {
+    s_Infeed.SetSpeed(speed);
+  }
 
   @Override
   public void end(boolean interrupted) {}

@@ -36,8 +36,8 @@ public class LeftTurretSS extends SubsystemBase{
     private double shotPower;
     private double shooterAngle;
 
-    private double StartingDeadStop = 0.07;
-    private double FinalDeadStop = 10.51;
+    private double StartingDeadStop = 0.11;
+    private double FinalDeadStop = 10.48;
     
     /*Limelight*/
 

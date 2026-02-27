@@ -1,20 +1,20 @@
 package frc.robot.commands.BaseCommands.Infeed;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.InfeedSS;
+import frc.robot.subsystems.InfeedPivotSS;
+import frc.robot.subsystems.InfeedPivotSS;
 
 public class InfeedPID extends Command{
 
-    private InfeedSS s_Infeed;
+    private InfeedPivotSS s_InfeedPivot;
     private double setPoint;
     private double maxSpeed;
 
 
-    public InfeedPID(InfeedSS s_Infeed, double setPoint, double maxSpeed){
-        this.s_Infeed = s_Infeed;
+    public InfeedPID(InfeedPivotSS s_InfeedPivot, double setPoint, double maxSpeed){
+        this.s_InfeedPivot = s_InfeedPivot;
         this.setPoint = setPoint;
         this.maxSpeed = maxSpeed;
-        addRequirements(s_Infeed);
     }
     
 
@@ -26,7 +26,7 @@ public class InfeedPID extends Command{
 
     @Override
     public void execute(){
-        s_Infeed.PID(setPoint, maxSpeed);
+        s_InfeedPivot.PID(setPoint, maxSpeed);
     }
 
     @Override

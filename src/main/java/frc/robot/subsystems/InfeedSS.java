@@ -16,51 +16,19 @@ import frc.robot.Constants.RobotConstants;
 
 public class InfeedSS extends SubsystemBase{
 
-    private TalonFX m_Infeed_Pivot_Left;
-    private TalonFX m_Infeed_Pivot_Right;
     private TalonFX m_Infeed;
-    private CANcoder e_InfeedEncoder;
-
-    private PIDController InfeedPIDController;
-
-    private final double kP = 1.5;
-    private final double kI = 0;
-    private final double kD = 0;
-
-    private double output;
-    private double setPoint;
-    private double maxSpeed;
-    private double ManualVal;
     private double speed;
     
     public InfeedSS() {
         m_Infeed = new TalonFX(RobotConstants.Infeed.Infeed_Motor, CTREConfigs.CanivoreCANbus);
         m_Infeed.getConfigurator().apply(Robot.ctreConfigs.InfeedConfig);
         m_Infeed.setNeutralMode(NeutralModeValue.Brake);
-
-        m_Infeed_Pivot_Left = new TalonFX(RobotConstants.Infeed.Infeed_Rotation_Motor_Left, CTREConfigs.CanivoreCANbus);
-        m_Infeed_Pivot_Left.getConfigurator().apply(Robot.ctreConfigs.InfeedPivotLeftConfig);
-        m_Infeed_Pivot_Left.setNeutralMode(NeutralModeValue.Brake);
-
-        m_Infeed_Pivot_Right = new TalonFX(RobotConstants.Infeed.Infeed_Rotation_Motor_Right, CTREConfigs.CanivoreCANbus);
-        m_Infeed_Pivot_Right.getConfigurator().apply(Robot.ctreConfigs.InfeedPivotRightConfig);
-        m_Infeed_Pivot_Right.setNeutralMode(NeutralModeValue.Brake);
-        m_Infeed_Pivot_Right.setControl(new StrictFollower(m_Infeed_Pivot_Left.getDeviceID()));
-
-        e_InfeedEncoder = new CANcoder(RobotConstants.Infeed.Infeed_Rotation_Encoder, CTREConfigs.CanivoreCANbus);
-        e_InfeedEncoder.getConfigurator().apply(Robot.ctreConfigs.InfeedCancoderConfig);
-        e_InfeedEncoder.setPosition(e_InfeedEncoder.getAbsolutePosition().getValueAsDouble());
-
-        InfeedPIDController = new PIDController(kP, kI, kD);
-
         
     }
 
      public enum Mode{
         Stop,
-        PID,
-        SetInfeedSpeed,
-        Manual
+        SetInfeedSpeed
     }
 
     Mode InfeedMode = Mode.Stop;
@@ -76,19 +44,6 @@ public class InfeedSS extends SubsystemBase{
                 break;
             }
 
-            case Manual:{
-                output = MathUtil.clamp(ManualVal, -1, 1);
-                m_Infeed_Pivot_Left.set(output);
-                break;
-            }
-
-            case PID:{
-                InfeedPIDController.reset();
-                output = MathUtil.clamp(InfeedPIDController.calculate(e_InfeedEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
-                m_Infeed_Pivot_Left.set(output);
-                break;
-            }
-
             case SetInfeedSpeed:{
                 m_Infeed.set(speed);
                 break;
@@ -96,46 +51,19 @@ public class InfeedSS extends SubsystemBase{
 
         }
 
-        SmartDashboard.putNumber("Infeed Pivot Output", output);
-        SmartDashboard.putNumber("Infeed Pivot setPoint", setPoint);
-        SmartDashboard.putNumber("Infeed Pivot Encoder Pose", e_InfeedEncoder.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("Infeed Pivot AbsEncoder Pose", e_InfeedEncoder.getAbsolutePosition().getValueAsDouble());
         SmartDashboard.putNumber("Infeed setspeed", speed);
         SmartDashboard.putNumber("Infeed Velocity", m_Infeed.getRotorVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Infeed Left Velocity", m_Infeed_Pivot_Left.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Infeed Right Velocity", m_Infeed_Pivot_Right.getVelocity().getValueAsDouble());
+
     }
     
     public void Stop(){
         InfeedMode = Mode.Stop;
     }
 
-     public void Manual(double ManualVal){
-        this.ManualVal = ManualVal;
-        InfeedMode = Mode.Manual;
-    }
-    
-    public void PID(double setPoint, double maxSpeed){
-        this.setPoint = setPoint;
-        this.maxSpeed = maxSpeed;
-        InfeedPIDController.reset();
-        InfeedMode = Mode.PID;
-    }
-
-    public double returnSetPoint(){
-        return setPoint;
-    }
-
-    public Boolean atSetPoint(){
-        return InfeedPIDController.atSetpoint();
-    }
-
     public void SetSpeed(double speed){
         this.speed = speed;
         InfeedMode = Mode.SetInfeedSpeed;
-    }
-    
-    
+    } 
 }
 
 

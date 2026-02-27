@@ -77,6 +77,7 @@ public class RobotContainer {
     private final RightShooterSS s_RightShooter = new RightShooterSS();
     private final IndexerSS s_Indexer = new IndexerSS();
     private final InfeedSS s_Infeed = new InfeedSS();
+    private final InfeedPivotSS s_InfeedPivotSS = new InfeedPivotSS();
 
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -106,28 +107,21 @@ public class RobotContainer {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
 
-        // Setpoint1.onTrue(new InfeedPID(s_Infeed, .25, 1));
-        Setpoint2.onTrue(new InfeedPID(s_Infeed, .6, 1));
+        Infeed.onTrue(new InfeedCoCommand(s_Infeed, s_InfeedPivotSS));
 
-        Infeed.onTrue(new InfeedCoCommand(s_Infeed));
+        Shoot.onTrue(new ShootCoCommand(s_Indexer, s_RightShooter, s_LeftShooter, s_RightTurret, s_LeftTurret));
 
+        Setpoint1.onTrue(new RightTurretLinearActuator(s_RightTurret, .075));
+        Setpoint1.onTrue(new LeftTurretLinearActuator(s_LeftTurret, .075));
 
-        // Shoot.onTrue(new InstantCommand(() -> s_RightShooter.setSpeed(1)));
-        // Shoot.onTrue(new ShootCoCommand(s_Indexer, s_RightShooter, s_LeftShooter, s_RightTurret, s_LeftTurret));
-        // Shoot.onTrue(new ShootLeftTurret(s_LeftShooter, 1));
-        Shoot.onTrue(new ShootRightTurretAuto(s_RightShooter));
-        // Setpoint1.onTrue(new RightTurretAutoAim(s_RightTurret, 1));
-        // Setpoint1.onTrue(new LeftTurretAutoAim(s_LeftTurret, 1));
-        // Setpoint1.onTrue(new RightTurretLinearActuator(s_RightTurret, .075));
-        Setpoint1.onTrue(new LeftTurretLinearActuator(s_LeftTurret, .66));
-
-        // Setpoint2.onTrue(new InstantCommand(() -> s_RightTurret.LinearActuator(0.075)));
+        Setpoint2.onTrue(new RightTurretLinearActuator(s_RightTurret, .375));
+        Setpoint2.onTrue(new LeftTurretLinearActuator(s_LeftTurret, .375));
 
         /* Xbox Controller */
         RightTurretManual.onTrue(new ManualRightTurretCommand(s_RightTurret, () -> xboxController.getRawAxis(rightTurretSup)));
         RightTurretManual.onTrue(new ManualLeftTurretCommand(s_LeftTurret, () -> xboxController.getRawAxis(leftTurretSup)));
 
-        Copmliance.onTrue(new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed));
+        Copmliance.onTrue(new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed, s_InfeedPivotSS));
 
         TurretReset.onTrue(new RightTurretPID(s_RightTurret, 0, 1));
         TurretReset.onTrue(new LeftTurretPID(s_LeftTurret, .1, 1));

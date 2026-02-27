@@ -42,8 +42,8 @@ public class RightTurretSS extends SubsystemBase{
     private double s_setPoint;
     private double s_currentpos;
 
-    private double StartingDeadStop = -.34;
-    private double FinalDeadStop = 10.13;
+    private double StartingDeadStop = .11;
+    private double FinalDeadStop = 10.6;
     
     /*Limelight*/
 
@@ -224,6 +224,10 @@ public class RightTurretSS extends SubsystemBase{
     public void LinearActuator(double shootangle){
         this.shootangle = shootangle;
         TurretMode = Mode.LinearActuator;
+    }
+
+    public double LinearActuatorSetPoint(){
+        return shootangle;
     }
 
     public double TxValue(){

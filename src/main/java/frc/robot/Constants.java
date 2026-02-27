@@ -21,31 +21,35 @@ public final class Constants {
             /*Motors for Turret */
             public static final int Shoot_Motor_Left_Motor = 51;
             public static final int Shoot_Motor_Right_Motor = 52;
-            public static final int Turret_Rotation_Motor = 53;
+            public static final int Turret_Rotation_Motor = 50;
             /*Encoders for Turret */
             public static final int Turret_Rotation_Encoder = 5;
         }
 
         public static final class FrontRightTurret{
             /*Motors for Turret */
-            public static final int Shoot_Motor_Left_Motor = 57;
-            public static final int Shoot_Motor_Right_Motor = 58;
-            public static final int Turret_Rotation_Motor = 59;
+            public static final int Shoot_Motor_Left_Motor = 61;
+            public static final int Shoot_Motor_Right_Motor = 62;
+            public static final int Turret_Rotation_Motor = 60;
             /*Encoders for Turret */
             public static final int Turret_Rotation_Encoder = 6;
         }
 
         public static final class Indexer{
             /*Motors for Belt System */
-            public static final int Indexer_Motor = 43;
+            public static final int Indexer_Motor = 44;
         }
 
         public static final class Infeed{
             /*Motors for Infeed */
             public static final int Infeed_Motor = 41;
-            public static final int Infeed_Rotation_Motor = 42;
+            public static final int Infeed_Rotation_Motor_Left = 42;
+            public static final int Infeed_Rotation_Motor_Right = 43;
             /*Encoders for Infeed*/
             public static final int Infeed_Rotation_Encoder = 4;
+
+            public static final double Max_Speed = 1;
+            public static final double Infeed_POS = .735;
 
         }
     }

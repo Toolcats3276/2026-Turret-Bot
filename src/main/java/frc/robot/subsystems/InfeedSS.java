@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -7,6 +8,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.CTREConfigs;
 import frc.robot.Robot;
 import frc.robot.Constants.RobotConstants;
 
@@ -14,13 +16,14 @@ import frc.robot.Constants.RobotConstants;
 
 public class InfeedSS extends SubsystemBase{
 
-    private TalonFX m_InfeedPivot;
+    private TalonFX m_Infeed_Pivot_Left;
+    private TalonFX m_Infeed_Pivot_Right;
     private TalonFX m_Infeed;
     private CANcoder e_InfeedEncoder;
 
     private PIDController InfeedPIDController;
 
-    private final double kP = 0;
+    private final double kP = 1.5;
     private final double kI = 0;
     private final double kD = 0;
 
@@ -31,15 +34,20 @@ public class InfeedSS extends SubsystemBase{
     private double speed;
     
     public InfeedSS() {
-        m_Infeed = new TalonFX(RobotConstants.Infeed.Infeed_Motor);
+        m_Infeed = new TalonFX(RobotConstants.Infeed.Infeed_Motor, CTREConfigs.CanivoreCANbus);
         m_Infeed.getConfigurator().apply(Robot.ctreConfigs.InfeedConfig);
         m_Infeed.setNeutralMode(NeutralModeValue.Brake);
 
-        m_InfeedPivot = new TalonFX(RobotConstants.Infeed.Infeed_Rotation_Motor);
-        m_InfeedPivot.getConfigurator().apply(Robot.ctreConfigs.InfeedPivotConfig);
-        m_InfeedPivot.setNeutralMode(NeutralModeValue.Brake);
+        m_Infeed_Pivot_Left = new TalonFX(RobotConstants.Infeed.Infeed_Rotation_Motor_Left, CTREConfigs.CanivoreCANbus);
+        m_Infeed_Pivot_Left.getConfigurator().apply(Robot.ctreConfigs.InfeedPivotLeftConfig);
+        m_Infeed_Pivot_Left.setNeutralMode(NeutralModeValue.Brake);
 
-        e_InfeedEncoder = new CANcoder(RobotConstants.Infeed.Infeed_Rotation_Encoder);
+        m_Infeed_Pivot_Right = new TalonFX(RobotConstants.Infeed.Infeed_Rotation_Motor_Right, CTREConfigs.CanivoreCANbus);
+        m_Infeed_Pivot_Right.getConfigurator().apply(Robot.ctreConfigs.InfeedPivotRightConfig);
+        m_Infeed_Pivot_Right.setNeutralMode(NeutralModeValue.Brake);
+        m_Infeed_Pivot_Right.setControl(new StrictFollower(m_Infeed_Pivot_Left.getDeviceID()));
+
+        e_InfeedEncoder = new CANcoder(RobotConstants.Infeed.Infeed_Rotation_Encoder, CTREConfigs.CanivoreCANbus);
         e_InfeedEncoder.getConfigurator().apply(Robot.ctreConfigs.InfeedCancoderConfig);
         e_InfeedEncoder.setPosition(e_InfeedEncoder.getAbsolutePosition().getValueAsDouble());
 
@@ -70,14 +78,14 @@ public class InfeedSS extends SubsystemBase{
 
             case Manual:{
                 output = MathUtil.clamp(ManualVal, -1, 1);
-                m_InfeedPivot.set(output);
+                m_Infeed_Pivot_Left.set(output);
                 break;
             }
 
             case PID:{
                 InfeedPIDController.reset();
-                output = -MathUtil.clamp(InfeedPIDController.calculate(e_InfeedEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
-                m_InfeedPivot.set(output);
+                output = MathUtil.clamp(InfeedPIDController.calculate(e_InfeedEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
+                m_Infeed_Pivot_Left.set(output);
                 break;
             }
 
@@ -88,10 +96,14 @@ public class InfeedSS extends SubsystemBase{
 
         }
 
-        SmartDashboard.putNumber("LeftTurret Output", output);
-        SmartDashboard.putNumber("LeftTurret setPoint", setPoint);
-        SmartDashboard.putNumber("LeftTurret Encoder Pose", e_InfeedEncoder.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("LeftTurret AbsEncoder Pose", e_InfeedEncoder.getAbsolutePosition().getValueAsDouble());
+        SmartDashboard.putNumber("Infeed Pivot Output", output);
+        SmartDashboard.putNumber("Infeed Pivot setPoint", setPoint);
+        SmartDashboard.putNumber("Infeed Pivot Encoder Pose", e_InfeedEncoder.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Infeed Pivot AbsEncoder Pose", e_InfeedEncoder.getAbsolutePosition().getValueAsDouble());
+        SmartDashboard.putNumber("Infeed setspeed", speed);
+        SmartDashboard.putNumber("Infeed Velocity", m_Infeed.getRotorVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Infeed Left Velocity", m_Infeed_Pivot_Left.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("Infeed Right Velocity", m_Infeed_Pivot_Right.getVelocity().getValueAsDouble());
     }
     
     public void Stop(){

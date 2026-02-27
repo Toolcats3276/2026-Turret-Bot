@@ -2,7 +2,6 @@ package frc.robot.commands.BaseCommands.Indexer;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IndexerSS;
-import frc.robot.subsystems.IndexerSS;
 
 public class IndexerCommand extends Command {
 

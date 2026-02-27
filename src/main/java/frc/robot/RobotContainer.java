@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Newton;
+
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -9,9 +11,26 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import frc.robot.autos.*;
 import frc.robot.commands.*;
+import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
+import frc.robot.commands.BaseCommands.Infeed.InfeedCommand;
+import frc.robot.commands.BaseCommands.Infeed.InfeedPID;
+import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretAutoAim;
+import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretLinearActuator;
+import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretPID;
+import frc.robot.commands.BaseCommands.LeftTurret.ManualLeftTurretCommand;
+import frc.robot.commands.BaseCommands.LeftTurret.ShootLeftTurret;
 import frc.robot.commands.BaseCommands.RightTurret.ManualRightTurretCommand;
 import frc.robot.commands.BaseCommands.RightTurret.RightTurretAutoAim;
+import frc.robot.commands.BaseCommands.RightTurret.RightTurretLinearActuator;
+import frc.robot.commands.BaseCommands.RightTurret.RightTurretPID;
+import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurret;
+import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurretAuto;
+import frc.robot.commands.ComplexCommands.ComplianceCoCommand;
+import frc.robot.commands.ComplexCommands.InfeedCoCommand;
+import frc.robot.commands.ComplexCommands.ShootCoCommand;
 import frc.robot.subsystems.*;
+
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -20,6 +39,8 @@ import frc.robot.subsystems.*;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+
+    
     /* Controllers */
     private final Joystick driver = new Joystick(0);
     private final XboxController xboxController = new XboxController(1);
@@ -37,9 +58,12 @@ public class RobotContainer {
     private final JoystickButton robotCentric = new JoystickButton(driver, 0);
 
     private final JoystickButton Shoot = new JoystickButton(driver, 1);
+    private final JoystickButton Copmliance = new JoystickButton(driver, 2);
+    private final JoystickButton Infeed = new JoystickButton(driver, 8);
 
     private final JoystickButton Setpoint1 = new JoystickButton(driver, 3);
     private final JoystickButton Setpoint2 = new JoystickButton(driver, 4);
+    private final JoystickButton TurretReset = new JoystickButton(driver, 5);
 
 
     /* Xbox Buttons */
@@ -48,8 +72,11 @@ public class RobotContainer {
     /* Subsystems */
     private final SwerveSS s_Swerve = new SwerveSS();
     private final LeftTurretSS s_LeftTurret = new LeftTurretSS();
+    private final LeftShooterSS s_LeftShooter = new LeftShooterSS();
     private final RightTurretSS s_RightTurret = new RightTurretSS();
     private final RightShooterSS s_RightShooter = new RightShooterSS();
+    private final IndexerSS s_Indexer = new IndexerSS();
+    private final InfeedSS s_Infeed = new InfeedSS();
 
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -61,6 +88,7 @@ public class RobotContainer {
                 () -> driver.getRawAxis(strafeAxis), 
                 () -> driver.getRawAxis(rotationAxis), 
                 () -> robotCentric.getAsBoolean()
+                // () -> Setpoint1.getAsBoolean()
             )
         );
 
@@ -78,12 +106,34 @@ public class RobotContainer {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
 
-        Setpoint1.onTrue(new RightTurretAutoAim(s_RightTurret, .25));
+        // Setpoint1.onTrue(new InfeedPID(s_Infeed, .25, 1));
+        Setpoint2.onTrue(new InfeedPID(s_Infeed, .6, 1));
 
-        Shoot.onTrue(new InstantCommand(() -> s_RightShooter.setSpeed(1)));
+        Infeed.onTrue(new InfeedCoCommand(s_Infeed));
+
+
+        // Shoot.onTrue(new InstantCommand(() -> s_RightShooter.setSpeed(1)));
+        // Shoot.onTrue(new ShootCoCommand(s_Indexer, s_RightShooter, s_LeftShooter, s_RightTurret, s_LeftTurret));
+        // Shoot.onTrue(new ShootLeftTurret(s_LeftShooter, 1));
+        Shoot.onTrue(new ShootRightTurretAuto(s_RightShooter));
+        // Setpoint1.onTrue(new RightTurretAutoAim(s_RightTurret, 1));
+        // Setpoint1.onTrue(new LeftTurretAutoAim(s_LeftTurret, 1));
+        // Setpoint1.onTrue(new RightTurretLinearActuator(s_RightTurret, .075));
+        Setpoint1.onTrue(new LeftTurretLinearActuator(s_LeftTurret, .66));
+
+        // Setpoint2.onTrue(new InstantCommand(() -> s_RightTurret.LinearActuator(0.075)));
 
         /* Xbox Controller */
         RightTurretManual.onTrue(new ManualRightTurretCommand(s_RightTurret, () -> xboxController.getRawAxis(rightTurretSup)));
+        RightTurretManual.onTrue(new ManualLeftTurretCommand(s_LeftTurret, () -> xboxController.getRawAxis(leftTurretSup)));
+
+        Copmliance.onTrue(new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed));
+
+        TurretReset.onTrue(new RightTurretPID(s_RightTurret, 0, 1));
+        TurretReset.onTrue(new LeftTurretPID(s_LeftTurret, .1, 1));
+        TurretReset.onTrue(new InstantCommand(() -> s_RightTurret.LinearActuator(1)));
+        TurretReset.onTrue(new InstantCommand(() -> s_LeftTurret.LinearActuator(1)));
+        
 
     }
 

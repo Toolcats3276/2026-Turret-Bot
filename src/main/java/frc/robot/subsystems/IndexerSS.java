@@ -5,6 +5,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.CTREConfigs;
 import frc.robot.Robot;
 import frc.robot.Constants.RobotConstants;
 
@@ -12,16 +13,13 @@ import frc.robot.Constants.RobotConstants;
 
 public class IndexerSS extends SubsystemBase {
 
-    private TalonFX m_BeltSystemMotor;
+    private TalonFX m_Indexer;
     private double speed;
 
-
-  
     public IndexerSS(){
-            m_BeltSystemMotor = new TalonFX(RobotConstants.Indexer.Indexer_Motor);
-            m_BeltSystemMotor.getConfigurator().apply(Robot.ctreConfigs.IndexerConfig);
-            m_BeltSystemMotor.setNeutralMode(NeutralModeValue.Coast);
-
+            m_Indexer = new TalonFX(RobotConstants.Indexer.Indexer_Motor, CTREConfigs.CanivoreCANbus);
+            m_Indexer.getConfigurator().apply(Robot.ctreConfigs.IndexerConfig);
+            m_Indexer.setNeutralMode(NeutralModeValue.Coast);
     }
 
 
@@ -39,17 +37,17 @@ public class IndexerSS extends SubsystemBase {
         switch(IndexerMode) {
 
             case Stop:{
-                m_BeltSystemMotor.set(0);
+                m_Indexer.set(0);
                 break;
             }
 
             case SetSpeed:{
-                m_BeltSystemMotor.set(speed);
+                m_Indexer.set(speed);
             }
         }
 
-        SmartDashboard.putNumber("ShooterSetSpeed", speed);
-        SmartDashboard.putNumber("ShooterCurrentSpeed", m_BeltSystemMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("IndexerSetSpeed", speed);
+        SmartDashboard.putNumber("IndexerCurrentSpeed", m_Indexer.getVelocity().getValueAsDouble());
     }
 
     public void Stop(){
@@ -59,8 +57,5 @@ public class IndexerSS extends SubsystemBase {
     public void setSpeed(double speed){
         this.speed = speed;
         IndexerMode = Mode.SetSpeed;
-    }
-
-    
-    
+    } 
 }

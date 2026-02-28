@@ -56,6 +56,12 @@ public final class Constants {
     }
 
     public static final class Swerve {
+
+        public static final String[] cameraNames = {"limelight-1", "limelight-2", "limelight-3", "limelight-4"};
+
+
+
+
         public static final int pigeonID = 5;
 
         public static final COTSTalonFXSwerveConstants chosenModule = 

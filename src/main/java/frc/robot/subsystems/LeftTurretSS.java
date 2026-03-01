@@ -36,8 +36,8 @@ public class LeftTurretSS extends SubsystemBase{
     private double shotPower;
     private double shooterAngle;
 
-    private double StartingDeadStop = 0.11;
-    private double FinalDeadStop = 10.48;
+    private double NegativeDeadStop = -2.667;
+    private double PositiveDeadStop = 2.667;
     
     /*Limelight*/
 
@@ -71,7 +71,7 @@ public class LeftTurretSS extends SubsystemBase{
 
         LLRotationPidController = new PIDController(LLkP, LLkI, LLkD);
 
-        s_LinearActuator = new Servo(9);
+        s_LinearActuator = new Servo(2);
         s_LinearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
     }
 
@@ -81,7 +81,6 @@ public class LeftTurretSS extends SubsystemBase{
         AutoAim,
         Manual,
         LinearActuator,
-        LinearActuatorAutoAim,
         ShooterAutoAim
     }
 
@@ -106,7 +105,7 @@ public class LeftTurretSS extends SubsystemBase{
             }
 
             case Manual:{
-                if(e_TurretEncoder.getPosition().getValueAsDouble() > StartingDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < FinalDeadStop){
+                if(e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop){
                 output = MathUtil.clamp(ManualVal, -.1, .1);
                 m_TurretMotor.set(output);
                 }
@@ -117,13 +116,11 @@ public class LeftTurretSS extends SubsystemBase{
             }
 
             case AutoAim:{
-                if((LeftLimelight.getFiducialID() == 21 || LeftLimelight.getFiducialID() == 24 || LeftLimelight.getFiducialID() == 25 || LeftLimelight.getFiducialID() == 26 || LeftLimelight.getFiducialID() ==  27 || LeftLimelight.getFiducialID() == 18) || 
-                   (RightLimelight.getFiducialID() == 21 || RightLimelight.getFiducialID() == 24 || RightLimelight.getFiducialID() == 25 || RightLimelight.getFiducialID() == 26 || RightLimelight.getFiducialID() ==  27 || RightLimelight.getFiducialID() == 18)){
-                    if(e_TurretEncoder.getPosition().getValueAsDouble() > StartingDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < FinalDeadStop){
+                    if(e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop){
                         output = -MathUtil.clamp(LLRotationPidController.calculate(TxValue(), 0), -maxSpeed, maxSpeed);
                         m_TurretMotor.set(output);
                     }
-                    else if(e_TurretEncoder.getPosition().getValueAsDouble() > FinalDeadStop){
+                    else if(e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop){
                         if (TxValue() > 0){
                             output = -MathUtil.clamp(LLRotationPidController.calculate(TxValue(), 0), -maxSpeed, maxSpeed);
                         }
@@ -132,7 +129,7 @@ public class LeftTurretSS extends SubsystemBase{
                         }
                         m_TurretMotor.set(output);
                     }
-                    else if(e_TurretEncoder.getPosition().getValueAsDouble() < StartingDeadStop){
+                    else if(e_TurretEncoder.getPosition().getValueAsDouble() < NegativeDeadStop){
                         if (TxValue() < 0){
                             output = -MathUtil.clamp(LLRotationPidController.calculate(TxValue(), 0), -maxSpeed, maxSpeed);
                         }
@@ -147,21 +144,9 @@ public class LeftTurretSS extends SubsystemBase{
                     }
                 }
                 break;
-            }
 
             case LinearActuator:{
                 s_LinearActuator.set(shootangle);
-                break;
-            }
-
-            case LinearActuatorAutoAim:{
-                if (center_Limmelight.getTY() >= 23) {
-                    shooterAngle = (((0.000625771)*(Math.pow(center_Limmelight.getTY(), 3)))-((0.0521047)*(Math.pow(center_Limmelight.getTY(), 2)))+((1.46102)*(center_Limmelight.getTY())) - 13.5897);
-                }
-                else{
-                    shooterAngle = 0.075;
-                }
-                s_LinearActuator.set(shooterAngle);
                 break;
             }
 
@@ -179,9 +164,9 @@ public class LeftTurretSS extends SubsystemBase{
         SmartDashboard.putNumber("LeftTurret AbsEncoder Pose", e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
         SmartDashboard.putNumber("LeftTurret_P", kP);
         SmartDashboard.putNumber("TX LeftTurret", TX);
-        SmartDashboard.putBoolean("LeftTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() > StartingDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < FinalDeadStop);
-        SmartDashboard.putBoolean("LeftTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < StartingDeadStop);
-        SmartDashboard.putBoolean("LeftTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > FinalDeadStop);
+        SmartDashboard.putBoolean("LeftTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop);
+        SmartDashboard.putBoolean("LeftTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < NegativeDeadStop);
+        SmartDashboard.putBoolean("LeftTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop);
         SmartDashboard.putNumber("Left Linear Acutator Angle", s_LinearActuator.get());
         SmartDashboard.putNumber("Left Linear Actuator Setpoint", shootangle);
 
@@ -223,6 +208,10 @@ public class LeftTurretSS extends SubsystemBase{
         TurretMode = Mode.LinearActuator;
     }
 
+    public double LinearActuatorSetPoint(){
+        return shootangle;
+    }
+
     public double TxValue(){
         TX = LeftLimelight.getTX() + RightLimelight.getTX();
         return TX;
@@ -237,10 +226,10 @@ public class LeftTurretSS extends SubsystemBase{
         return shotPower;
     }
 
-    public double LinearActuatorAngle(){
-        TurretMode = Mode.LinearActuatorAutoAim;
-        return shooterAngle;
+    public double returnPOS(){
+        return e_TurretEncoder.getPosition().getValueAsDouble();
     }
+
 }
 
 

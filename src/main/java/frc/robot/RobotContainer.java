@@ -27,6 +27,7 @@ import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurret;
 import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurretAuto;
 import frc.robot.commands.ComplexCommands.ComplianceCoCommand;
 import frc.robot.commands.ComplexCommands.InfeedCoCommand;
+import frc.robot.commands.ComplexCommands.InfeedCoCommand2;
 import frc.robot.commands.ComplexCommands.ShootCoCommand;
 import frc.robot.subsystems.*;
 
@@ -59,10 +60,13 @@ public class RobotContainer {
 
     private final JoystickButton Shoot = new JoystickButton(driver, 1);
     private final JoystickButton Copmliance = new JoystickButton(driver, 2);
-    private final JoystickButton Infeed = new JoystickButton(driver, 8);
+    private final JoystickButton Infeed = new JoystickButton(driver, 3);
+    private final JoystickButton Infeed2 = new JoystickButton(driver, 4);
 
-    private final JoystickButton Setpoint1 = new JoystickButton(driver, 3);
-    private final JoystickButton Setpoint2 = new JoystickButton(driver, 4);
+    private final JoystickButton Setpoint1 = new JoystickButton(driver, 9);
+    private final JoystickButton Setpoint2 = new JoystickButton(driver, 8);
+    private final JoystickButton Setpoint3 = new JoystickButton(driver, 6);
+    private final JoystickButton Setpoint4 = new JoystickButton(driver, 7);
     private final JoystickButton TurretReset = new JoystickButton(driver, 5);
 
 
@@ -73,8 +77,10 @@ public class RobotContainer {
     private final SwerveSS s_Swerve = new SwerveSS();
     private final LeftTurretSS s_LeftTurret = new LeftTurretSS();
     private final LeftShooterSS s_LeftShooter = new LeftShooterSS();
+    private final LeftShooterHoodSS s_LeftShooterHood = new LeftShooterHoodSS();
     private final RightTurretSS s_RightTurret = new RightTurretSS();
     private final RightShooterSS s_RightShooter = new RightShooterSS();
+    private final RightShooterHoodSS s_RightShooterHood = new RightShooterHoodSS();
     private final IndexerSS s_Indexer = new IndexerSS();
     private final InfeedSS s_Infeed = new InfeedSS();
     private final InfeedPivotSS s_InfeedPivotSS = new InfeedPivotSS();
@@ -89,7 +95,6 @@ public class RobotContainer {
                 () -> driver.getRawAxis(strafeAxis), 
                 () -> driver.getRawAxis(rotationAxis), 
                 () -> robotCentric.getAsBoolean()
-                // () -> Setpoint1.getAsBoolean()
             )
         );
 
@@ -107,26 +112,34 @@ public class RobotContainer {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
 
+        Shoot.onTrue(new ShootCoCommand(s_Indexer, s_RightShooter, s_LeftShooter, s_RightTurret, s_LeftTurret, s_InfeedPivotSS, s_Infeed));
+        Copmliance.onTrue(new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood));
         Infeed.onTrue(new InfeedCoCommand(s_Infeed, s_InfeedPivotSS));
+        Infeed2.onTrue(new InfeedCoCommand2(s_Infeed, s_InfeedPivotSS));
+        // TurretReset.onTrue(new RightTurretAutoAim(s_RightTurret, 1));
+        // TurretReset.onTrue(new LeftTurretAutoAim(s_LeftTurret, 1));
 
-        Shoot.onTrue(new ShootCoCommand(s_Indexer, s_RightShooter, s_LeftShooter, s_RightTurret, s_LeftTurret));
+        Setpoint1.onTrue(new RightTurretLinearActuator(s_RightShooterHood, .075));
+        Setpoint1.onTrue(new LeftTurretLinearActuator(s_LeftShooterHood, .075));
 
-        Setpoint1.onTrue(new RightTurretLinearActuator(s_RightTurret, .075));
-        Setpoint1.onTrue(new LeftTurretLinearActuator(s_LeftTurret, .075));
+        Setpoint2.onTrue(new RightTurretLinearActuator(s_RightShooterHood, .15));
+        Setpoint2.onTrue(new LeftTurretLinearActuator(s_LeftShooterHood, .15));
 
-        Setpoint2.onTrue(new RightTurretLinearActuator(s_RightTurret, .375));
-        Setpoint2.onTrue(new LeftTurretLinearActuator(s_LeftTurret, .375));
+        Setpoint3.onTrue(new RightTurretLinearActuator(s_RightShooterHood, .27));
+        Setpoint3.onTrue(new LeftTurretLinearActuator(s_LeftShooterHood, .27));
+
+        Setpoint4.onTrue(new RightTurretLinearActuator(s_RightShooterHood, .375));
+        Setpoint4.onTrue(new LeftTurretLinearActuator(s_LeftShooterHood, .375));
 
         /* Xbox Controller */
         RightTurretManual.onTrue(new ManualRightTurretCommand(s_RightTurret, () -> xboxController.getRawAxis(rightTurretSup)));
         RightTurretManual.onTrue(new ManualLeftTurretCommand(s_LeftTurret, () -> xboxController.getRawAxis(leftTurretSup)));
 
-        Copmliance.onTrue(new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed, s_InfeedPivotSS));
 
-        TurretReset.onTrue(new RightTurretPID(s_RightTurret, 0, 1));
-        TurretReset.onTrue(new LeftTurretPID(s_LeftTurret, .1, 1));
-        TurretReset.onTrue(new InstantCommand(() -> s_RightTurret.LinearActuator(1)));
-        TurretReset.onTrue(new InstantCommand(() -> s_LeftTurret.LinearActuator(1)));
+        // TurretReset.onTrue(new RightTurretPID(s_RightShooterHood, 0, 1));
+        // TurretReset.onTrue(new LeftTurretPID(s_LeftShooterHood, .1, 1));
+        // TurretReset.onTrue(new InstantCommand(() -> s_RightTurret.LinearActuator(1)));
+        // TurretReset.onTrue(new InstantCommand(() -> s_LeftTurret.LinearActuator(1)));
         
 
     }

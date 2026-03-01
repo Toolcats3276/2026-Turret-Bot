@@ -1,18 +1,19 @@
 package frc.robot.commands.BaseCommands.RightTurret;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.RightTurretSS;
+import frc.robot.subsystems.RightShooterHoodSS;
+import frc.robot.subsystems.RightShooterHoodSS;
 
 public class RightTurretLinearActuator extends Command{
 
-    private RightTurretSS s_RightTurret;
+    private RightShooterHoodSS s_RightShooterHood;
     private double setPoint;
 
 
-    public RightTurretLinearActuator(RightTurretSS s_RightTurret, double setPoint){
-        this.s_RightTurret = s_RightTurret;
+    public RightTurretLinearActuator(RightShooterHoodSS s_RightShooterHood, double setPoint){
+        this.s_RightShooterHood = s_RightShooterHood;
         this.setPoint = setPoint;
-        addRequirements(s_RightTurret);
+        addRequirements(s_RightShooterHood);
     }
     
 
@@ -24,7 +25,7 @@ public class RightTurretLinearActuator extends Command{
 
     @Override
     public void execute(){
-        s_RightTurret.LinearActuator(setPoint);
+        s_RightShooterHood.LinearActuator(setPoint);
     }
 
     @Override

@@ -55,7 +55,8 @@ public final class CTREConfigs {
         LeftTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
         LeftTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
 
-        LeftshooterRightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        LeftshooterLeftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        LeftshooterRightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
         /* Infeed */
         InfeedCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;

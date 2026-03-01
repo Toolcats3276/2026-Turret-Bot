@@ -10,6 +10,7 @@ import frc.robot.Constants;
 import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
 import frc.robot.commands.BaseCommands.Infeed.InfeedCommand;
 import frc.robot.commands.BaseCommands.Infeed.InfeedPID;
+import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretAutoAim;
 import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretLinearActuator;
 import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretPID;
 import frc.robot.commands.BaseCommands.LeftTurret.ShootLeftTurret;
@@ -19,23 +20,24 @@ import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurret;
 import frc.robot.subsystems.IndexerSS;
 import frc.robot.subsystems.InfeedPivotSS;
 import frc.robot.subsystems.InfeedSS;
+import frc.robot.subsystems.LeftShooterHoodSS;
 import frc.robot.subsystems.LeftShooterSS;
 import frc.robot.subsystems.LeftTurretSS;
+import frc.robot.subsystems.RightShooterHoodSS;
 import frc.robot.subsystems.RightShooterSS;
 import frc.robot.subsystems.RightTurretSS;
 
 public class ComplianceCoCommand extends ParallelCommandGroup {
 
-  public ComplianceCoCommand(RightShooterSS s_RightShooter, RightTurretSS s_RightTurret, LeftShooterSS s_LeftShooter, LeftTurretSS s_LeftTurret, IndexerSS s_Indexer, InfeedSS s_Infeed, InfeedPivotSS s_InfeedPivot) {
+  public ComplianceCoCommand(RightShooterSS s_RightShooter, RightTurretSS s_RightTurret, LeftShooterSS s_LeftShooter, LeftTurretSS s_LeftTurret, IndexerSS s_Indexer, InfeedSS s_Infeed, InfeedPivotSS s_InfeedPivot, RightShooterHoodSS s_RightShooterHood, LeftShooterHoodSS s_LeftShooterHood) {
 
     addCommands(
-        new RightTurretPID(s_RightTurret, 0.24, 1),
-        new LeftTurretPID(s_LeftTurret, .18, 1),
-        // new RightTurretLinearActuator(s_RightTurret, .075),
-        // new LeftTurretLinearActuator(s_LeftTurret, .075),
+        new RightTurretLinearActuator(s_RightShooterHood, .075),
+        new LeftTurretLinearActuator(s_LeftShooterHood, .075),
         new InfeedCommand(s_Infeed, 0),
-        new ShootRightTurret(s_RightShooter, 0),
+        new InfeedPID(s_InfeedPivot, Constants.RobotConstants.Infeed.Infeed_POS, Constants.RobotConstants.Infeed.Max_Speed),
         new ShootLeftTurret(s_LeftShooter, 0),
+        new ShootRightTurret(s_RightShooter, 0),
         new IndexerCommand(s_Indexer, 0)
     );
 

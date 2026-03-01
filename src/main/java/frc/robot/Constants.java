@@ -50,6 +50,7 @@ public final class Constants {
 
             public static final double Max_Speed = 1;
             public static final double Infeed_POS = .735;
+            public static final double Infeed_POS2 = .5;
             public static final double Infeed_Compliance_Pos = .11;
 
         }

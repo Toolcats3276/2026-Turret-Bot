@@ -29,17 +29,16 @@ public class LeftShooterSS extends SubsystemBase {
 
   
     public LeftShooterSS(){
-            m_shooterRightMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Left_Motor, CTREConfigs.CanivoreCANbus);
-            m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterLeftConfig);
-            m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
-            
+        m_shooterLeftMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Left_Motor, CTREConfigs.CanivoreCANbus);
+        m_shooterLeftMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterLeftConfig);
+        m_shooterLeftMotor.setNeutralMode(NeutralModeValue.Coast);
+        
+        m_shooterRightMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Right_Motor, CTREConfigs.CanivoreCANbus);
+        m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterRightConfig);
+        m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
+        m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
 
-            m_shooterLeftMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Left_Motor, CTREConfigs.CanivoreCANbus);
-            m_shooterLeftMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterLeftConfig);
-            m_shooterLeftMotor.setNeutralMode(NeutralModeValue.Coast);
-            m_shooterLeftMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
-
-            center_Limmelight = new LimelightAssistant("limelight-ty", VecBuilder.fill(0,0,0), false);
+        center_Limmelight = new LimelightAssistant("limelight-ty", VecBuilder.fill(0,0,0), false);
 
             
     }

@@ -6,17 +6,17 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.subsystems.InfeedSS;
+import frc.robot.subsystems.InfeedPivotSS;
 
 public class ManualInfeedCommand extends Command {
     
-    private InfeedSS s_Infeed;
+    private InfeedPivotSS s_InfeedPivot;
     private DoubleSupplier infeedSup;
 
-    public ManualInfeedCommand(InfeedSS s_Infeed, DoubleSupplier infeedSup) {
-        this.s_Infeed = s_Infeed;
+    public ManualInfeedCommand(InfeedPivotSS s_InfeedPivot, DoubleSupplier infeedSup) {
+        this.s_InfeedPivot = s_InfeedPivot;
         this.infeedSup = infeedSup;
-        addRequirements(s_Infeed);
+        addRequirements(s_InfeedPivot);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class ManualInfeedCommand extends Command {
     @Override
     public void execute() {
         double InfeedVal = MathUtil.applyDeadband(infeedSup.getAsDouble(), Constants.stickDeadband);
-        s_Infeed.Manual(InfeedVal);
+        s_InfeedPivot.Manual(InfeedVal);
         SmartDashboard.putNumber("InfeedVal", InfeedVal);
         SmartDashboard.putNumber("InfeedSup", infeedSup.getAsDouble());
       }

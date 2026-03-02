@@ -1,42 +1,73 @@
 package frc.robot;
 
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 public final class CTREConfigs {
+
+
+    public static CANBus canBus = new CANBus("rio");
+    public static CANBus CanivoreCANbus = new CANBus("Everything Else CAN");
+
     public TalonFXConfiguration swerveAngleFXConfig = new TalonFXConfiguration();
     public TalonFXConfiguration swerveDriveFXConfig = new TalonFXConfiguration();
     public CANcoderConfiguration swerveCANcoderConfig = new CANcoderConfiguration();
+    
+    /* Left Shooter */
+    public TalonFXConfiguration LeftshooterLeftConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration LeftshooterRightConfig = new TalonFXConfiguration();
 
-    public TalonFXConfiguration LeftshooterBottomConfig = new TalonFXConfiguration();
-    public TalonFXConfiguration LeftshooterTopConfig = new TalonFXConfiguration();
     public TalonFXConfiguration LeftTurretConfig = new TalonFXConfiguration();
+
     public CANcoderConfiguration LeftTurretCancoderConfig = new CANcoderConfiguration();
+    /* Right Shooter */
+    public TalonFXConfiguration RightshooterLeftConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration RightshooterRightConfig = new TalonFXConfiguration();
 
-    public TalonFXConfiguration RightshooterBottomConfig = new TalonFXConfiguration();
-    public TalonFXConfiguration RightshooterTopConfig = new TalonFXConfiguration();
     public TalonFXConfiguration RightTurretConfig = new TalonFXConfiguration();
-    public CANcoderConfiguration RightTurretCancoderConfig = new CANcoderConfiguration();
 
-    public TalonFXConfiguration IndexerConfig = new TalonFXConfiguration();
+    public CANcoderConfiguration RightTurretCancoderConfig = new CANcoderConfiguration();
+    /* Infeed */
     public TalonFXConfiguration InfeedConfig = new TalonFXConfiguration();
-    public TalonFXConfiguration InfeedPivotConfig = new TalonFXConfiguration();
+
+    public TalonFXConfiguration InfeedPivotLeftConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration InfeedPivotRightConfig = new TalonFXConfiguration();
+
     public CANcoderConfiguration InfeedCancoderConfig = new CANcoderConfiguration();
+    /* Indexer */
+    public TalonFXConfiguration IndexerConfig = new TalonFXConfiguration();
 
     public CTREConfigs(){
         /** Swerve CANCoder Configuration */
         swerveCANcoderConfig.MagnetSensor.SensorDirection = Constants.Swerve.cancoderInvert;
 
-
+        /* Right Shooter */
         RightTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        RightTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+        RightTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
 
+        RightshooterLeftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        /* Left Shooter */
         LeftTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-        LeftTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+        LeftTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
 
-        RightshooterBottomConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        LeftshooterLeftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        LeftshooterRightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+
+        /* Infeed */
+        InfeedCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        InfeedCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = 1;
+
+        InfeedPivotLeftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+        InfeedPivotRightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        /* Indexer */
+        IndexerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
 
 
         /** Swerve Angle Motor Configurations */

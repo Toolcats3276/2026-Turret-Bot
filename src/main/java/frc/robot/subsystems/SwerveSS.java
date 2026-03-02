@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
 import frc.robot.SwerveModule;
+import frc.robot.vision.LimelightHelpers;
 import frc.robot.Constants.Swerve;
+import frc.robot.Constants;
 import frc.robot.Robot;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -16,6 +18,8 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,16 +30,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class SwerveSS extends SubsystemBase {
-    public SwerveDriveOdometry swerveOdometry;
+    public SwerveDrivePoseEstimator swerveOdometry;
     public SwerveModule[] mSwerveMods;
     public static Pigeon2 gyro;
+    public boolean doRejectUpdate;
 
     public static SwerveDrivePoseEstimator m_poseEstimator;
 
     public Field2d LLPose;
     public Field2d BotPose;
-
-
 
 
     @SuppressWarnings("unused")
@@ -57,7 +60,7 @@ public class SwerveSS extends SubsystemBase {
                 new SwerveModule(3, Swerve.Mod3.constants)
             };
     
-            swerveOdometry = new SwerveDriveOdometry(Swerve.swerveKinematics, getGyroYaw(), getModulePositions());
+            swerveOdometry = new SwerveDrivePoseEstimator(Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), new Pose2d());
             
         
         }
@@ -132,7 +135,7 @@ public class SwerveSS extends SubsystemBase {
         }
     
         public Pose2d getPose() {
-            return swerveOdometry.getPoseMeters();
+            return swerveOdometry.getEstimatedPosition();
         }
     
         public Pose2d getPoseEstimate(){
@@ -168,6 +171,8 @@ public class SwerveSS extends SubsystemBase {
                 mod.resetToAbsolute();
             }
         }
+
+
     
     
         public void setNeutralMode(NeutralModeValue driveNeutralMode){
@@ -186,6 +191,43 @@ public class SwerveSS extends SubsystemBase {
     @Override
     public void periodic(){
         swerveOdometry.update(getGyroYaw(), getModulePositions());
+
+
+
+        String[] cameraNames = {"limelight-1", "limelight-2", "limelight-3", "limelight-4"};
+        for (String cameraName : cameraNames){
+
+
+        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
+        
+        if (mt1 == null){
+            continue;
+        }
+
+            if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1)
+            {
+              if(mt1.rawFiducials[0].ambiguity > .7)
+              {
+                doRejectUpdate = true;
+              }
+              if(mt1.rawFiducials[0].distToCamera > 3)
+              {
+                doRejectUpdate = true;
+              }
+            }
+            if(mt1.tagCount == 0)
+            {
+              doRejectUpdate = true;
+            }
+        
+            if(!doRejectUpdate)
+            {
+              m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
+              m_poseEstimator.addVisionMeasurement(
+                  mt1.pose,
+                  mt1.timestampSeconds);
+            }
+        }
         
 
 

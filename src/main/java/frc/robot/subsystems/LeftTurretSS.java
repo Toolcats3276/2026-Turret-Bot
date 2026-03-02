@@ -169,6 +169,18 @@ public class LeftTurretSS extends SubsystemBase{
         SmartDashboard.putBoolean("LeftTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop);
         SmartDashboard.putNumber("Left Linear Acutator Angle", s_LinearActuator.get());
         SmartDashboard.putNumber("Left Linear Actuator Setpoint", shootangle);
+        SmartDashboard.putBoolean("Does Turret See ThingsLL", LeftLimelightTargetBoolean());
+        SmartDashboard.putBoolean("How abbouut the other oneLR", RightLimelightTargetBoolean());
+        SmartDashboard.putBoolean("How about this other oneL", LimeLightTargetBoolean());
+        SmartDashboard.putNumber("Left Encoder Return Pos", returnPOS());
+
+
+        LeftLimelightTargetBoolean();
+        RightLimelightTargetBoolean();
+        LimeLightTargetBoolean();
+
+        returnPOS();
+
 
         TX = LeftLimelight.getTX() + RightLimelight.getTX();
 
@@ -228,6 +240,18 @@ public class LeftTurretSS extends SubsystemBase{
 
     public double returnPOS(){
         return e_TurretEncoder.getPosition().getValueAsDouble();
+    }
+
+    public boolean LeftLimelightTargetBoolean(){
+        return  LeftLimelight.getFiducialID() == 21 || LeftLimelight.getFiducialID() == 24 || LeftLimelight.getFiducialID() == 25 || LeftLimelight.getFiducialID() == 26 || LeftLimelight.getFiducialID() ==  27 || LeftLimelight.getFiducialID() == 18;
+    }
+
+    public boolean RightLimelightTargetBoolean(){
+        return  RightLimelight.getFiducialID() == 21 || RightLimelight.getFiducialID() == 24 || RightLimelight.getFiducialID() == 25 || RightLimelight.getFiducialID() == 26 || RightLimelight.getFiducialID() ==  27 || RightLimelight.getFiducialID() == 18;
+    }
+
+    public boolean LimeLightTargetBoolean(){
+        return LeftLimelightTargetBoolean() || RightLimelightTargetBoolean();
     }
 
 }

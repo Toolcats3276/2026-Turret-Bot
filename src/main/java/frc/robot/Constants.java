@@ -1,16 +1,27 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Millimeter;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static frc.robot.Constants.RobotConstants.Indexer.IndexerVelocity;
+
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
+import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.measure.AngularVelocity;
 import frc.lib.util.COTSTalonFXSwerveConstants;
 import frc.lib.util.SwerveModuleConstants;
+import frc.robot.subsystems.LeftShooterSS;
+import frc.robot.subsystems.LeftTurretSS;
+import frc.robot.subsystems.LeftShooterSS.ShooterSetpoints;
 
 public final class Constants {
     public static final double stickDeadband = 0.1;
@@ -24,6 +35,19 @@ public final class Constants {
             public static final int Turret_Rotation_Motor = 50;
             /*Encoders for Turret */
             public static final int Turret_Rotation_Encoder = 5;
+
+
+
+            private static InterpolatingTreeMap<Double, LeftShooterSS.ShooterSetpoints> createLeftShooterInterpolator(){
+                var map = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), ShooterSetpoints::interpolate);
+                map.put(
+                    null, 
+                        new ShooterSetpoints(
+                            Millimeter.of(0), 
+                            RotationsPerSecond.of(0), 
+                            IndexerVelocity));
+                return map;
+            }
         }
 
         public static final class FrontRightTurret{
@@ -38,6 +62,8 @@ public final class Constants {
         public static final class Indexer{
             /*Motors for Belt System */
             public static final int Indexer_Motor = 44;
+
+            public static final AngularVelocity IndexerVelocity = RotationsPerSecond.of(80);//TODO Must Change
         }
 
         public static final class Infeed{

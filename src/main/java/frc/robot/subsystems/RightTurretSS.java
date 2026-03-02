@@ -8,6 +8,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CTREConfigs;
 import frc.robot.Robot;
@@ -175,6 +176,16 @@ public class RightTurretSS extends SubsystemBase{
         SmartDashboard.putBoolean("RightTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop);
         SmartDashboard.putNumber("Right Linear Acutator Angle", s_LinearActuator.get());
         SmartDashboard.putNumber("Right Linear Actuator Setpoint", shootangle);
+        SmartDashboard.putBoolean("Does Turret See ThingsRL", LeftLimelightTargetBoolean());
+        SmartDashboard.putBoolean("How abbouut the other oneRR", RightLimelightTargetBoolean());
+        SmartDashboard.putBoolean("How about this other oneR", LimeLightTargetBoolean());
+        SmartDashboard.putNumber("Right Encoder Return Pos", returnPOS());
+
+        returnPOS();
+
+        LeftLimelightTargetBoolean();
+        RightLimelightTargetBoolean();
+        LimeLightTargetBoolean();
 
         TX = LeftLimelight.getTX() + RightLimelight.getTX();
     }
@@ -197,6 +208,10 @@ public class RightTurretSS extends SubsystemBase{
 
     public double returnSetPoint(){
         return setPoint;
+    }
+
+    public double returnPOS(){
+        return e_TurretEncoder.getPosition().getValueAsDouble();
     }
 
     public Boolean atSetPoint(){
@@ -224,6 +239,19 @@ public class RightTurretSS extends SubsystemBase{
     public double TyValue(){
         return (LeftLimelight.getTY() + RightLimelight.getTY())/2;
     }
+
+    public boolean LeftLimelightTargetBoolean(){
+        return  LeftLimelight.getFiducialID() == 21 || LeftLimelight.getFiducialID() == 24 || LeftLimelight.getFiducialID() == 25 || LeftLimelight.getFiducialID() == 26 || LeftLimelight.getFiducialID() ==  27 || LeftLimelight.getFiducialID() == 18;
+    }
+
+    public boolean RightLimelightTargetBoolean(){
+        return  RightLimelight.getFiducialID() == 21 || RightLimelight.getFiducialID() == 24 || RightLimelight.getFiducialID() == 25 || RightLimelight.getFiducialID() == 26 || RightLimelight.getFiducialID() ==  27 || RightLimelight.getFiducialID() == 18;
+    }
+
+    public boolean LimeLightTargetBoolean(){
+        return LeftLimelightTargetBoolean() || RightLimelightTargetBoolean();
+    }
+    
 }
 
 

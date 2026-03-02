@@ -1,10 +1,18 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Millimeters;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,8 +28,10 @@ public class LeftShooterSS extends SubsystemBase {
 
     private TalonFX m_shooterRightMotor;
     private TalonFX m_shooterLeftMotor;
-    private double shotPower;
-    private double ShooterAuto;
+    private Servo s_LinearActuator;
+
+    private double shotVelocity;
+    private double shotAngle;
     private LimelightAssistant center_Limmelight;
 
     private double speed;
@@ -40,14 +50,16 @@ public class LeftShooterSS extends SubsystemBase {
 
         center_Limmelight = new LimelightAssistant("limelight-ty", VecBuilder.fill(0,0,0), false);
 
-            
+        s_LinearActuator = new Servo(9);
+        s_LinearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);     
     }
 
 
     public enum Mode{
         Stop,
         SetSpeed,
-        ShooterAutoAim
+        ShooterAutoAim,
+        LinearActuator
     }
 
     Mode ShooterMode = Mode.Stop;
@@ -67,9 +79,9 @@ public class LeftShooterSS extends SubsystemBase {
                 m_shooterLeftMotor.set(speed);
             }
 
-            case ShooterAutoAim:{
-                shotPower = ((((7.49052) * Math.pow(10, -7)) * (Math.pow(center_Limmelight.getTY(), 4))) - ((0.0000363256)*(Math.pow(center_Limmelight.getTY(), 3)))+((0.000564661)*(Math.pow(center_Limmelight.getTY(), 2)))+((0.00128608)*(center_Limmelight.getTY())) + 0.522387);
-                break;            
+            case LinearActuator:{
+                s_LinearActuator.set(shotAngle);
+                break;
             }
         }
 
@@ -91,7 +103,38 @@ public class LeftShooterSS extends SubsystemBase {
 
     public double ShootPower(){   
         ShooterMode = Mode.ShooterAutoAim;
-        return shotPower;
+        return shotVelocity;
+    }
+
+    public void LinearActuator(double shotAngle){
+        this.shotAngle = shotAngle;
+        ShooterMode = Mode.LinearActuator;
+    }
+
+    public double LinearActuatorSetPoint(){
+        return shotAngle;
+    }
+
+    public static record ShooterSetpoints(
+        Distance shotAngle,
+        AngularVelocity shotVelocity,
+        AngularVelocity indexerVelocity) {
+        
+    public ShooterSetpoints interpolate(ShooterSetpoints endValue, double t) {
+      ShooterSetpoints result = new ShooterSetpoints(
+        Millimeters.of(MathUtil.interpolate(shotAngle.in(Millimeters), endValue.shotAngle.in(Millimeters), t)),
+        RotationsPerSecond.of(
+              MathUtil.interpolate(
+                  shotVelocity.in(RotationsPerSecond),
+                    endValue.shotVelocity.in(RotationsPerSecond),
+                    t)),
+        RotationsPerSecond.of(
+              MathUtil.interpolate(
+                  indexerVelocity.in(RotationsPerSecond),
+                    endValue.indexerVelocity.in(RotationsPerSecond),
+                    t)));
+      return result;
+    }
     }
     
 }

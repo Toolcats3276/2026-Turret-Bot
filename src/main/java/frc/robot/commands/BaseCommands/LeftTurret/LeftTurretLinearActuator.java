@@ -1,10 +1,7 @@
 package frc.robot.commands.BaseCommands.LeftTurret;
 
-import static edu.wpi.first.units.Units.Millimeter;
-
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.LeftShooterHoodSS;
 import frc.robot.subsystems.LeftShooterHoodSS;
 
 public class LeftTurretLinearActuator extends Command{

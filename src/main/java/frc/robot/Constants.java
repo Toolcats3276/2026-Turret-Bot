@@ -14,12 +14,9 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.measure.AngularVelocity;
 import frc.lib.util.COTSTalonFXSwerveConstants;
 import frc.lib.util.SwerveModuleConstants;
 import frc.robot.subsystems.LeftShooterSS;
-import frc.robot.subsystems.LeftTurretSS;
 import frc.robot.subsystems.LeftShooterSS.LeftShooterSetpoints;
 
 public final class Constants {

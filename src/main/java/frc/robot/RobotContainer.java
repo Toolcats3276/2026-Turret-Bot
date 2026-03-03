@@ -2,9 +2,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Millimeter;
-import static edu.wpi.first.units.Units.Newton;
-
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -16,21 +13,11 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autos.*;
 import frc.robot.commands.*;
 import frc.robot.commands.BaseCommands.SlavedTurretCommand;
-import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
-import frc.robot.commands.BaseCommands.Infeed.InfeedCommand;
-import frc.robot.commands.BaseCommands.Infeed.InfeedPID;
 import frc.robot.commands.BaseCommands.LeftTurret.LeftInterpolatorShoot;
-import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretAutoAim;
 import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretLinearActuator;
-import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretPID;
 import frc.robot.commands.BaseCommands.LeftTurret.ManualLeftTurretCommand;
-import frc.robot.commands.BaseCommands.LeftTurret.ShootLeftTurret;
 import frc.robot.commands.BaseCommands.RightTurret.ManualRightTurretCommand;
-import frc.robot.commands.BaseCommands.RightTurret.RightTurretAutoAim;
 import frc.robot.commands.BaseCommands.RightTurret.RightTurretLinearActuator;
-import frc.robot.commands.BaseCommands.RightTurret.RightTurretPID;
-import frc.robot.commands.BaseCommands.RightTurret.RightTurretPIDFollow;
-import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurret;
 import frc.robot.commands.ComplexCommands.ComplianceCoCommand;
 import frc.robot.commands.ComplexCommands.InfeedCoCommand;
 import frc.robot.commands.ComplexCommands.InfeedCoCommand2;
@@ -77,7 +64,6 @@ public class RobotContainer {
     private final JoystickButton Setpoint2 = new JoystickButton(driver, 8);
     private final JoystickButton Setpoint3 = new JoystickButton(driver, 6);
     private final JoystickButton Setpoint4 = new JoystickButton(driver, 7);
-    private final JoystickButton TurretReset = new JoystickButton(driver, 5);
 
 
     /* Xbox Buttons */
@@ -112,9 +98,6 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
 
-        SmartDashboard.putBoolean("1st Condition", s_RightTurret.LimeLightTargetBoolean() == true && s_LeftTurret.LimeLightTargetBoolean() == true);
-        SmartDashboard.putBoolean("2nd Condition", s_RightTurret.LimeLightTargetBoolean() == true && s_LeftTurret.LimeLightTargetBoolean() == false);
-        SmartDashboard.putBoolean("3rd Condition", s_RightTurret.LimeLightTargetBoolean() == false && s_LeftTurret.LimeLightTargetBoolean() == true);
     }
 
     /**

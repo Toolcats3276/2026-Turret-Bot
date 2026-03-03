@@ -1,7 +1,5 @@
 package frc.robot.commands.BaseCommands.Indexer;
 
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IndexerSS;

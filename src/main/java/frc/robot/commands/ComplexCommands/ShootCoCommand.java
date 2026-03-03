@@ -6,21 +6,11 @@ package frc.robot.commands.ComplexCommands;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.util.function.BooleanSupplier;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.trajectory.ExponentialProfile;
-import edu.wpi.first.units.measure.Power;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
 import frc.robot.commands.BaseCommands.LeftTurret.ShootLeftTurret;
-import frc.robot.commands.BaseCommands.RightTurret.RightTurretLinearActuator;
 import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurret;
 import frc.robot.subsystems.IndexerSS;
 import frc.robot.subsystems.InfeedPivotSS;
@@ -29,7 +19,6 @@ import frc.robot.subsystems.LeftShooterSS;
 import frc.robot.subsystems.LeftTurretSS;
 import frc.robot.subsystems.RightShooterSS;
 import frc.robot.subsystems.RightTurretSS;
-import frc.robot.vision.LimelightAssistant;
 
 public class ShootCoCommand extends SequentialCommandGroup {
 

@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import com.revrobotics.REVDevice;
-
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;

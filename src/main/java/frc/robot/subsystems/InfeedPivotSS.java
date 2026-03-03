@@ -79,7 +79,6 @@ public class InfeedPivotSS extends SubsystemBase{
                 output = MathUtil.clamp(InfeedPIDController.calculate(e_InfeedEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
                 m_Infeed_Pivot_Left.set(output);
                 m_Infeed_Pivot_Right.set(output);
-                
                 break;
             }
 

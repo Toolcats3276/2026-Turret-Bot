@@ -17,57 +17,51 @@ import frc.robot.Constants.RobotConstants;
 
 /* SEE WristSS FOR EXPLANATIONS */
 
-public class IndexerSS extends SubsystemBase {
+public class FeederSS extends SubsystemBase {
 
-    private TalonFX m_Indexer_Left;
-    private TalonFX m_Indexer_Right;
+    private TalonFX m_Feeder;
 
     private AngularVelocity speed;
 
-    public IndexerSS(){
-            m_Indexer_Left = new TalonFX(RobotConstants.Indexer.Indexer_Motor_Left, CTREConfigs.CanivoreCANbus);
-            m_Indexer_Left.getConfigurator().apply(Robot.ctreConfigs.IndexerLeftConfig);
-            m_Indexer_Left.setNeutralMode(NeutralModeValue.Coast);
-
-            m_Indexer_Right = new TalonFX(RobotConstants.Indexer.Indexer_Motor_Right, CTREConfigs.CanivoreCANbus);
-            m_Indexer_Right.getConfigurator().apply(Robot.ctreConfigs.IndexerRightConfig);
-            m_Indexer_Right.setNeutralMode(NeutralModeValue.Coast);
+    public FeederSS(){
+            m_Feeder = new TalonFX(RobotConstants.Feeder.Feeder_Motor, CTREConfigs.CanivoreCANbus);
+            m_Feeder.getConfigurator().apply(Robot.ctreConfigs.FeederConfig);
+            m_Feeder.setNeutralMode(NeutralModeValue.Coast);
     }
-
 
     public enum Mode{
         Stop,
         SetSpeed,
     }
 
-    Mode IndexerMode = Mode.Stop;
+    Mode FeederMode = Mode.Stop;
     
     @Override
 
     public void periodic() {
 
-        switch(IndexerMode) {
+        switch(FeederMode) {
 
             case Stop:{
-                m_Indexer_Left.set(0);
+                m_Feeder.set(0);
                 break;
             }
 
             case SetSpeed:{
-                m_Indexer_Left.set(speed.in(RotationsPerSecond));
+                m_Feeder.set(speed.in(RotationsPerSecond));
             }
         }
 
         // SmartDashboard.putNumber("IndexerSetSpeed", speed.in(RotationsPerSecond));
-        SmartDashboard.putNumber("IndexerCurrentSpeed", m_Indexer_Left.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("FeederCurrentSpeed", m_Feeder.getVelocity().getValueAsDouble());
     }
 
     public void Stop(){
-        IndexerMode = Mode.Stop;
+        FeederMode = Mode.Stop;
     }
     
     public void setSpeed(AngularVelocity speed){
         this.speed = speed;
-        IndexerMode = Mode.SetSpeed;
+        FeederMode = Mode.SetSpeed;
     } 
 }

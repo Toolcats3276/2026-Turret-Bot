@@ -1,5 +1,7 @@
 package frc.robot.commands.BaseCommands.LeftTurret;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.LeftShooterSS;
 
@@ -15,7 +17,7 @@ public class ShootLeftTurret extends Command {
 
   @Override
   public void initialize() {
-    s_LeftShooter.setSpeed(speed);
+    s_LeftShooter.setSpeed(RotationsPerSecond.of(speed));
   }
 
   @Override
@@ -26,6 +28,6 @@ public class ShootLeftTurret extends Command {
 
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }

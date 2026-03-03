@@ -39,7 +39,10 @@ public final class CTREConfigs {
 
     public CANcoderConfiguration InfeedCancoderConfig = new CANcoderConfiguration();
     /* Indexer */
-    public TalonFXConfiguration IndexerConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration IndexerLeftConfig = new TalonFXConfiguration();
+    public TalonFXConfiguration IndexerRightConfig = new TalonFXConfiguration();
+    /* Feeder */
+    public TalonFXConfiguration FeederConfig = new TalonFXConfiguration();
 
     public CTREConfigs(){
         /** Swerve CANCoder Configuration */
@@ -66,7 +69,8 @@ public final class CTREConfigs {
         InfeedPivotRightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         /* Indexer */
-        IndexerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        IndexerLeftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        IndexerRightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
 
 

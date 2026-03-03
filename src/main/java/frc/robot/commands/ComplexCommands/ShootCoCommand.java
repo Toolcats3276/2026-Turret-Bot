@@ -4,6 +4,8 @@
 
 package frc.robot.commands.ComplexCommands;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.MathUtil;
@@ -18,10 +20,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
 import frc.robot.commands.BaseCommands.LeftTurret.ShootLeftTurret;
-import frc.robot.commands.BaseCommands.LeftTurret.ShootLeftTurretAuto;
 import frc.robot.commands.BaseCommands.RightTurret.RightTurretLinearActuator;
 import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurret;
-import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurretAuto;
 import frc.robot.subsystems.IndexerSS;
 import frc.robot.subsystems.InfeedPivotSS;
 import frc.robot.subsystems.InfeedSS;
@@ -33,7 +33,6 @@ import frc.robot.vision.LimelightAssistant;
 
 public class ShootCoCommand extends SequentialCommandGroup {
 
-  private boolean endCommand = false;
 
   public ShootCoCommand(IndexerSS s_Indexer, RightShooterSS s_RightShooter, LeftShooterSS s_LeftShooter, RightTurretSS s_RightTurret, LeftTurretSS s_LeftTurret, InfeedPivotSS s_InfeedPivot, InfeedSS s_Infeed) {
 
@@ -160,20 +159,12 @@ public class ShootCoCommand extends SequentialCommandGroup {
       // )
       new ParallelCommandGroup(
 
-
-
-      
-
         new ShootRightTurret(s_RightShooter, .8),
         new ShootLeftTurret(s_LeftShooter, .8),
 
-
-
-
-
         new SequentialCommandGroup(
           new WaitCommand(.75),
-          new IndexerCommand(s_Indexer, 1)
+          new IndexerCommand(s_Indexer, RotationsPerSecond.of(0))
         )
       )
       );

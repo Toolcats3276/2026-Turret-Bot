@@ -20,9 +20,6 @@ public class RightShooterSS extends SubsystemBase {
 
     private TalonFX m_shooterLeftMotor;
     private TalonFX m_shooterRightMotor;
-    private double shotPower;
-    private double ShooterAuto;
-    private LimelightAssistant center_Limmelight;
 
     private double speed;
 
@@ -39,7 +36,6 @@ public class RightShooterSS extends SubsystemBase {
             m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
             m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
 
-            center_Limmelight = new LimelightAssistant("limelight-ty", VecBuilder.fill(0,0,0), false);
 
             
     }
@@ -48,7 +44,6 @@ public class RightShooterSS extends SubsystemBase {
     public enum Mode{
         Stop,
         SetSpeed,
-        ShooterAutoAim
     }
 
     Mode ShooterMode = Mode.Stop;
@@ -68,16 +63,11 @@ public class RightShooterSS extends SubsystemBase {
                 m_shooterLeftMotor.set(speed);
             }
 
-            case ShooterAutoAim:{
-                shotPower = ((((7.49052) * Math.pow(10, -7)) * (Math.pow(center_Limmelight.getTY(), 4))) - ((0.0000363256)*(Math.pow(center_Limmelight.getTY(), 3)))+((0.000564661)*(Math.pow(center_Limmelight.getTY(), 2)))+((0.00128608)*(center_Limmelight.getTY())) + 0.522387);
-                break;            
-            }
         }
 
         SmartDashboard.putNumber("RightShooterSetSpeed", speed);
         SmartDashboard.putNumber("RightLeftShooterCurrentSpeed", m_shooterLeftMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("RightRightShooterCurrentSpeed", m_shooterRightMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("RightShootPower", ShootPower());
 
     }
 
@@ -88,11 +78,6 @@ public class RightShooterSS extends SubsystemBase {
     public void setSpeed(double speed){
         this.speed = speed;
         ShooterMode = Mode.SetSpeed;
-    }
-
-    public double ShootPower(){   
-        ShooterMode = Mode.ShooterAutoAim;
-        return shotPower;
     }
     
 }

@@ -50,7 +50,6 @@ public class RightTurretSS extends SubsystemBase{
 
     public final LimelightAssistant LeftLimelight;
     public final LimelightAssistant RightLimelight;
-    private LimelightAssistant center_Limmelight;
 
     private final PIDController LLRotationPidController;
         private final double LLkP = 0.01;
@@ -72,12 +71,9 @@ public class RightTurretSS extends SubsystemBase{
         /*Limelight*/
         LeftLimelight = new LimelightAssistant("limelight-rlt", VecBuilder.fill(0,0,0), false);
         RightLimelight = new LimelightAssistant("limelight-rrt", VecBuilder.fill(0,0,0), false);
-        center_Limmelight = new LimelightAssistant("limelight-ty", VecBuilder.fill(0,0,0), false);
 
         LLRotationPidController = new PIDController(LLkP, LLkI, LLkD);
         
-        s_LinearActuator = new Servo(1);
-        s_LinearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
     }
 
      public enum Mode{
@@ -85,8 +81,6 @@ public class RightTurretSS extends SubsystemBase{
         PID,
         AutoAim,
         Manual,
-        LinearActuator,
-        ShooterAutoAim
     }
 
     Mode TurretMode = Mode.Stop;
@@ -153,33 +147,18 @@ public class RightTurretSS extends SubsystemBase{
                 break;
             }
 
-            case ShooterAutoAim:{
-                shotPower = ((((7.49052) * Math.pow(10, -7)) * (Math.pow(center_Limmelight.getTY(), 4))) - ((0.0000363256)*(Math.pow(center_Limmelight.getTY(), 3)))+((0.000564661)*(Math.pow(center_Limmelight.getTY(), 2)))+((0.00128608)*(center_Limmelight.getTY())) + 0.522387);
-                break;            
-            }
-
-            case LinearActuator:{
-                s_LinearActuator.set(shootangle);
-                break;
-            }
-
         }
 
         SmartDashboard.putNumber("RightTurret Output", output);
         SmartDashboard.putNumber("RightTurret setPoint", setPoint);
         SmartDashboard.putNumber("RightTurret Encoder Pose", e_TurretEncoder.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("RightTurret AbsEncoder Pose", e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
-        SmartDashboard.putNumber("RightTurret_P", kP);
         SmartDashboard.putNumber("TX RightTurret", TX);
         SmartDashboard.putBoolean("RightTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop);
         SmartDashboard.putBoolean("RightTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < NegativeDeadStop);
         SmartDashboard.putBoolean("RightTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop);
         SmartDashboard.putNumber("Right Linear Acutator Angle", s_LinearActuator.get());
         SmartDashboard.putNumber("Right Linear Actuator Setpoint", shootangle);
-        SmartDashboard.putBoolean("Does Turret See ThingsRL", LeftLimelightTargetBoolean());
-        SmartDashboard.putBoolean("How abbouut the other oneRR", RightLimelightTargetBoolean());
-        SmartDashboard.putBoolean("How about this other oneR", LimeLightTargetBoolean());
-        SmartDashboard.putNumber("Right Encoder Return Pos", returnPOS());
 
         returnPOS();
 
@@ -221,15 +200,6 @@ public class RightTurretSS extends SubsystemBase{
     public void AutoAim(double maxSpeed){
         this.maxSpeed = maxSpeed;
         TurretMode = Mode.AutoAim;
-    }
-
-    public void LinearActuator(double shootangle){
-        this.shootangle = shootangle;
-        TurretMode = Mode.LinearActuator;
-    }
-
-    public double LinearActuatorSetPoint(){
-        return shootangle;
     }
 
     public double TxValue(){

@@ -19,7 +19,6 @@ public class LeftTurretSS extends SubsystemBase{
     /*General Turret Rotation*/
     private TalonFX m_TurretMotor;
     private CANcoder e_TurretEncoder;
-    private Servo s_LinearActuator;
 
     private PIDController TurretPIDController;
 
@@ -28,13 +27,10 @@ public class LeftTurretSS extends SubsystemBase{
     private final double kD = 0;
 
     private double output;
-    private double shootangle;
     private double setPoint;
     private double maxSpeed;
     private double ManualVal;
     private double TX;
-    private double shotPower;
-    private double shooterAngle;
 
     private double NegativeDeadStop = -2.667;
     private double PositiveDeadStop = 2.667;
@@ -43,7 +39,6 @@ public class LeftTurretSS extends SubsystemBase{
 
     private final LimelightAssistant LeftLimelight;
     private final LimelightAssistant RightLimelight;
-    private LimelightAssistant center_Limmelight;
 
 
     private final PIDController LLRotationPidController;
@@ -66,22 +61,17 @@ public class LeftTurretSS extends SubsystemBase{
         /*Limelight*/
         LeftLimelight = new LimelightAssistant("limelight-llt", VecBuilder.fill(0,0,0), false);
         RightLimelight = new LimelightAssistant("limelight-lrt", VecBuilder.fill(0,0,0), false);
-        center_Limmelight = new LimelightAssistant("limelight-ty", VecBuilder.fill(0,0,0), false);
 
 
         LLRotationPidController = new PIDController(LLkP, LLkI, LLkD);
 
-        s_LinearActuator = new Servo(2);
-        s_LinearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
     }
 
      public enum Mode{
         Stop,
         PID,
         AutoAim,
-        Manual,
-        LinearActuator,
-        ShooterAutoAim
+        Manual
     }
 
     Mode TurretMode = Mode.Stop;
@@ -144,35 +134,17 @@ public class LeftTurretSS extends SubsystemBase{
                     }
                 }
                 break;
-
-            case LinearActuator:{
-                s_LinearActuator.set(shootangle);
-                break;
-            }
-
-            case ShooterAutoAim:{
-                shotPower = ((((7.49052) * Math.pow(10, -7)) * (Math.pow(center_Limmelight.getTY(), 4))) - ((0.0000363256)*(Math.pow(center_Limmelight.getTY(), 3)))+((0.000564661)*(Math.pow(center_Limmelight.getTY(), 2)))+((0.00128608)*(center_Limmelight.getTY())) + 0.522387);
-                break;            
-            }
-
-            
+    
         }
 
         SmartDashboard.putNumber("LeftTurret Output", output);
         SmartDashboard.putNumber("LeftTurret setPoint", setPoint);
         SmartDashboard.putNumber("LeftTurret Encoder Pose", e_TurretEncoder.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("LeftTurret AbsEncoder Pose", e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
-        SmartDashboard.putNumber("LeftTurret_P", kP);
         SmartDashboard.putNumber("TX LeftTurret", TX);
         SmartDashboard.putBoolean("LeftTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop);
         SmartDashboard.putBoolean("LeftTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < NegativeDeadStop);
         SmartDashboard.putBoolean("LeftTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop);
-        SmartDashboard.putNumber("Left Linear Acutator Angle", s_LinearActuator.get());
-        SmartDashboard.putNumber("Left Linear Actuator Setpoint", shootangle);
-        SmartDashboard.putBoolean("Does Turret See ThingsLL", LeftLimelightTargetBoolean());
-        SmartDashboard.putBoolean("How abbouut the other oneLR", RightLimelightTargetBoolean());
-        SmartDashboard.putBoolean("How about this other oneL", LimeLightTargetBoolean());
-        SmartDashboard.putNumber("Left Encoder Return Pos", returnPOS());
 
 
         LeftLimelightTargetBoolean();
@@ -215,15 +187,6 @@ public class LeftTurretSS extends SubsystemBase{
         TurretMode = Mode.AutoAim;
     }
 
-    public void LinearActuator(double shootangle){
-        this.shootangle = shootangle;
-        TurretMode = Mode.LinearActuator;
-    }
-
-    public double LinearActuatorSetPoint(){
-        return shootangle;
-    }
-
     public double TxValue(){
         TX = LeftLimelight.getTX() + RightLimelight.getTX();
         return TX;
@@ -231,11 +194,6 @@ public class LeftTurretSS extends SubsystemBase{
 
     public double TyValue(){
         return (LeftLimelight.getTY() + RightLimelight.getTY())/2;
-    }
-    
-    public double ShootPower(){   
-        TurretMode = Mode.ShooterAutoAim;
-        return shotPower;
     }
 
     public double returnPOS(){

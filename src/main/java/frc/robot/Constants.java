@@ -2,7 +2,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Millimeter;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static frc.robot.Constants.RobotConstants.Indexer.IndexerVelocity;
 
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -21,7 +20,7 @@ import frc.lib.util.COTSTalonFXSwerveConstants;
 import frc.lib.util.SwerveModuleConstants;
 import frc.robot.subsystems.LeftShooterSS;
 import frc.robot.subsystems.LeftTurretSS;
-import frc.robot.subsystems.LeftShooterSS.ShooterSetpoints;
+import frc.robot.subsystems.LeftShooterSS.LeftShooterSetpoints;
 
 public final class Constants {
     public static final double stickDeadband = 0.1;
@@ -38,16 +37,117 @@ public final class Constants {
 
 
 
-            private static InterpolatingTreeMap<Double, LeftShooterSS.ShooterSetpoints> createLeftShooterInterpolator(){
-                var map = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), ShooterSetpoints::interpolate);
+            private static InterpolatingTreeMap<Double, LeftShooterSS.LeftShooterSetpoints> createLeftShooterInterpolator(){
+                var map = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), LeftShooterSetpoints::interpolate);
                 map.put(
-                    null, 
-                        new ShooterSetpoints(
-                            Millimeter.of(0), 
-                            RotationsPerSecond.of(0), 
-                            IndexerVelocity));
+                    1.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    2.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    3.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    4.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    5.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    6.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    7.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    8.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    9.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    10.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    11.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    12.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    13.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    14.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
+                map.put(
+                    15.0, 
+                        new LeftShooterSetpoints(
+                            Millimeter.of(0.1), 
+                            RotationsPerSecond.of(1), 
+                            RotationsPerSecond.of(1),
+                            RotationsPerSecond.of(1)));
                 return map;
             }
+
+            public static final InterpolatingTreeMap<Double, LeftShooterSS.LeftShooterSetpoints> Hub_SetPoints_By_Limelight_Degrees = createLeftShooterInterpolator();
         }
 
         public static final class FrontRightTurret{
@@ -59,11 +159,16 @@ public final class Constants {
             public static final int Turret_Rotation_Encoder = 6;
         }
 
+        public static final class Feeder{
+            /*Motors for Feeder */
+            public static final int Feeder_Motor = 0;//TODO change
+        }
+
         public static final class Indexer{
             /*Motors for Belt System */
-            public static final int Indexer_Motor = 44;
+            public static final int Indexer_Motor_Left = 44;
+            public static final int Indexer_Motor_Right = 45;
 
-            public static final AngularVelocity IndexerVelocity = RotationsPerSecond.of(80);//TODO Must Change
         }
 
         public static final class Infeed{

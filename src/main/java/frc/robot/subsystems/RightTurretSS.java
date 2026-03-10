@@ -20,11 +20,10 @@ public class RightTurretSS extends SubsystemBase{
     /*General Turret Rotation*/
     private TalonFX m_TurretMotor;
     private CANcoder e_TurretEncoder;
-    private Servo s_LinearActuator;
 
     private PIDController TurretPIDController;
 
-    private final double kP = .278;
+    private final double kP = .0278;
     private final double kI = 0;
     private final double kD = 0
     ;
@@ -52,7 +51,7 @@ public class RightTurretSS extends SubsystemBase{
     public final LimelightAssistant RightLimelight;
 
     private final PIDController LLRotationPidController;
-        private final double LLkP = 0.01;
+        private final double LLkP = 0.004;
         private final double LLkI = 0;
         private final double LLkD = 0;
     
@@ -157,8 +156,6 @@ public class RightTurretSS extends SubsystemBase{
         SmartDashboard.putBoolean("RightTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop);
         SmartDashboard.putBoolean("RightTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < NegativeDeadStop);
         SmartDashboard.putBoolean("RightTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop);
-        SmartDashboard.putNumber("Right Linear Acutator Angle", s_LinearActuator.get());
-        SmartDashboard.putNumber("Right Linear Actuator Setpoint", shootangle);
 
         returnPOS();
 

@@ -17,7 +17,6 @@ import frc.robot.Constants.RobotConstants;
 public class IndexerSS extends SubsystemBase {
 
     private TalonFX m_Indexer_Left;
-    private TalonFX m_Indexer_Right;
 
     private AngularVelocity speed;
 
@@ -25,10 +24,6 @@ public class IndexerSS extends SubsystemBase {
             m_Indexer_Left = new TalonFX(RobotConstants.Indexer.Indexer_Motor_Left, CTREConfigs.CanivoreCANbus);
             m_Indexer_Left.getConfigurator().apply(Robot.ctreConfigs.IndexerLeftConfig);
             m_Indexer_Left.setNeutralMode(NeutralModeValue.Coast);
-
-            m_Indexer_Right = new TalonFX(RobotConstants.Indexer.Indexer_Motor_Right, CTREConfigs.CanivoreCANbus);
-            m_Indexer_Right.getConfigurator().apply(Robot.ctreConfigs.IndexerRightConfig);
-            m_Indexer_Right.setNeutralMode(NeutralModeValue.Coast);
     }
 
 

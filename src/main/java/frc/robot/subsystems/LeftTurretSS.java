@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -21,9 +23,9 @@ public class LeftTurretSS extends SubsystemBase{
 
     private PIDController TurretPIDController;
 
-    private final double kP = 0.25;
-    private final double kI = 0;
-    private final double kD = 0;
+    private final double kP = 0.08;
+    private final double kI = 0.002;
+    private final double kD = 0.000;
 
     private double output;
     private double setPoint;
@@ -41,7 +43,7 @@ public class LeftTurretSS extends SubsystemBase{
 
 
     private final PIDController LLRotationPidController;
-        private final double LLkP = 0.008;
+        private final double LLkP = 0.004;
         private final double LLkI = 0;
         private final double LLkD = 0;
     
@@ -192,7 +194,7 @@ public class LeftTurretSS extends SubsystemBase{
     }
 
     public double TyValue(){
-        return (LeftLimelight.getTY() + RightLimelight.getTY())/2;
+        return (RightLimelight.getTY());
     }
 
     public double returnPOS(){

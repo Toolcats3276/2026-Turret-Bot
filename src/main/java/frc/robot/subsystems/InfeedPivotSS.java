@@ -21,7 +21,7 @@ public class InfeedPivotSS extends SubsystemBase{
 
     private PIDController InfeedPIDController;
 
-    private final double kP = 1.5;
+    private final double kP = 1.81;
     private final double kI = 0;
     private final double kD = 0;
 

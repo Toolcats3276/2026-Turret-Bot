@@ -4,11 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.Elastic.ShiftHelpers;
 
 
 /**
@@ -57,6 +60,12 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    SmartDashboard.putNumber("Match Data/MatchTime", DriverStation.getMatchTime());
+    SmartDashboard.putBoolean("Match Data/InShift", ShiftHelpers.currentShiftIsYours());
+    SmartDashboard.putNumber(
+            "Match Data/TimeLeftInShift",
+            ShiftHelpers.timeLeftInShiftSeconds(DriverStation.getMatchTime()));
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

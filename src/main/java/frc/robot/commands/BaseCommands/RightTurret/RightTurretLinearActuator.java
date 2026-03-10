@@ -1,15 +1,16 @@
 package frc.robot.commands.BaseCommands.RightTurret;
 
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.RightShooterHoodSS;
 
 public class RightTurretLinearActuator extends Command{
 
     private RightShooterHoodSS s_RightShooterHood;
-    private double setPoint;
+    private Distance setPoint;
 
 
-    public RightTurretLinearActuator(RightShooterHoodSS s_RightShooterHood, double setPoint){
+    public RightTurretLinearActuator(RightShooterHoodSS s_RightShooterHood, Distance setPoint){
         this.s_RightShooterHood = s_RightShooterHood;
         this.setPoint = setPoint;
         addRequirements(s_RightShooterHood);

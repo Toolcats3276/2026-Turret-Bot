@@ -39,7 +39,7 @@ public class LeftShooterHoodSS extends SubsystemBase{
             }
 
             case stop:{
-              s_LinearActuator.set(.075);
+              s_LinearActuator.set(0);
               break;
             }
 

@@ -1,5 +1,7 @@
 package frc.robot.commands.ComplexCommands;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import frc.robot.Constants;
@@ -14,7 +16,7 @@ public class InfeedCoCommand extends ParallelCommandGroup {
     addCommands(
       new RepeatCommand(
         new ParallelCommandGroup(
-          new InfeedCommand(s_Infeed, .89),
+          new InfeedCommand(s_Infeed, RotationsPerSecond.of(.89)),
           new InfeedPID(s_InfeedPivot, Constants.RobotConstants.Infeed.Infeed_POS, Constants.RobotConstants.Infeed.Max_Speed)
         )
       )

@@ -17,6 +17,10 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -25,6 +29,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,6 +39,7 @@ public class SwerveSS extends SubsystemBase {
     public SwerveModule[] mSwerveMods;
     public static Pigeon2 gyro;
     public boolean doRejectUpdate;
+    public RobotConfig config;
 
     public static SwerveDrivePoseEstimator m_poseEstimator;
 
@@ -51,7 +57,7 @@ public class SwerveSS extends SubsystemBase {
     
             gyro = new Pigeon2(Swerve.pigeonID);
             gyro.getConfigurator().apply(new Pigeon2Configuration());
-            gyro.setYaw(0);
+            gyro.setYaw(180);
     
             mSwerveMods = new SwerveModule[] {
                 new SwerveModule(0, Swerve.Mod0.constants),
@@ -62,9 +68,39 @@ public class SwerveSS extends SubsystemBase {
     
             swerveOdometry = new SwerveDrivePoseEstimator(Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), new Pose2d());
             
-        
+                try{
+                  config = RobotConfig.fromGUISettings();
+                } catch (Exception e) {
+                  // Handle exception as needed
+                  e.printStackTrace();
+            }
+
+            // Configure AutoBuilder last
+            AutoBuilder.configure(
+                this::getPose, 
+                this::setPose, 
+                this::getRobotSpeed, 
+                this::driveRobotRelative,
+                new PPHolonomicDriveController(
+                    new PIDConstants(9, 0, 0.1), // Translation constants //3.5
+                    new PIDConstants(8, 0, 0) // Rotation constants P = 1.5
+                ),
+                config,
+                () ->  false,
+                // () -> {
+                //     // Boolean supplier that controls when the path will be mirrored for the red alliance
+                //     // This will flip the path being followed to the red side of the field.
+                //     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+            
+                //     var alliance = DriverStation.getAlliance();
+                //     if (alliance.isPresent()) {
+                //         return alliance.get() == DriverStation.Alliance.Red;
+                //     }
+                //     return false;
+                // }, 
+                this);
         }
-    
+
         public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
             SwerveModuleState[] swerveModuleStates =
                 Swerve.swerveKinematics.toSwerveModuleStates(

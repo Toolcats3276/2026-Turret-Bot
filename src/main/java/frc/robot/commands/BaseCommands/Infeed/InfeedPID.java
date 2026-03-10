@@ -2,7 +2,6 @@ package frc.robot.commands.BaseCommands.Infeed;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.InfeedPivotSS;
-import frc.robot.subsystems.InfeedPivotSS;
 
 public class InfeedPID extends Command{
 

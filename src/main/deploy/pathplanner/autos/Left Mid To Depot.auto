@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftDepotS1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftDepotS1_X"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftDepotSX_2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftDepotS2_X"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftDepotSX_3"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

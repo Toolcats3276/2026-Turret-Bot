@@ -1,5 +1,8 @@
 package frc.robot.commands.BaseCommands.RightTurret;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.RightShooterSS;
 
@@ -16,7 +19,7 @@ public class ShootRightTurret extends Command {
 
   @Override
   public void initialize() {
-    s_RightShooter.setSpeed(speed);
+    s_RightShooter.setSpeed(RotationsPerSecond.of(speed));
   }
 
   @Override
@@ -27,6 +30,6 @@ public class ShootRightTurret extends Command {
 
   @Override
   public boolean isFinished() {
-    return false;
+    return true;
   }
 }

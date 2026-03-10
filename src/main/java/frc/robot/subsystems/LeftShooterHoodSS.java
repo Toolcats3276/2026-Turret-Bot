@@ -8,15 +8,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
-public class RightShooterHoodSS extends SubsystemBase{
+public class LeftShooterHoodSS extends SubsystemBase{
 
     private Servo s_LinearActuator;
 
     private Distance shootangle;
     
-    public RightShooterHoodSS() {
+    public LeftShooterHoodSS() {
         
-        s_LinearActuator = new Servo(8);
+        s_LinearActuator = new Servo(9);
         s_LinearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
     }
 
@@ -45,7 +45,7 @@ public class RightShooterHoodSS extends SubsystemBase{
 
         }
 
-        SmartDashboard.putNumber("Right Linear Acutator Angle", s_LinearActuator.get());
+        SmartDashboard.putNumber("Left Linear Acutator Angle", s_LinearActuator.get());
         // SmartDashboard.putNumber("Left Linear Actuator Setpoint", shootangle.in(Millimeter));
 
     }

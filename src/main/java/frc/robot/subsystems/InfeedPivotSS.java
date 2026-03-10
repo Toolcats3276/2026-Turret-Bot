@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.controls.StrictFollower;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -22,7 +21,7 @@ public class InfeedPivotSS extends SubsystemBase{
 
     private PIDController InfeedPIDController;
 
-    private final double kP = 1.5;
+    private final double kP = 1.81;
     private final double kI = 0;
     private final double kD = 0;
 
@@ -79,7 +78,6 @@ public class InfeedPivotSS extends SubsystemBase{
                 output = MathUtil.clamp(InfeedPIDController.calculate(e_InfeedEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
                 m_Infeed_Pivot_Left.set(output);
                 m_Infeed_Pivot_Right.set(output);
-                
                 break;
             }
 

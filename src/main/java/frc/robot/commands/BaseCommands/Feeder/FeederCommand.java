@@ -1,23 +1,23 @@
-package frc.robot.commands.BaseCommands.Indexer;
+package frc.robot.commands.BaseCommands.Feeder;
 
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.IndexerSS;
+import frc.robot.subsystems.FeederSS;
 
-public class IndexerCommand extends Command {
+public class FeederCommand extends Command {
 
-  private IndexerSS s_Indexer;
+  private FeederSS s_Feeder;
   private AngularVelocity speed;
 
 
-  public IndexerCommand(IndexerSS s_Indexer, AngularVelocity speed) {
-    this.s_Indexer = s_Indexer;
+  public FeederCommand(FeederSS s_Feeder, AngularVelocity speed) {
+    this.s_Feeder = s_Feeder;
     this.speed = speed;
   }
 
   @Override
   public void initialize() {
-    s_Indexer.setSpeed(speed);
+    s_Feeder.setSpeed(speed);
   }
 
   @Override

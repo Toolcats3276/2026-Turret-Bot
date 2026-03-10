@@ -1,11 +1,11 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.controls.StrictFollower;
-import com.ctre.phoenix6.hardware.CANcoder;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CTREConfigs;
@@ -17,7 +17,7 @@ import frc.robot.Constants.RobotConstants;
 public class InfeedSS extends SubsystemBase{
 
     private TalonFX m_Infeed;
-    private double speed;
+    private AngularVelocity speed;
     
     public InfeedSS() {
         m_Infeed = new TalonFX(RobotConstants.Infeed.Infeed_Motor, CTREConfigs.CanivoreCANbus);
@@ -45,13 +45,12 @@ public class InfeedSS extends SubsystemBase{
             }
 
             case SetInfeedSpeed:{
-                m_Infeed.set(speed);
+                m_Infeed.set(speed.in(RotationsPerSecond));
                 break;
             }
 
         }
 
-        SmartDashboard.putNumber("Infeed setspeed", speed);
         SmartDashboard.putNumber("Infeed Velocity", m_Infeed.getRotorVelocity().getValueAsDouble());
 
     }
@@ -60,7 +59,7 @@ public class InfeedSS extends SubsystemBase{
         InfeedMode = Mode.Stop;
     }
 
-    public void SetSpeed(double speed){
+    public void SetSpeed(AngularVelocity speed){
         this.speed = speed;
         InfeedMode = Mode.SetInfeedSpeed;
     } 

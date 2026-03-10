@@ -1,20 +1,21 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Millimeters;
-import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -28,13 +29,15 @@ public class LeftShooterSS extends SubsystemBase {
 
     private TalonFX m_shooterRightMotor;
     private TalonFX m_shooterLeftMotor;
-    private Servo s_LinearActuator;
 
-    private double shotVelocity;
-    private double shotAngle;
-    private LimelightAssistant center_Limmelight;
+    private final StatusSignal<AngularVelocity> shotVelocity;
+    private final StatusSignal<AngularAcceleration> shotAcceleration;
 
-    private double speed;
+    private AngularVelocity speed;
+    private AngularVelocity Shooter_Tolerance = RotationsPerSecond.of(.015);
+
+    private final LimelightAssistant LeftLimelight;
+    private final LimelightAssistant RightLimelight;
 
 
   
@@ -47,19 +50,18 @@ public class LeftShooterSS extends SubsystemBase {
         m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterRightConfig);
         m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
         m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
+   
+        shotVelocity = m_shooterLeftMotor.getVelocity();
+        shotAcceleration = m_shooterLeftMotor.getAcceleration();
 
-        center_Limmelight = new LimelightAssistant("limelight-ty", VecBuilder.fill(0,0,0), false);
-
-        s_LinearActuator = new Servo(9);
-        s_LinearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);     
+        LeftLimelight = new LimelightAssistant("limelight-llt", VecBuilder.fill(0,0,0), false);
+        RightLimelight = new LimelightAssistant("limelight-lrt", VecBuilder.fill(0,0,0), false);
     }
 
 
     public enum Mode{
         Stop,
-        SetSpeed,
-        ShooterAutoAim,
-        LinearActuator
+        SetSpeed
     }
 
     Mode ShooterMode = Mode.Stop;
@@ -76,52 +78,50 @@ public class LeftShooterSS extends SubsystemBase {
             }
 
             case SetSpeed:{
-                m_shooterLeftMotor.set(speed);
+                m_shooterLeftMotor.set(speed.in(RotationsPerSecond));
             }
 
-            case LinearActuator:{
-                s_LinearActuator.set(shotAngle);
-                break;
-            }
+            BaseStatusSignal.refreshAll(shotVelocity);
+
         }
 
-        SmartDashboard.putNumber("LeftShooterSetSpeed", speed);
+        
+
+        // SmartDashboard.putNumber("LeftShooterSetSpeed", speed.in(RotationsPerSecond));
         SmartDashboard.putNumber("LeftRightShooterCurrentSpeed", m_shooterRightMotor.getVelocity().getValueAsDouble());
         SmartDashboard.putNumber("LeftLeftShooterCurrentSpeed", m_shooterLeftMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("LeftShootPower", ShootPower());
+        SmartDashboard.putBoolean("Left Ready to shoot", isReadyToShoot());
+        SmartDashboard.putNumber("Left Turret TY", TyValue());
 
+        TyValue();
     }
 
     public void Stop(){
         ShooterMode = Mode.Stop;
     }
     
-    public void setSpeed(double speed){
+    public void setSpeed(AngularVelocity speed){
         this.speed = speed;
         ShooterMode = Mode.SetSpeed;
     }
 
-    public double ShootPower(){   
-        ShooterMode = Mode.ShooterAutoAim;
-        return shotVelocity;
+    public double TyValue(){
+        return (LeftLimelight.getTY() + RightLimelight.getTY())/2;
     }
 
-    public void LinearActuator(double shotAngle){
-        this.shotAngle = shotAngle;
-        ShooterMode = Mode.LinearActuator;
+    public boolean isReadyToShoot(){
+        return MathUtil.isNear(shotVelocity.getValueAsDouble(), m_shooterLeftMotor.getVelocity().getValueAsDouble(), Shooter_Tolerance.in(RotationsPerSecond));
     }
 
-    public double LinearActuatorSetPoint(){
-        return shotAngle;
-    }
-
-    public static record ShooterSetpoints(
+    public static record LeftShooterSetpoints(
         Distance shotAngle,
         AngularVelocity shotVelocity,
-        AngularVelocity indexerVelocity) {
+        AngularVelocity indexerVelocity,
+        AngularVelocity feederVelocity,
+        AngularVelocity infeedVelocity) {
         
-    public ShooterSetpoints interpolate(ShooterSetpoints endValue, double t) {
-      ShooterSetpoints result = new ShooterSetpoints(
+    public LeftShooterSetpoints interpolate(LeftShooterSetpoints endValue, double t) {
+      LeftShooterSetpoints result = new LeftShooterSetpoints(
         Millimeters.of(MathUtil.interpolate(shotAngle.in(Millimeters), endValue.shotAngle.in(Millimeters), t)),
         RotationsPerSecond.of(
               MathUtil.interpolate(
@@ -132,7 +132,18 @@ public class LeftShooterSS extends SubsystemBase {
               MathUtil.interpolate(
                   indexerVelocity.in(RotationsPerSecond),
                     endValue.indexerVelocity.in(RotationsPerSecond),
-                    t)));
+                    t)),
+        RotationsPerSecond.of(
+              MathUtil.interpolate(
+                  feederVelocity.in(RotationsPerSecond),   
+                    endValue.feederVelocity.in(RotationsPerSecond), 
+                    t)),
+        RotationsPerSecond.of(
+              MathUtil.interpolate(
+                  infeedVelocity.in(RotationsPerSecond),
+                    endValue.infeedVelocity.in(RotationsPerSecond),
+                    t))   
+        );
       return result;
     }
     }

@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Millimeter;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,6 +14,7 @@ public class LeftShooterHoodSS extends SubsystemBase{
     private Servo s_LinearActuator;
 
     private Distance shootangle;
+    private Distance Tolerance = Millimeter.of(.001);
     
     public LeftShooterHoodSS() {
         
@@ -45,9 +47,14 @@ public class LeftShooterHoodSS extends SubsystemBase{
 
         }
 
-        SmartDashboard.putNumber("Left Linear Acutator Angle", s_LinearActuator.get());
-        // SmartDashboard.putNumber("Left Linear Actuator Setpoint", shootangle.in(Millimeter));
 
+        SmartDashboard.putNumber("Left Linear Acutator Angle", s_LinearActuator.getPosition());
+        SmartDashboard.putBoolean("Left LinearActuator in range", LinearActuatorInRange());
+        SmartDashboard.putNumber("Lower Limit", LinearActuatorLowerSetPoint());
+        SmartDashboard.putNumber("Higher Limit", LinearActuatorHigherSetPoint());
+        SmartDashboard.putNumber("Limit", LinearActuatorSetPoint());
+
+        LinearActuatorInRange();
     }
 
     public void Stop(){
@@ -59,10 +66,32 @@ public class LeftShooterHoodSS extends SubsystemBase{
         HoodMode = Mode.LinearActuator;
     }
 
-    public Distance LinearActuatorSetPoint(){
-        return shootangle;
+    public double LinearActuatorSetPoint(){
+        return s_LinearActuator.getPosition();
     }
 
+    public double LinearActuatorLowerSetPoint(){
+        return LinearActuatorSetPoint() - 0.0015;
+    }
+    
+    public double LinearActuatorHigherSetPoint(){
+        return LinearActuatorSetPoint() + 0.0015;
+    }
+
+    public boolean LinearActuatorInRange(){
+        boolean Inrange;
+        if (LinearActuatorSetPoint()> LinearActuatorLowerSetPoint()) {
+            Inrange = true;
+        }
+
+        else if (LinearActuatorSetPoint() < LinearActuatorHigherSetPoint()) {
+            Inrange = true;
+        }
+        else{
+            Inrange = false;
+        }
+        return Inrange;
+    }
 }
 
 

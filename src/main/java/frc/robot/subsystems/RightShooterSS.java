@@ -31,10 +31,12 @@ public class RightShooterSS extends SubsystemBase {
     private final StatusSignal<AngularAcceleration> shotAcceleration;
 
     private AngularVelocity speed;
-    private AngularVelocity Shooter_Tolerance = RotationsPerSecond.of(.015);
+    private AngularVelocity Shooter_Tolerance = RotationsPerSecond.of(.000015);
 
     private final LimelightAssistant LeftLimelight;
     private final LimelightAssistant RightLimelight;
+
+    private double TYVALUE;
 
 
   
@@ -86,6 +88,12 @@ public class RightShooterSS extends SubsystemBase {
         SmartDashboard.putNumber("Right Turret TY", TyValue());
 
         TyValue();
+
+        isReadyToShoot();
+
+        LeftLimelightTargetBoolean();
+        RightLimelightTargetBoolean();
+        LimeLightTargetBoolean();
     }
 
     public void Stop(){
@@ -98,7 +106,29 @@ public class RightShooterSS extends SubsystemBase {
     }
 
     public double TyValue(){
-        return (LeftLimelight.getTY() + RightLimelight.getTY())/2;
+        if (LeftLimelightTargetBoolean()) {
+            TYVALUE = LeftLimelight.getTY();
+        }
+        else if (RightLimelightTargetBoolean()) {
+            TYVALUE = RightLimelight.getTY();
+        }
+        else if (RightLimelightTargetBoolean() && LeftLimelightTargetBoolean()) {
+            TYVALUE = (LeftLimelight.getTY() + RightLimelight.getTY())/2;
+        }
+
+        return TYVALUE;
+    }
+
+    public boolean LeftLimelightTargetBoolean(){
+        return  LeftLimelight.getFiducialID() == 21 || LeftLimelight.getFiducialID() == 24 || LeftLimelight.getFiducialID() == 25 || LeftLimelight.getFiducialID() == 26 || LeftLimelight.getFiducialID() ==  27 || LeftLimelight.getFiducialID() == 18;
+    }
+
+    public boolean RightLimelightTargetBoolean(){
+        return  RightLimelight.getFiducialID() == 21 || RightLimelight.getFiducialID() == 24 || RightLimelight.getFiducialID() == 25 || RightLimelight.getFiducialID() == 26 || RightLimelight.getFiducialID() ==  27 || RightLimelight.getFiducialID() == 18;
+    }
+
+    public boolean LimeLightTargetBoolean(){
+        return LeftLimelightTargetBoolean() || RightLimelightTargetBoolean();
     }
 
     public boolean isReadyToShoot(){

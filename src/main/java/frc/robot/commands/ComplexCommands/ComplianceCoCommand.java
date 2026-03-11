@@ -35,8 +35,6 @@ public class ComplianceCoCommand extends ParallelCommandGroup {
   public ComplianceCoCommand(RightShooterSS s_RightShooter, RightTurretSS s_RightTurret, LeftShooterSS s_LeftShooter, LeftTurretSS s_LeftTurret, IndexerSS s_Indexer, InfeedSS s_Infeed, InfeedPivotSS s_InfeedPivot, RightShooterHoodSS s_RightShooterHood, LeftShooterHoodSS s_LeftShooterHood, FeederSS s_Feeder) {
 
     addCommands(
-        new RightTurretLinearActuator(s_RightShooterHood, Millimeter.of(0)),
-        new LeftTurretLinearActuator(s_LeftShooterHood, Millimeter.of(0)),
         new FeederCommand(s_Feeder, RotationsPerSecond.of(0)),
         new InfeedCommand(s_Infeed, RotationsPerSecond.of(0)),
         new InfeedPID(s_InfeedPivot, Constants.RobotConstants.Infeed.Infeed_POS, Constants.RobotConstants.Infeed.Max_Speed),

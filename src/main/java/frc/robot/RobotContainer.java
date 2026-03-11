@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Millimeter;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -35,9 +36,12 @@ import frc.robot.commands.BaseCommands.RightTurret.RightInterpolatorShoot;
 import frc.robot.commands.BaseCommands.RightTurret.RightTurretAutoAim;
 import frc.robot.commands.BaseCommands.RightTurret.RightTurretLinearActuator;
 import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurret;
+import frc.robot.commands.ComplexCommands.CancelCoCommand;
 import frc.robot.commands.ComplexCommands.ComplianceCoCommand;
 import frc.robot.commands.ComplexCommands.InfeedCoCommand;
 import frc.robot.commands.ComplexCommands.InfeedCoCommand2;
+import frc.robot.commands.ComplexCommands.InterpolatorShootCoCommand;
+import frc.robot.commands.ComplexCommands.OutFeed;
 import frc.robot.commands.ComplexCommands.ResetTurretCoCommand;
 import frc.robot.commands.ComplexCommands.ShootCoCommand;
 import frc.robot.subsystems.*;
@@ -74,7 +78,7 @@ public class RobotContainer {
     private final JoystickButton Copmliance = new JoystickButton(driver, 2);
     private final JoystickButton Infeed = new JoystickButton(driver, 3);
     private final JoystickButton Infeed2 = new JoystickButton(driver, 4);
-    private final JoystickButton AutoAim = new JoystickButton(driver, 10);
+    private final JoystickButton Cancel = new JoystickButton(driver, 10);
     private final JoystickButton ResetTurret = new JoystickButton(driver, 13);
     private final JoystickButton InterpolatorShootTest = new JoystickButton(driver, 12);
     private final JoystickButton Test = new JoystickButton(driver, 15);
@@ -82,7 +86,7 @@ public class RobotContainer {
     private final JoystickButton Setpoint1 = new JoystickButton(driver, 9);
     private final JoystickButton Setpoint2 = new JoystickButton(driver, 8);
     private final JoystickButton Setpoint3 = new JoystickButton(driver, 6);
-    private final JoystickButton Setpoint4 = new JoystickButton(driver, 7);
+    private final JoystickButton Outfeed = new JoystickButton(driver, 7);
 
 
     /* Xbox Buttons */
@@ -121,6 +125,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("Infeed", new InfeedCoCommand(s_Infeed, s_InfeedPivotSS));
 
         AutoChooser.addOption("None", new PrintCommand("No Auto??"));
+        AutoChooser.addOption("Depot", new PathPlannerAuto("Depot"));
+        AutoChooser.addOption("PID", new PathPlannerAuto("PID"));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -137,14 +143,15 @@ public class RobotContainer {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
 
-        Shoot.whileTrue(new ShootCoCommand(s_Indexer, s_RightShooter, s_LeftShooter, s_RightTurret, s_LeftTurret, s_InfeedPivotSS, s_Infeed, s_Feeder));
+        Shoot.onTrue(new InterpolatorShootCoCommand(s_Indexer, s_RightTurret, s_LeftTurret, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
         Copmliance.onTrue(new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_Feeder));
-        // Infeed.onTrue(new InfeedCoCommand(s_Infeed, s_InfeedPivotSS));
-        // Infeed2.onTrue(new InfeedCoCommand2(s_Infeed, s_InfeedPivotSS));
-        // Infeed.onTrue(new LeftTurretPID(s_LeftTurret, -1, Constants.RobotConstants.FrontLeftTurret.MAX_SPEED));
-        Infeed.onTrue(new RightTurretAutoAim(s_RightTurret, Constants.RobotConstants.FrontLeftTurret.MAX_SPEED_Auto));
-        // Infeed2.onTrue(new LeftTurretPID(s_LeftTurret, 1, Constants.RobotConstants.FrontLeftTurret.MAX_SPEED));
-        AutoAim.onTrue(new SlavedTurretCommand(s_RightTurret, s_LeftTurret));
+
+        Infeed.onTrue(new InfeedCoCommand(s_Infeed, s_InfeedPivotSS));
+        Infeed2.onTrue(new InfeedCoCommand2(s_Infeed, s_InfeedPivotSS));
+
+        Outfeed.onTrue(new OutFeed(s_Infeed, s_Feeder, s_Indexer));
+        Cancel.onTrue(new CancelCoCommand(s_Indexer, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_LeftTurret, s_RightTurret, s_Infeed, s_Feeder));
+
         ResetTurret.onTrue(new ResetTurretCoCommand(s_RightTurret, s_LeftTurret));
         // Test.onTrue(new FeederCommand(s_Feeder, RotationsPerSecond.of(1)));
         // Test.onTrue(new IndexerCommand(s_Indexer, RotationsPerSecond.of(1)));
@@ -152,14 +159,13 @@ public class RobotContainer {
         // Test.onTrue(new ShootRightTurret(s_RightShooter, 1));
         Test.onTrue(new InfeedCommand(s_Infeed, RotationsPerSecond.of(1)));
 
-        InterpolatorShootTest.onTrue(new InterpolatorShootCommand(s_Indexer, s_Infeed, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
+        // InterpolatorShootTest.onTrue(new InterpolatorShootCommand(s_Indexer, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
 
         /* Xbox Controller */
         RightTurretManual.onTrue(new ManualRightTurretCommand(s_RightTurret, () -> xboxController.getRawAxis(rightTurretSup)));
         RightTurretManual.onTrue(new ManualLeftTurretCommand(s_LeftTurret, () -> xboxController.getRawAxis(leftTurretSup)));
 
 
-        Setpoint4.onTrue(new RightTurretLinearActuator(s_RightShooterHood, Millimeter.of(.5)));
         // TurretReset.onTrue(new RightTurretPID(s_RightShooterHood, 0, 1));
         // TurretReset.onTrue(new LeftTurretPID(s_LeftShooterHood, .1, 1));
         // TurretReset.onTrue(new InstantCommand(() -> s_RightTurret.LinearActuator(1)));
@@ -175,6 +181,7 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
-        return new exampleAuto(s_Swerve);
+        // return new exampleAuto(s_Swerve);
+        return AutoChooser.getSelected();
     }
 }

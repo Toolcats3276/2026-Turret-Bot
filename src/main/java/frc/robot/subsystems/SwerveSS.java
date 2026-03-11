@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import frc.robot.SwerveModule;
 import frc.robot.vision.LimelightHelpers;
 import frc.robot.Constants.Swerve;
+import frc.robot.CTREConfigs;
 import frc.robot.Constants;
 import frc.robot.Robot;
 
@@ -11,7 +12,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -29,6 +32,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -56,8 +60,9 @@ public class SwerveSS extends SubsystemBase {
             driveNeutralMode = NeutralModeValue.Brake;
     
             gyro = new Pigeon2(Swerve.pigeonID);
-            gyro.getConfigurator().apply(new Pigeon2Configuration());
+            gyro.getConfigurator().apply(Robot.ctreConfigs.gyroConfig);
             gyro.setYaw(180);
+        
     
             mSwerveMods = new SwerveModule[] {
                 new SwerveModule(0, Swerve.Mod0.constants),
@@ -82,8 +87,8 @@ public class SwerveSS extends SubsystemBase {
                 this::getRobotSpeed, 
                 this::driveRobotRelative,
                 new PPHolonomicDriveController(
-                    new PIDConstants(9, 0, 0.1), // Translation constants //3.5
-                    new PIDConstants(8, 0, 0) // Rotation constants P = 1.5
+                    new PIDConstants(3.5, 0, 0.1), // Translation constants //3.5
+                    new PIDConstants(.1, 0, 0) // Rotation constants P = 1.5
                 ),
                 config,
                 () ->  false,
@@ -195,7 +200,7 @@ public class SwerveSS extends SubsystemBase {
         }
     
         public void zeroHeading(){
-            swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
+            swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d(3.14159)));
         }
     
         public Rotation2d getGyroYaw() {

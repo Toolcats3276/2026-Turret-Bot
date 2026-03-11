@@ -23,7 +23,7 @@ public class RightTurretSS extends SubsystemBase{
 
     private PIDController TurretPIDController;
 
-    private final double kP = .0278;
+    private final double kP = .14;
     private final double kI = 0;
     private final double kD = 0
     ;
@@ -42,8 +42,8 @@ public class RightTurretSS extends SubsystemBase{
     private double s_setPoint;
     private double s_currentpos;
 
-    private double NegativeDeadStop = -2.667;
-    private double PositiveDeadStop = 2.667;
+    private double NegativeDeadStop = -3.2;
+    private double PositiveDeadStop = 3.2;
     
     /*Limelight*/
 
@@ -97,7 +97,7 @@ public class RightTurretSS extends SubsystemBase{
 
             case PID:{
                 TurretPIDController.reset();
-                output = -MathUtil.clamp(TurretPIDController.calculate(e_TurretEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
+                output = MathUtil.clamp(TurretPIDController.calculate(e_TurretEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
                 m_TurretMotor.set(output);
                 break;
             }

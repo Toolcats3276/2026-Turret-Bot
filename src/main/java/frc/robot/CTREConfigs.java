@@ -1,8 +1,11 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -12,6 +15,8 @@ public final class CTREConfigs {
 
     public static CANBus canBus = new CANBus("rio");
     public static CANBus CanivoreCANbus = new CANBus("Everything Else CAN");
+
+    public Pigeon2Configuration gyroConfig = new Pigeon2Configuration();
 
     public TalonFXConfiguration swerveAngleFXConfig = new TalonFXConfiguration();
     public TalonFXConfiguration swerveDriveFXConfig = new TalonFXConfiguration();
@@ -45,21 +50,23 @@ public final class CTREConfigs {
     public TalonFXConfiguration FeederConfig = new TalonFXConfiguration();
 
     public CTREConfigs(){
+        // gyroConfig.MountPose.MountPoseYaw = 180;
+        // gyroConfig.GyroTrim.GyroScalarY = 180;
         /** Swerve CANCoder Configuration */
         swerveCANcoderConfig.MagnetSensor.SensorDirection = Constants.Swerve.cancoderInvert;
 
         /* Right Shooter */
         RightTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         RightTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
-        RightTurretCancoderConfig.MagnetSensor.MagnetOffset = 0.07666015625;
+        RightTurretCancoderConfig.MagnetSensor.MagnetOffset = -0.33349609375;
 
         RightshooterLeftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         RightshooterRightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         /* Left Shooter */
-        LeftTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+        LeftTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         LeftTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
-        LeftTurretCancoderConfig.MagnetSensor.MagnetOffset = 0.111572265625;
+        LeftTurretCancoderConfig.MagnetSensor.MagnetOffset = 0.39013671875;
 
         LeftshooterLeftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         LeftshooterRightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;

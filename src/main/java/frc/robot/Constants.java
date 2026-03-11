@@ -47,7 +47,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.55), 
+                            RotationsPerSecond.of(.58), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -60,7 +60,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.56), 
+                            RotationsPerSecond.of(.59), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -73,7 +73,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.56), 
+                            RotationsPerSecond.of(.59), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -86,7 +86,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.565), 
+                            RotationsPerSecond.of(.595), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -99,7 +99,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.5675), 
+                            RotationsPerSecond.of(.6175), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -112,7 +112,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.578), 
+                            RotationsPerSecond.of(.648), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -125,7 +125,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.582), 
+                            RotationsPerSecond.of(.652), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -138,7 +138,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.59), 
+                            RotationsPerSecond.of(.66), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -151,7 +151,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.6), 
+                            RotationsPerSecond.of(.67), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -164,7 +164,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.1), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.61), 
+                            RotationsPerSecond.of(.68), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -177,7 +177,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.15), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.61), 
+                            RotationsPerSecond.of(.68), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -190,7 +190,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.15), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.615), 
+                            RotationsPerSecond.of(.685), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -203,7 +203,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.2), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.63), 
+                            RotationsPerSecond.of(.70), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -216,7 +216,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.64), 
+                            RotationsPerSecond.of(.71), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -229,7 +229,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.30), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.65), 
+                            RotationsPerSecond.of(.72), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -242,7 +242,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.3), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.675), 
+                            RotationsPerSecond.of(.745), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -255,7 +255,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.4), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.7125), 
+                            RotationsPerSecond.of(.7825), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -268,7 +268,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.72), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.975), 
+                            RotationsPerSecond.of(1), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -289,7 +289,9 @@ public final class Constants {
             /*Encoders for Turret */
             public static final int Turret_Rotation_Encoder = 6;
             /*MAX SPEED DONT CHANGE */
-            public static final double MAX_SPEED = .25;
+            public static final double MAX_SPEED = .35;
+            public static final double MAX_SPEED_Auto = .50;
+
 
 
             private static InterpolatingTreeMap<Double, RightShooterSS.RightShooterSetpoints> createRightShooterInterpolator(){
@@ -300,7 +302,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.55), 
+                            RotationsPerSecond.of(.58), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -313,7 +315,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.56), 
+                            RotationsPerSecond.of(.59), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -326,7 +328,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.56), 
+                            RotationsPerSecond.of(.59), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -339,7 +341,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.565), 
+                            RotationsPerSecond.of(.595), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -352,7 +354,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.5675), 
+                            RotationsPerSecond.of(.6175), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -365,7 +367,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.578), 
+                            RotationsPerSecond.of(.648), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -378,7 +380,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.582), 
+                            RotationsPerSecond.of(.652), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -391,7 +393,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.59), 
+                            RotationsPerSecond.of(.66), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -404,7 +406,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.6), 
+                            RotationsPerSecond.of(.67), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -417,7 +419,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.1), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.61), 
+                            RotationsPerSecond.of(.68), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -430,7 +432,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.15), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.61), 
+                            RotationsPerSecond.of(.68), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -443,7 +445,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.15), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.615), 
+                            RotationsPerSecond.of(.69), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -456,7 +458,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.2), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.63), 
+                            RotationsPerSecond.of(.71), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -469,7 +471,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.64), 
+                            RotationsPerSecond.of(.71), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -482,7 +484,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.30), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.65), 
+                            RotationsPerSecond.of(.72), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -495,7 +497,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.3), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.675), 
+                            RotationsPerSecond.of(.745), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -508,7 +510,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.4), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.7125), 
+                            RotationsPerSecond.of(.7825), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -521,7 +523,7 @@ public final class Constants {
                             //Shot Angle
                             Millimeter.of(0.72), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.975), 
+                            RotationsPerSecond.of(1), 
                             //IndexerSpeed
                             RotationsPerSecond.of(1),
                             //FeederSpeed
@@ -557,8 +559,13 @@ public final class Constants {
             public static final int Infeed_Rotation_Encoder = 4;
 
             public static final double Max_Speed = 1;
-            public static final double Infeed_POS = -.299;
-            public static final double Infeed_POS2 = -.27;
+            public static final double Infeed_POS = -.29;
+
+
+            public static final double Infeed_POS2 = -.13;
+
+
+            public static final double Shooting_POS = -.24;
             // public static final double Infeed_Compliance_Pos = .11;
 
         }
@@ -691,9 +698,9 @@ public final class Constants {
         }
     }
 
-    public static final class AutoConstants { //TODO: The below constants are used in the example auto, and must be tuned to specific robot
-        public static final double kMaxSpeedMetersPerSecond = 3;
-        public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+    public static final class AutoConstants { 
+        public static final double kMaxSpeedMetersPerSecond = 6.065;
+        public static final double kMaxAccelerationMetersPerSecondSquared = 5.4;
         public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
         public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
     

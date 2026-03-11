@@ -30,87 +30,121 @@ public class LeftShooterSS extends SubsystemBase {
     private TalonFX m_shooterRightMotor;
     private TalonFX m_shooterLeftMotor;
 
-    private final StatusSignal<AngularVelocity> shotVelocity;
     private final StatusSignal<AngularAcceleration> shotAcceleration;
 
     private AngularVelocity speed;
-    private AngularVelocity Shooter_Tolerance = RotationsPerSecond.of(.015);
+    private final VelocityTorqueCurrentFOC shotVelocityRequest = new VelocityTorqueCurrentFOC(0.0);
+    private AngularVelocity ShootVelocity;
+    private AngularVelocity Shooter_Tolerance = RotationsPerSecond.of(.0015);
 
     private final LimelightAssistant LeftLimelight;
     private final LimelightAssistant RightLimelight;
 
+    private double TYVALUE;
 
-  
-    public LeftShooterSS(){
-        m_shooterLeftMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Left_Motor, CTREConfigs.CanivoreCANbus);
-        m_shooterLeftMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterLeftConfig);
-        m_shooterLeftMotor.setNeutralMode(NeutralModeValue.Coast);
-        
-        m_shooterRightMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Right_Motor, CTREConfigs.CanivoreCANbus);
-        m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterRightConfig);
-        m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
-        m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
-   
-        shotVelocity = m_shooterLeftMotor.getVelocity();
-        shotAcceleration = m_shooterLeftMotor.getAcceleration();
-
-        LeftLimelight = new LimelightAssistant("limelight-llt", VecBuilder.fill(0,0,0), false);
-        RightLimelight = new LimelightAssistant("limelight-lrt", VecBuilder.fill(0,0,0), false);
-    }
-
-
-    public enum Mode{
-        Stop,
-        SetSpeed
-    }
-
-    Mode ShooterMode = Mode.Stop;
+      
+        public LeftShooterSS(){
+            m_shooterLeftMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Left_Motor, CTREConfigs.CanivoreCANbus);
+            m_shooterLeftMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterLeftConfig);
+            m_shooterLeftMotor.setNeutralMode(NeutralModeValue.Coast);
+            
+            m_shooterRightMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Right_Motor, CTREConfigs.CanivoreCANbus);
+            m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterRightConfig);
+            m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
+            m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
+       
+            shotAcceleration = m_shooterLeftMotor.getAcceleration();
     
-    @Override
-
-    public void periodic() {
-
-        switch(ShooterMode) {
-
-            case Stop:{
-                m_shooterLeftMotor.set(0);
-                break;
+            LeftLimelight = new LimelightAssistant("limelight-llt", VecBuilder.fill(0,0,0), false);
+            RightLimelight = new LimelightAssistant("limelight-lrt", VecBuilder.fill(0,0,0), false);
+        }
+    
+    
+        public enum Mode{
+            Stop,
+            SetSpeed
+        }
+    
+        Mode ShooterMode = Mode.Stop;
+        
+        @Override
+    
+        public void periodic() {
+    
+            switch(ShooterMode) {
+    
+                case Stop:{
+                    m_shooterLeftMotor.set(0);
+                    break;
+                }
+    
+                case SetSpeed:{
+                    m_shooterLeftMotor.set(speed.in(RotationsPerSecond));
+                     break;
+                }
+                
             }
-
-            case SetSpeed:{
-                m_shooterLeftMotor.set(speed.in(RotationsPerSecond));
-            }
-
-            BaseStatusSignal.refreshAll(shotVelocity);
-
+            
+            
+            
+            // SmartDashboard.putNumber("LeftShooterSetSpeed", speed.in(RotationsPerSecond));
+            SmartDashboard.putNumber("LeftRightShooterCurrentSpeed", m_shooterRightMotor.getVelocity().getValueAsDouble());
+            SmartDashboard.putNumber("LeftLeftShooterCurrentSpeed", m_shooterLeftMotor.getVelocity().getValueAsDouble());
+            SmartDashboard.putBoolean("Left Ready to shoot", isReadyToShoot());
+            SmartDashboard.putNumber("Left Turret TY", TyValue());
+            SmartDashboard.putNumber("Left ShotVelocity", shotVelocityRequest.Velocity);
+            SmartDashboard.putNumber("Left Shooter Tolerance", Shooter_Tolerance.in(RotationsPerSecond));
+            
+            TyValue();
+    
+            isReadyToShoot();
+            
+            LeftLimelightTargetBoolean();
+            RightLimelightTargetBoolean();
+            LimeLightTargetBoolean();
+        }
+    
+        public void Stop(){
+            ShooterMode = Mode.Stop;
         }
 
+        public AngularVelocity shootervelocity(){
+            return m_shooterLeftMotor.getVelocity().getValue();
+        }
         
-
-        // SmartDashboard.putNumber("LeftShooterSetSpeed", speed.in(RotationsPerSecond));
-        SmartDashboard.putNumber("LeftRightShooterCurrentSpeed", m_shooterRightMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("LeftLeftShooterCurrentSpeed", m_shooterLeftMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putBoolean("Left Ready to shoot", isReadyToShoot());
-        SmartDashboard.putNumber("Left Turret TY", TyValue());
-
-        TyValue();
-    }
-
-    public void Stop(){
-        ShooterMode = Mode.Stop;
-    }
-    
     public void setSpeed(AngularVelocity speed){
         this.speed = speed;
         ShooterMode = Mode.SetSpeed;
     }
 
     public double TyValue(){
-        return (LeftLimelight.getTY() + RightLimelight.getTY())/2;
+        if (LeftLimelightTargetBoolean()) {
+            TYVALUE = LeftLimelight.getTY();
+        }
+        else if (RightLimelightTargetBoolean()) {
+            TYVALUE = RightLimelight.getTY();
+        }
+        else if (RightLimelightTargetBoolean() && LeftLimelightTargetBoolean()) {
+            TYVALUE = (LeftLimelight.getTY() + RightLimelight.getTY())/2;
+        }
+
+        return TYVALUE;
+    }
+
+    public boolean LeftLimelightTargetBoolean(){
+        return  LeftLimelight.getFiducialID() == 21 || LeftLimelight.getFiducialID() == 24 || LeftLimelight.getFiducialID() == 25 || LeftLimelight.getFiducialID() == 26 || LeftLimelight.getFiducialID() ==  27 || LeftLimelight.getFiducialID() == 18;
+    }
+
+    public boolean RightLimelightTargetBoolean(){
+        return  RightLimelight.getFiducialID() == 21 || RightLimelight.getFiducialID() == 24 || RightLimelight.getFiducialID() == 25 || RightLimelight.getFiducialID() == 26 || RightLimelight.getFiducialID() ==  27 || RightLimelight.getFiducialID() == 18;
+    }
+
+    public boolean LimeLightTargetBoolean(){
+        return LeftLimelightTargetBoolean() || RightLimelightTargetBoolean();
     }
 
     public boolean isReadyToShoot(){
-        return MathUtil.isNear(shotVelocity.getValueAsDouble(), m_shooterLeftMotor.getVelocity().getValueAsDouble(), Shooter_Tolerance.in(RotationsPerSecond));
+        return MathUtil.isNear(shotVelocityRequest.Velocity, m_shooterLeftMotor.getVelocity().getValueAsDouble(), Shooter_Tolerance.in(RotationsPerSecond));
     }
 
     public static record LeftShooterSetpoints(
@@ -119,6 +153,8 @@ public class LeftShooterSS extends SubsystemBase {
         AngularVelocity indexerVelocity,
         AngularVelocity feederVelocity,
         AngularVelocity infeedVelocity) {
+
+        
         
     public LeftShooterSetpoints interpolate(LeftShooterSetpoints endValue, double t) {
       LeftShooterSetpoints result = new LeftShooterSetpoints(

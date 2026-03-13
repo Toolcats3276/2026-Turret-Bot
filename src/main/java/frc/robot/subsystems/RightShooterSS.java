@@ -5,8 +5,10 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
@@ -38,6 +40,8 @@ public class RightShooterSS extends SubsystemBase {
 
     private double TYVALUE;
 
+    private final VelocityVoltage VelocityVolatageControl;
+
 
   
     public RightShooterSS(){
@@ -53,6 +57,8 @@ public class RightShooterSS extends SubsystemBase {
 
             shotVelocity = m_shooterLeftMotor.getVelocity();
             shotAcceleration = m_shooterLeftMotor.getAcceleration();
+
+            VelocityVolatageControl = new VelocityVoltage(0);
             
             LeftLimelight = new LimelightAssistant("limelight-rlt", VecBuilder.fill(0,0,0), false);
             RightLimelight = new LimelightAssistant("limelight-rrt", VecBuilder.fill(0,0,0), false);
@@ -79,6 +85,7 @@ public class RightShooterSS extends SubsystemBase {
 
             case SetSpeed:{
                 m_shooterLeftMotor.set(speed.in(RotationsPerSecond));
+                // m_shooterLeftMotor.setControl(VelocityVolatageControl.withVelocity(speed.in(RotationsPerSecond)));
             }
 
         }
@@ -120,11 +127,43 @@ public class RightShooterSS extends SubsystemBase {
     }
 
     public boolean LeftLimelightTargetBoolean(){
-        return  LeftLimelight.getFiducialID() == 21 || LeftLimelight.getFiducialID() == 24 || LeftLimelight.getFiducialID() == 25 || LeftLimelight.getFiducialID() == 26 || LeftLimelight.getFiducialID() ==  27 || LeftLimelight.getFiducialID() == 18;
+        return  LeftLimelight.getFiducialID() == 21 || 
+                LeftLimelight.getFiducialID() == 24 || 
+                LeftLimelight.getFiducialID() == 25 || 
+                LeftLimelight.getFiducialID() == 26 || 
+                LeftLimelight.getFiducialID() == 27 || 
+                LeftLimelight.getFiducialID() == 18 || 
+                LeftLimelight.getFiducialID() == 19 ||
+                LeftLimelight.getFiducialID() == 20 ||
+                LeftLimelight.getFiducialID() == 5 || 
+                LeftLimelight.getFiducialID() == 8 || 
+                LeftLimelight.getFiducialID() == 9 || 
+                LeftLimelight.getFiducialID() == 10 || 
+                LeftLimelight.getFiducialID() == 11 ||
+                LeftLimelight.getFiducialID() == 12 || 
+                LeftLimelight.getFiducialID() == 2 || 
+                LeftLimelight.getFiducialID() == 3 || 
+                LeftLimelight.getFiducialID() == 4;
     }
 
     public boolean RightLimelightTargetBoolean(){
-        return  RightLimelight.getFiducialID() == 21 || RightLimelight.getFiducialID() == 24 || RightLimelight.getFiducialID() == 25 || RightLimelight.getFiducialID() == 26 || RightLimelight.getFiducialID() ==  27 || RightLimelight.getFiducialID() == 18;
+        return  RightLimelight.getFiducialID() == 21 || 
+                RightLimelight.getFiducialID() == 24 || 
+                RightLimelight.getFiducialID() == 25 || 
+                RightLimelight.getFiducialID() == 27 || 
+                RightLimelight.getFiducialID() == 26 || 
+                RightLimelight.getFiducialID() == 18 || 
+                RightLimelight.getFiducialID() == 19 ||
+                RightLimelight.getFiducialID() == 20 ||
+                RightLimelight.getFiducialID() == 5 || 
+                RightLimelight.getFiducialID() == 8 || 
+                RightLimelight.getFiducialID() == 9 || 
+                RightLimelight.getFiducialID() == 10 || 
+                RightLimelight.getFiducialID() == 11 || 
+                RightLimelight.getFiducialID() == 12 ||
+                RightLimelight.getFiducialID() == 2 || 
+                RightLimelight.getFiducialID() == 3 || 
+                RightLimelight.getFiducialID() == 4;
     }
 
     public boolean LimeLightTargetBoolean(){
@@ -137,10 +176,7 @@ public class RightShooterSS extends SubsystemBase {
 
     public static record RightShooterSetpoints(
         Distance shotAngle,
-        AngularVelocity shotVelocity,
-        AngularVelocity indexerVelocity,
-        AngularVelocity feederVelocity,
-        AngularVelocity infeedVelocity) {
+        AngularVelocity shotVelocity) {
         
     public RightShooterSetpoints interpolate(RightShooterSetpoints endValue, double t) {
       RightShooterSetpoints result = new RightShooterSetpoints(
@@ -149,22 +185,8 @@ public class RightShooterSS extends SubsystemBase {
               MathUtil.interpolate(
                   shotVelocity.in(RotationsPerSecond),
                     endValue.shotVelocity.in(RotationsPerSecond),
-                    t)),
-        RotationsPerSecond.of(
-              MathUtil.interpolate(
-                  indexerVelocity.in(RotationsPerSecond),
-                    endValue.indexerVelocity.in(RotationsPerSecond),
-                    t)),
-        RotationsPerSecond.of(
-              MathUtil.interpolate(
-                  feederVelocity.in(RotationsPerSecond),   
-                    endValue.feederVelocity.in(RotationsPerSecond), 
-                    t)),
-        RotationsPerSecond.of(
-              MathUtil.interpolate(
-                  infeedVelocity.in(RotationsPerSecond),
-                    endValue.infeedVelocity.in(RotationsPerSecond),
-                    t))   
+                    t))
+  
         );
       return result;
     }

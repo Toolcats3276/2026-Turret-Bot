@@ -41,239 +41,260 @@ public final class Constants {
 
             private static InterpolatingTreeMap<Double, LeftShooterSS.LeftShooterSetpoints> createLeftShooterInterpolator(){
                 var map = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), LeftShooterSetpoints::interpolate);
+            //     map.put(
+            //         0.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.6)));
+            //     map.put(
+            //         2.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.61)));
+            //     map.put(
+            //         4.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.61)));
+            //     map.put(
+            //         6.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.615)));
+            //     map.put(
+            //         8.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.6475)));
+            //     map.put(
+            //         10.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.678)));
+            //     map.put(
+            //         12.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.682)));
+            //     map.put(
+            //         14.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.69)));
+            //     map.put(
+            //         16.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.70)));
+            //     map.put(
+            //         18.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.1), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.71)));
+            //     map.put(
+            //         20.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.15), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.71)));
+            //     map.put(
+            //         22.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.15), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.715)));
+            //     map.put(
+            //         24.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.2), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.73)));
+            //     map.put(
+            //         26.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.25), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.74)));
+            //     map.put(
+            //         28.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.30), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.75)));
+            //     map.put(
+            //         30.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.3), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.775)));
+            //     map.put(
+            //         32.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.4), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.8125)));
+            //     map.put(
+            //         35.0, 
+            //             new LeftShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.72), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(1)));
+            //     return map;
+            // }
+
                 map.put(
                     0.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.58), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.6)));
                 map.put(
                     2.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.59), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.61)));
                 map.put(
                     4.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.59), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.61)));
                 map.put(
                     6.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.595), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.615)));
                 map.put(
                     8.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.6175), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.6475)));
                 map.put(
                     10.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.648), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.678)));
                 map.put(
                     12.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.652), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.682)));
                 map.put(
                     14.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.66), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.69)));
                 map.put(
                     16.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.67), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.70)));
                 map.put(
                     18.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.1), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.68), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.71)));
                 map.put(
                     20.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.15), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.68), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.71)));
                 map.put(
                     22.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.15), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.685), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.715)));
                 map.put(
                     24.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.2), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.70), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.73)));
                 map.put(
                     26.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.71), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.74)));
                 map.put(
                     28.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.30), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.72), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.75)));
                 map.put(
                     30.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.3), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.745), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.775)));
                 map.put(
                     32.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.4), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.7825), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.8125)));
                 map.put(
                     35.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.72), 
                             //ShotSpeed
-                            RotationsPerSecond.of(1), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
                             RotationsPerSecond.of(1)));
                 return map;
             }
@@ -296,239 +317,260 @@ public final class Constants {
 
             private static InterpolatingTreeMap<Double, RightShooterSS.RightShooterSetpoints> createRightShooterInterpolator(){
                 var map = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), RightShooterSetpoints::interpolate);
+            //     map.put(
+            //         0.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.60)));
+            //     map.put(
+            //         2.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.61)));
+            //     map.put(
+            //         4.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.61)));
+            //     map.put(
+            //         6.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.615)));
+            //     map.put(
+            //         8.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.6475)));
+            //     map.put(
+            //         10.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.678)));
+            //     map.put(
+            //         12.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.682)));
+            //     map.put(
+            //         14.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.69)));
+            //     map.put(
+            //         16.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.05), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.70)));
+            //     map.put(
+            //         18.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.1), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.71)));
+            //     map.put(
+            //         20.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.15), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.71)));
+            //     map.put(
+            //         22.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.15), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.72)));
+            //     map.put(
+            //         24.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.2), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.74)));
+            //     map.put(
+            //         26.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.25), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.74)));
+            //     map.put(
+            //         28.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.30), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.75)));
+            //     map.put(
+            //         30.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.3), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.775)));
+            //     map.put(
+            //         32.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.4), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(.8125)));
+            //     map.put(
+            //         35.0, 
+            //             new RightShooterSetpoints(
+            //                 //Shot Angle
+            //                 Millimeter.of(0.72), 
+            //                 //ShotSpeed
+            //                 RotationsPerSecond.of(1)));
+            //     return map;
+            // }
+
                 map.put(
                     0.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.58), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.60)));
                 map.put(
                     2.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.59), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.61)));
                 map.put(
                     4.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.59), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.61)));
                 map.put(
                     6.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.595), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.615)));
                 map.put(
                     8.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.6175), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.6475)));
                 map.put(
                     10.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.648), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.678)));
                 map.put(
                     12.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.652), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.682)));
                 map.put(
                     14.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.66), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.69)));
                 map.put(
                     16.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.05), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.67), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.70)));
                 map.put(
                     18.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.1), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.68), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.71)));
                 map.put(
                     20.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.15), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.68), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.71)));
                 map.put(
                     22.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.15), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.69), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.72)));
                 map.put(
                     24.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.2), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.71), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.74)));
                 map.put(
                     26.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.71), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.74)));
                 map.put(
                     28.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.30), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.72), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.75)));
                 map.put(
                     30.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.3), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.745), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.775)));
                 map.put(
                     32.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.4), 
                             //ShotSpeed
-                            RotationsPerSecond.of(.7825), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
-                            RotationsPerSecond.of(1)));
+                            RotationsPerSecond.of(.8125)));
                 map.put(
                     35.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Millimeter.of(0.72), 
                             //ShotSpeed
-                            RotationsPerSecond.of(1), 
-                            //IndexerSpeed
-                            RotationsPerSecond.of(1),
-                            //FeederSpeed
-                            RotationsPerSecond.of(1),
-                            //InfeedSpeed
                             RotationsPerSecond.of(1)));
                 return map;
             }

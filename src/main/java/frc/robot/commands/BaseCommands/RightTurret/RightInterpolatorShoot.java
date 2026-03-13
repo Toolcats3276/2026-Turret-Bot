@@ -58,16 +58,6 @@ public class RightInterpolatorShoot extends Command {
      */
     s_RightShooterHood.LinearActuator(setpoints.shotAngle());;
     s_RightShooter.setSpeed(setpoints.shotVelocity());
-    /*
-     * Checks to make sure the shooter is ready and up to speed
-     * before runnig the spindexer and feeder
-     */
-    if (isShooting || s_RightShooter.isReadyToShoot()) {
-      isShooting = true;
-      s_Indexer.setSpeed(setpoints.indexerVelocity());
-      s_Feeder.setSpeed(setpoints.feederVelocity());
-      s_Infeed.SetSpeed(setpoints.infeedVelocity());
-    }
   }
 
   public void end(boolean interrupted) {

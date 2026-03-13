@@ -50,8 +50,11 @@ public final class CTREConfigs {
     public TalonFXConfiguration FeederConfig = new TalonFXConfiguration();
 
     public CTREConfigs(){
-        // gyroConfig.MountPose.MountPoseYaw = 180;
-        // gyroConfig.GyroTrim.GyroScalarY = 180;
+        gyroConfig.MountPose.MountPoseYaw = 90.31501007080078;
+        gyroConfig.MountPose.MountPosePitch = 0.724636971950531;
+        gyroConfig.MountPose.MountPoseRoll = -0.6154836416244507;
+        gyroConfig.GyroTrim.GyroScalarZ = -1;
+
         /** Swerve CANCoder Configuration */
         swerveCANcoderConfig.MagnetSensor.SensorDirection = Constants.Swerve.cancoderInvert;
 
@@ -63,6 +66,10 @@ public final class CTREConfigs {
         RightshooterLeftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         RightshooterRightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
+        RightshooterLeftConfig.Slot0.kP = 0;
+        RightshooterLeftConfig.Slot0.kI = 0;
+        RightshooterLeftConfig.Slot0.kD = 0;
+
         /* Left Shooter */
         LeftTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         LeftTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
@@ -70,6 +77,10 @@ public final class CTREConfigs {
 
         LeftshooterLeftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         LeftshooterRightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+        LeftshooterLeftConfig.Slot0.kP = 0;
+        LeftshooterLeftConfig.Slot0.kI = 0;
+        LeftshooterLeftConfig.Slot0.kD = 0;
 
         /* Infeed */
         InfeedCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;

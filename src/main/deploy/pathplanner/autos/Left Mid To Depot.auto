@@ -9,30 +9,6 @@
           "data": {
             "pathName": "LeftDepotS1"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LeftDepotS1_X"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LeftDepotSX_2"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LeftDepotS2_X"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LeftDepotSX_3"
-          }
         }
       ]
     }

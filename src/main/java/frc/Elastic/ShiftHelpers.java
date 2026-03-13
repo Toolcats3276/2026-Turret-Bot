@@ -29,7 +29,7 @@ public class ShiftHelpers {
         }
     }
 
-    public static boolean isCurrentShiftBlue(double currentMatchTime) {
+    public static boolean isCurrentShiftBlue (double currentMatchTime) {
         if (currentMatchTime >= 105 && currentMatchTime <= 130) {
             return blueWonAuto() ? false : true;
         } else if (currentMatchTime >= 80 && currentMatchTime <= 105) {

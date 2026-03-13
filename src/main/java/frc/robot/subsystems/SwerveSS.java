@@ -61,7 +61,7 @@ public class SwerveSS extends SubsystemBase {
     
             gyro = new Pigeon2(Swerve.pigeonID);
             gyro.getConfigurator().apply(Robot.ctreConfigs.gyroConfig);
-            gyro.setYaw(180);
+            // gyro.setYaw(180);
         
     
             mSwerveMods = new SwerveModule[] {
@@ -91,18 +91,18 @@ public class SwerveSS extends SubsystemBase {
                     new PIDConstants(.1, 0, 0) // Rotation constants P = 1.5
                 ),
                 config,
-                () ->  false,
-                // () -> {
-                //     // Boolean supplier that controls when the path will be mirrored for the red alliance
-                //     // This will flip the path being followed to the red side of the field.
-                //     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                // () ->  false,
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
             
-                //     var alliance = DriverStation.getAlliance();
-                //     if (alliance.isPresent()) {
-                //         return alliance.get() == DriverStation.Alliance.Red;
-                //     }
-                //     return false;
-                // }, 
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                }, 
                 this);
         }
 
@@ -200,7 +200,7 @@ public class SwerveSS extends SubsystemBase {
         }
     
         public void zeroHeading(){
-            swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d(3.14159)));
+            swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
         }
     
         public Rotation2d getGyroYaw() {
@@ -232,7 +232,6 @@ public class SwerveSS extends SubsystemBase {
     @Override
     public void periodic(){
         swerveOdometry.update(getGyroYaw(), getModulePositions());
-
 
 
         String[] cameraNames = {"limelight-1", "limelight-2", "limelight-3", "limelight-4"};

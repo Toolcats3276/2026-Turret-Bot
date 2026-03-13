@@ -146,6 +146,9 @@ public class LeftTurretSS extends SubsystemBase{
         SmartDashboard.putBoolean("LeftTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop);
         SmartDashboard.putBoolean("LeftTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < NegativeDeadStop);
         SmartDashboard.putBoolean("LeftTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop);
+        SmartDashboard.putBoolean("LeftLeftLimeLightTarget", LeftLimelightTargetBoolean());
+        SmartDashboard.putBoolean("LeftRightLimeLightTarget", RightLimelightTargetBoolean());
+        SmartDashboard.putBoolean("LeftBothLimeLightTarget", LimeLightTargetBoolean());
 
 
         LeftLimelightTargetBoolean();
@@ -202,11 +205,43 @@ public class LeftTurretSS extends SubsystemBase{
     }
 
     public boolean LeftLimelightTargetBoolean(){
-        return  LeftLimelight.getFiducialID() == 21 || LeftLimelight.getFiducialID() == 24 || LeftLimelight.getFiducialID() == 25 || LeftLimelight.getFiducialID() == 26 || LeftLimelight.getFiducialID() ==  27 || LeftLimelight.getFiducialID() == 18;
+        return  LeftLimelight.getFiducialID() == 21 || 
+                LeftLimelight.getFiducialID() == 24 || 
+                LeftLimelight.getFiducialID() == 25 || 
+                LeftLimelight.getFiducialID() == 26 || 
+                LeftLimelight.getFiducialID() == 27 || 
+                LeftLimelight.getFiducialID() == 18 || 
+                LeftLimelight.getFiducialID() == 19 ||
+                LeftLimelight.getFiducialID() == 20 ||
+                LeftLimelight.getFiducialID() == 5 || 
+                LeftLimelight.getFiducialID() == 8 || 
+                LeftLimelight.getFiducialID() == 9 || 
+                LeftLimelight.getFiducialID() == 10 || 
+                LeftLimelight.getFiducialID() == 11 ||
+                LeftLimelight.getFiducialID() == 12 || 
+                LeftLimelight.getFiducialID() == 2 || 
+                LeftLimelight.getFiducialID() == 3 || 
+                LeftLimelight.getFiducialID() == 4;
     }
 
     public boolean RightLimelightTargetBoolean(){
-        return  RightLimelight.getFiducialID() == 21 || RightLimelight.getFiducialID() == 24 || RightLimelight.getFiducialID() == 25 || RightLimelight.getFiducialID() == 26 || RightLimelight.getFiducialID() ==  27 || RightLimelight.getFiducialID() == 18;
+        return  RightLimelight.getFiducialID() == 21 || 
+                RightLimelight.getFiducialID() == 24 || 
+                RightLimelight.getFiducialID() == 25 || 
+                RightLimelight.getFiducialID() == 27 || 
+                RightLimelight.getFiducialID() == 26 || 
+                RightLimelight.getFiducialID() == 18 || 
+                RightLimelight.getFiducialID() == 19 ||
+                RightLimelight.getFiducialID() == 20 ||
+                RightLimelight.getFiducialID() == 5 || 
+                RightLimelight.getFiducialID() == 8 || 
+                RightLimelight.getFiducialID() == 9 || 
+                RightLimelight.getFiducialID() == 10 || 
+                RightLimelight.getFiducialID() == 11 || 
+                RightLimelight.getFiducialID() == 12 ||
+                RightLimelight.getFiducialID() == 2 || 
+                RightLimelight.getFiducialID() == 3 || 
+                RightLimelight.getFiducialID() == 4;
     }
 
     public boolean LimeLightTargetBoolean(){

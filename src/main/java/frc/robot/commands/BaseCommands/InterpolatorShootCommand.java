@@ -63,6 +63,8 @@ public class InterpolatorShootCommand extends Command {
 
       SmartDashboard.putNumber("Right Shooter Setpoints", setpointsRight.shotVelocity().in(RotationsPerSecond));
       SmartDashboard.putNumber("Left Shooter Setpoints", setpointsLeft.shotVelocity().in(RotationsPerSecond));
+      SmartDashboard.putNumber("Right LinearActuator Setpoint", setpointsRight.shotAngle().in(Millimeter));
+      SmartDashboard.putNumber("Left LinearActuator Setpoint", setpointsLeft.shotAngle().in(Millimeter));
       SmartDashboard.putBoolean("InRange", s_LeftShooter.shootervelocity().isNear(setpointsLeft.shotVelocity(), .5));
   
       setpointsRight = Hub_SetPoints_By_Limelight_Degrees_Right.get(s_RightShooter.TyValue());

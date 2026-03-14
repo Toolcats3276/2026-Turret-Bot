@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -82,6 +83,7 @@ public class RobotContainer {
     private final JoystickButton Cancel = new JoystickButton(driver, 10);
     private final JoystickButton ResetTurret = new JoystickButton(driver, 13);
     private final JoystickButton Shuttle = new JoystickButton(driver, 9);
+    private final JoystickButton xDrive = new JoystickButton(driver, 5);
 
     private final JoystickButton Outfeed = new JoystickButton(driver, 7);
 
@@ -123,12 +125,13 @@ public class RobotContainer {
         NamedCommands.registerCommand("Shoot", new InterpolatorShootCoCommand(s_Indexer, s_RightTurret, s_LeftTurret, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
         NamedCommands.registerCommand("Comp", new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_Feeder));
         NamedCommands.registerCommand("ZeroGyro", new InstantCommand(() -> s_Swerve.zeroHeading()));
+        NamedCommands.registerCommand("Infeed2", new InfeedCoCommand2(s_Infeed, s_InfeedPivotSS));
 
         AutoChooser.addOption("None", new PrintCommand("No Auto??"));
-        // AutoChooser.addOption("Depot", new PathPlannerAuto("Depot"));
-        AutoChooser.addOption("PID", new PathPlannerAuto("PID"));
+        AutoChooser.addOption("Depot", new PathPlannerAuto("Depot"));
+        // AutoChooser.addOption("PID", new PathPlannerAuto("PID"));
         // AutoChooser.addOption("Left Mid To Depot", new PathPlannerAuto("Left Mid To Depot"));
-        AutoChooser.addOption("Shoot", new PathPlannerAuto("Shoot"));
+        AutoChooser.addOption("Left To Mid", new PathPlannerAuto("Right Mid to Depot"));
 
         // Configure the button bindings
         configureButtonBindings();
@@ -155,6 +158,8 @@ public class RobotContainer {
         Cancel.onTrue(new CancelCoCommand(s_Indexer, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_LeftTurret, s_RightTurret, s_Infeed, s_Feeder));
 
         ResetTurret.onTrue(new ResetTurretCoCommand(s_RightTurret, s_LeftTurret));
+
+        xDrive.whileTrue(Commands.run(() -> s_Swerve.Xdrive(true), s_Swerve));
         // Shuttle.onTrue(new FeederCommand(s_Feeder, RotationsPerSecond.of(1)));
         // Shuttle.onTrue(new IndexerCommand(s_Indexer, RotationsPerSecond.of(1)));
         // Shuttle.onTrue(new ShootLeftTurret(s_LeftShooter, 1));

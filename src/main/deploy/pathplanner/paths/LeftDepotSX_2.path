@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.349586305278173,
-        "y": 7.5
+        "x": 4.24,
+        "y": 7.44
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.128168674698795,
-        "y": 7.357024096385541
+        "x": 6.018582369420622,
+        "y": 7.297024096385542
       },
       "isLocked": false,
       "linkedName": null
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.4,
+    "maxVelocity": 0.5,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": "Left Mid To Depot",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 165.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

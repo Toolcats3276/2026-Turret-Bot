@@ -15,6 +15,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotation;
+
+import org.ejml.equation.IntegerSequence.For;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -30,6 +33,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
@@ -126,6 +130,21 @@ public class SwerveSS extends SubsystemBase {
                 mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
             }
         }  
+
+        public void Xdrive(boolean isOpenLoop) {
+            SwerveModuleState[] swerveModuleStates = new SwerveModuleState[]{
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+            };
+                
+            for(SwerveModule mod : mSwerveMods){
+                mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
+            }
+        }  
+        
+ 
         
         
         public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
@@ -139,6 +158,7 @@ public class SwerveSS extends SubsystemBase {
             }
     
           }
+
         // public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
         //     ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
         
@@ -233,6 +253,7 @@ public class SwerveSS extends SubsystemBase {
     public void periodic(){
         swerveOdometry.update(getGyroYaw(), getModulePositions());
 
+        SmartDashboard.putNumber("GetHeading", getHeading().getDegrees());
 
         String[] cameraNames = {"limelight-1", "limelight-2", "limelight-3", "limelight-4"};
         for (String cameraName : cameraNames){

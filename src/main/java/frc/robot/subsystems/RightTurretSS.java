@@ -1,11 +1,23 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Volts;
+
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -13,7 +25,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.CTREConfigs;
 import frc.robot.Robot;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.vision.LimelightAssistant;
+import frc.robot.subsystems.vision.LimelightAssistant;
+
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.YAW_LIMIT_FORWARD;
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.YAW_LIMIT_REVERSE;
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.YAW_RANGE_FORWARD;
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.YAW_RANGE_REVERSE;
 
 
 public class RightTurretSS extends SubsystemBase{
@@ -22,6 +39,12 @@ public class RightTurretSS extends SubsystemBase{
     private CANcoder e_TurretEncoder;
 
     private PIDController TurretPIDController;
+
+    private MotionMagicVoltage rightTurretMotionMagicVoltage;
+    private final StatusSignal<Angle> yawPosition;
+    private final StatusSignal<AngularVelocity> yawVelocity;
+    public static final Angle YAW_POSITION_TOLERANCE = Degrees.of(2.5);
+
 
     private final double kP = .14;
     private final double kI = 0;
@@ -72,6 +95,10 @@ public class RightTurretSS extends SubsystemBase{
         RightLimelight = new LimelightAssistant("limelight-rrt", VecBuilder.fill(0,0,0), false);
 
         LLRotationPidController = new PIDController(LLkP, LLkI, LLkD);
+
+        rightTurretMotionMagicVoltage = new MotionMagicVoltage(0);
+        yawPosition = m_TurretMotor.getPosition();
+        yawVelocity = m_TurretMotor.getVelocity();
         
     }
 
@@ -250,7 +277,34 @@ public class RightTurretSS extends SubsystemBase{
     public boolean LimeLightTargetBoolean(){
         return LeftLimelightTargetBoolean() || RightLimelightTargetBoolean();
     }
-    
-}
+
+    public void setYawAngle(Angle targetYaw) {
+        // Wrap the input to match the range of the turret. The input is probably in the range of (-0.5, 0.5], but the
+        // turret range is more like [-0.75, 0.25].
+        double targetRotations = MathUtil
+            .inputModulus(targetYaw.in(Rotations), YAW_RANGE_REVERSE.in(Rotations), YAW_RANGE_FORWARD.in(Rotations));
+        Angle currentYaw = getYaw();
+        double ffVolts = 0.0;
+        if (currentYaw.gt(Rotations.of(-0.195))) {
+          ffVolts = 0.5;
+        } else if (currentYaw.lt(Rotations.of(-0.468))) {
+          ffVolts = -1.0375;
+        }
+        m_TurretMotor.setControl(rightTurretMotionMagicVoltage.withPosition(targetRotations).withFeedForward(Volts.of(ffVolts)));
+    }
+
+    public Angle getYaw() {
+        BaseStatusSignal.refreshAll(yawPosition, yawVelocity);
+        return BaseStatusSignal.getLatencyCompensatedValue(yawPosition, yawVelocity);
+    }
+
+    public boolean isYawAtSetpoint() {
+      BaseStatusSignal.refreshAll(yawPosition, yawVelocity);
+      Angle currentYaw = BaseStatusSignal.getLatencyCompensatedValue(yawPosition, yawVelocity);
+      return MathUtil.isNear(rightTurretMotionMagicVoltage.Position, currentYaw.in(Rotations), YAW_POSITION_TOLERANCE.in(Rotations));
+    }
+
+
+}   
 
 

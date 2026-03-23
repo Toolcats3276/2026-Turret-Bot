@@ -21,9 +21,9 @@ import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import frc.robot.vision.LimelightAssistant;
 import frc.robot.CTREConfigs;
 import frc.robot.Constants.RobotConstants;
+import frc.robot.subsystems.vision.LimelightAssistant;
 
 /* SEE WristSS FOR EXPLANATIONS */
 
@@ -83,8 +83,8 @@ public class LeftShooterSS extends SubsystemBase {
                 }
     
                 case SetSpeed:{
-                    m_shooterLeftMotor.set(speed.in(RotationsPerSecond));
-                    // m_shooterLeftMotor.setControl(VelocityVoltage.withVelocity(speed.in(RotationsPerSecond)));
+                    // m_shooterLeftMotor.set(speed.in(RotationsPerSecond));
+                    m_shooterLeftMotor.setControl(VelocityVoltage.withVelocity(speed.in(RotationsPerSecond)));
                      break;
                 }
                 

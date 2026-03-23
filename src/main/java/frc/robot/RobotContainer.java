@@ -83,7 +83,7 @@ public class RobotContainer {
     private final JoystickButton Cancel = new JoystickButton(driver, 10);
     private final JoystickButton ResetTurret = new JoystickButton(driver, 13);
     private final JoystickButton Shuttle = new JoystickButton(driver, 9);
-    private final JoystickButton xDrive = new JoystickButton(driver, 5);
+    private final JoystickButton xDrive = new JoystickButton(driver, 8);
 
     private final JoystickButton Outfeed = new JoystickButton(driver, 7);
 
@@ -112,7 +112,7 @@ public class RobotContainer {
                 s_Swerve, 
                 () -> -driver.getRawAxis(translationAxis), 
                 () -> -driver.getRawAxis(strafeAxis), 
-                () -> driver.getRawAxis(rotationAxis), 
+                () -> -driver.getRawAxis(rotationAxis), 
                 () -> robotCentric.getAsBoolean()
             )
         );
@@ -131,7 +131,9 @@ public class RobotContainer {
         AutoChooser.addOption("Depot", new PathPlannerAuto("Depot"));
         // AutoChooser.addOption("PID", new PathPlannerAuto("PID"));
         // AutoChooser.addOption("Left Mid To Depot", new PathPlannerAuto("Left Mid To Depot"));
-        AutoChooser.addOption("Left To Mid", new PathPlannerAuto("Right Mid to Depot"));
+        // AutoChooser.addOption("Left To Mid", new PathPlannerAuto("Left Mid To Depot"));
+        // AutoChooser.addOption("Right Mid to Depot", new PathPlannerAuto("Right Mid to Depot"));
+        // AutoChooser.addOption("Depot Advanced", new PathPlannerAuto("Depot Half"));
 
         // Configure the button bindings
         configureButtonBindings();

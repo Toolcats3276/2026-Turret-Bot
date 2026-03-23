@@ -33,6 +33,12 @@
           "data": {
             "pathName": "LeftDepotSX_3"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftDepotS3-x"
+          }
         }
       ]
     }

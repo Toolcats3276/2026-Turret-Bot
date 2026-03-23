@@ -41,8 +41,8 @@ public class ShuttleCoCommand extends SequentialCommandGroup {
               new FeederCommand(s_Feeder, RotationsPerSecond.of(1))
             )
           ),
-            new ShootRightTurret(s_RightShooter, .85),
-            new ShootLeftTurret(s_LeftShooter, .85),
+            new ShootRightTurret(s_RightShooter, 85),
+            new ShootLeftTurret(s_LeftShooter, 85),
             new RightTurretPID(s_RightTurret, 0, Constants.RobotConstants.FrontRightTurret.MAX_SPEED),
             new LeftTurretPID(s_LeftTurret, 0, Constants.RobotConstants.FrontLeftTurret.MAX_SPEED),
             new LeftTurretLinearActuator(s_LeftShooterHood, Millimeter.of(.75)),

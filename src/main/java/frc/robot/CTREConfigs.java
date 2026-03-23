@@ -66,10 +66,10 @@ public final class CTREConfigs {
         RightshooterLeftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         RightshooterRightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-        RightshooterLeftConfig.Slot0.kP = 0.05;
+        RightshooterLeftConfig.Slot0.kP = 0.175;
         RightshooterLeftConfig.Slot0.kI = 0;
-        RightshooterLeftConfig.Slot0.kD = 0.002;
-        RightshooterLeftConfig.Slot0.kS = 0.25;
+        RightshooterLeftConfig.Slot0.kD = 0;
+        RightshooterLeftConfig.Slot0.kS = 0.225;
         RightshooterLeftConfig.Slot0.kV = 0.0955;
 
 

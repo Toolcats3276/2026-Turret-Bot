@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 3.74,
-        "y": 7.5
+        "x": 2.883,
+        "y": 7.1
       },
       "prevControl": {
-        "x": 5.855176655882727,
-        "y": 7.329965549347303
+        "x": 5.145036144578315,
+        "y": 7.405975903614457
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,7 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.5,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [],
@@ -47,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 148.57
   },
   "reversed": false,
   "folder": "Left Mid To Depot",

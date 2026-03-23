@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.CTREConfigs;
 import frc.robot.Constants.RobotConstants;
-import frc.robot.vision.LimelightAssistant;
+import frc.robot.subsystems.vision.LimelightAssistant;
 
 
 public class LeftTurretSS extends SubsystemBase{

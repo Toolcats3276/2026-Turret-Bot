@@ -9,31 +9,6 @@
           "data": {
             "commands": [
               {
-                "type": "path",
-                "data": {
-                  "pathName": "Depot 1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Infeed"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "deadline",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Depot 1_X"
-                }
-              },
-              {
                 "type": "sequential",
                 "data": {
                   "commands": [
@@ -46,19 +21,19 @@
                     {
                       "type": "named",
                       "data": {
-                        "name": "Infeed2"
+                        "name": "Infeed"
                       }
                     }
                   ]
                 }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Copy of Depot 1"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
           }
         }
       ]

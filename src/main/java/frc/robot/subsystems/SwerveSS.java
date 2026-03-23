@@ -1,8 +1,8 @@
 package frc.robot.subsystems;
 
 import frc.robot.SwerveModule;
-import frc.robot.vision.LimelightHelpers;
 import frc.robot.Constants.Swerve;
+import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.CTREConfigs;
 import frc.robot.Constants;
 import frc.robot.Robot;
@@ -15,6 +15,9 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotation;
+
+import org.ejml.equation.IntegerSequence.For;
 
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -30,6 +33,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
@@ -61,7 +65,7 @@ public class SwerveSS extends SubsystemBase {
     
             gyro = new Pigeon2(Swerve.pigeonID);
             gyro.getConfigurator().apply(Robot.ctreConfigs.gyroConfig);
-            gyro.setYaw(180);
+            // gyro.setYaw(180);
         
     
             mSwerveMods = new SwerveModule[] {
@@ -91,18 +95,18 @@ public class SwerveSS extends SubsystemBase {
                     new PIDConstants(.1, 0, 0) // Rotation constants P = 1.5
                 ),
                 config,
-                () ->  false,
-                // () -> {
-                //     // Boolean supplier that controls when the path will be mirrored for the red alliance
-                //     // This will flip the path being followed to the red side of the field.
-                //     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                // () ->  false,
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
             
-                //     var alliance = DriverStation.getAlliance();
-                //     if (alliance.isPresent()) {
-                //         return alliance.get() == DriverStation.Alliance.Red;
-                //     }
-                //     return false;
-                // }, 
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                }, 
                 this);
         }
 
@@ -126,6 +130,21 @@ public class SwerveSS extends SubsystemBase {
                 mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
             }
         }  
+
+        public void Xdrive(boolean isOpenLoop) {
+            SwerveModuleState[] swerveModuleStates = new SwerveModuleState[]{
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
+                new SwerveModuleState(0, Rotation2d.fromDegrees(45)),
+            };
+                
+            for(SwerveModule mod : mSwerveMods){
+                mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
+            }
+        }  
+        
+ 
         
         
         public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
@@ -139,6 +158,7 @@ public class SwerveSS extends SubsystemBase {
             }
     
           }
+
         // public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
         //     ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
         
@@ -200,7 +220,7 @@ public class SwerveSS extends SubsystemBase {
         }
     
         public void zeroHeading(){
-            swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d(3.14159)));
+            swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), new Pose2d(getPose().getTranslation(), new Rotation2d()));
         }
     
         public Rotation2d getGyroYaw() {
@@ -233,7 +253,7 @@ public class SwerveSS extends SubsystemBase {
     public void periodic(){
         swerveOdometry.update(getGyroYaw(), getModulePositions());
 
-
+        SmartDashboard.putNumber("GetHeading", getHeading().getDegrees());
 
         String[] cameraNames = {"limelight-1", "limelight-2", "limelight-3", "limelight-4"};
         for (String cameraName : cameraNames){

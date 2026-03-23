@@ -12,8 +12,10 @@ import frc.robot.commands.BaseCommands.Infeed.InfeedCommand;
 import frc.robot.commands.BaseCommands.Infeed.InfeedPID;
 import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretLinearActuator;
 import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretPID;
+import frc.robot.commands.BaseCommands.LeftTurret.ShootLeftTurret;
 import frc.robot.commands.BaseCommands.RightTurret.RightTurretLinearActuator;
 import frc.robot.commands.BaseCommands.RightTurret.RightTurretPID;
+import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurret;
 import frc.robot.subsystems.FeederSS;
 import frc.robot.subsystems.IndexerSS;
 import frc.robot.subsystems.InfeedPivotSS;
@@ -35,6 +37,8 @@ public class CancelCoCommand extends ParallelCommandGroup {
           new InfeedCommand(s_Infeed, RotationsPerSecond.of(0)),
           new FeederCommand(s_feeder, RotationsPerSecond.of(0)),
           new IndexerCommand(s_Indexer, RotationsPerSecond.of(0)),
+          new ShootLeftTurret(s_LeftShooter, 0),
+          new ShootRightTurret(s_RightShooter, 0),
           new LeftTurretPID(s_LeftTurret, 0, Constants.RobotConstants.FrontLeftTurret.MAX_SPEED),
           new RightTurretPID(s_RightTurret, 0, Constants.RobotConstants.FrontRightTurret.MAX_SPEED),
           new RightTurretLinearActuator(s_RightShooterHood, Millimeter.of(0)),

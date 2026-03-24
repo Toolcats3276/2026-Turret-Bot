@@ -38,7 +38,7 @@ public class ComplianceCoCommand extends ParallelCommandGroup {
         new FeederCommand(s_Feeder, RotationsPerSecond.of(0)),
         new InfeedCommand(s_Infeed, RotationsPerSecond.of(0)),
         new InfeedPID(s_InfeedPivot, Constants.RobotConstants.Infeed.Infeed_POS, Constants.RobotConstants.Infeed.Max_Speed),
-        new ShootLeftTurret(s_LeftShooter, 0),
+        new ShootLeftTurret(s_LeftShooter, RotationsPerSecond.of(0)),
         new ShootRightTurret(s_RightShooter, 0),
         new IndexerCommand(s_Indexer, RotationsPerSecond.of(0))
     );

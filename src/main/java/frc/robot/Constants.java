@@ -63,20 +63,20 @@ public final class Constants {
     public static final class RobotConstants{
 
         public static class VisionConstants {
-            public static final String[] APRILTAG_CAMERA_NAMES = { "limelight-left", "limelight-back" };
+            public static final String[] APRILTAG_CAMERA_NAMES = { "limelight-l", "limelight-r" };
 
             public static final Transform3d[] ROBOT_TO_CAMERA_TRANSFORMS = new Transform3d[] {
                 new Transform3d(
-                    new Translation3d(Inches.of(10.89781875), Inches.of(12.73011949), Inches.of(7.26365266)),
-                    new Rotation3d(0.0, degreesToRadians(15), -Math.PI / 2.0)),
+                    new Translation3d(Inches.of(10.93669038), Inches.of(12.47240505), Inches.of(6.7451498)),
+                    new Rotation3d(0.0, degreesToRadians(20), -90)),
 
                 new Transform3d(
-                    new Translation3d(Inches.of(10.89781875), Inches.of(-12.73011949), Inches.of(7.26365266)),
-                    new Rotation3d(0.0, degreesToRadians(15), -Math.PI / 2.0)),
+                    new Translation3d(Inches.of(10.93669038), Inches.of(-12.47240505), Inches.of(6.7451498)),
+                    new Rotation3d(0.0, degreesToRadians(20), 90)),
 
-                new Transform3d(
-                    new Translation3d(Inches.of(-10.050), Inches.of(-11.04), Inches.of(12.015)),
-                    new Rotation3d(Math.PI, degreesToRadians(28), Math.PI)),
+                // new Transform3d(
+                //     new Translation3d(Inches.of(-10.050), Inches.of(-11.04), Inches.of(12.015)),
+                //     new Rotation3d(Math.PI, degreesToRadians(28), Math.PI)),
             };
 
             public static final int LIMELIGHT_BLUE_PIPELINE = 0;
@@ -103,7 +103,7 @@ public final class Constants {
         public static final class FrontLeftTurret{
             /*Motors for Turret */
             public static final int Shoot_Motor_Left_Motor = 51;
-            public static final int Shoot_Motor_Right_Motor = 52;
+            // public static final int Shoot_Motor_Right_Motor = 52;
             public static final int Turret_Rotation_Motor = 50;
             /*Encoders for Turret */
             public static final int Turret_Rotation_Encoder = 5;
@@ -439,13 +439,13 @@ public final class Constants {
             public static final int Infeed_Rotation_Encoder = 4;
 
             public static final double Max_Speed = 1;
-            public static final double Infeed_POS = -.29;
+            public static final double Infeed_POS = -.22;
 
 
             public static final double Infeed_POS2 = -.13;
 
 
-            public static final double Shooting_POS = -.24;
+            public static final double Shooting_POS = -.18;
             // public static final double Infeed_Compliance_Pos = .11;
 
         }

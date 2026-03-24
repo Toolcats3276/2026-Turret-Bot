@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import frc.robot.SwerveModule;
 import frc.robot.Constants.Swerve;
+import static frc.robot.Constants.RobotConstants.VisionConstants.APRILTAG_CAMERA_NAMES;
 import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.CTREConfigs;
 import frc.robot.Constants;
@@ -30,6 +31,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -54,6 +56,9 @@ public class SwerveSS extends SubsystemBase {
     public Field2d LLPose;
     public Field2d BotPose;
 
+    private final Field2d m_field = new Field2d();
+    private final Field2d m_LLfield = new Field2d();
+
 
     @SuppressWarnings("unused")
     private NeutralModeValue driveNeutralMode;
@@ -76,8 +81,9 @@ public class SwerveSS extends SubsystemBase {
             };
     
             swerveOdometry = new SwerveDrivePoseEstimator(Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), new Pose2d());
+            m_poseEstimator = new SwerveDrivePoseEstimator(Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), new Pose2d());
             
-                try{
+            try{
                   config = RobotConfig.fromGUISettings();
                 } catch (Exception e) {
                   // Handle exception as needed
@@ -252,10 +258,19 @@ public class SwerveSS extends SubsystemBase {
     @Override
     public void periodic(){
         swerveOdometry.update(getGyroYaw(), getModulePositions());
+        m_poseEstimator.update(getGyroYaw(), getModulePositions());
+
+        getPoseEstimate();
+
+        m_field.setRobotPose(getPose());
+        m_LLfield.setRobotPose(getPoseEstimate());
+
+        SmartDashboard.putData("BotPose", m_field);
+        SmartDashboard.putData("LLBotPose", m_LLfield);
 
         SmartDashboard.putNumber("GetHeading", getHeading().getDegrees());
 
-        String[] cameraNames = {"limelight-1", "limelight-2", "limelight-3", "limelight-4"};
+        String[] cameraNames = {"limelight-l", "limelight-r"};
         for (String cameraName : cameraNames){
 
 

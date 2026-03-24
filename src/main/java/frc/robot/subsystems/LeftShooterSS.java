@@ -29,7 +29,7 @@ import frc.robot.subsystems.vision.LimelightAssistant;
 
 public class LeftShooterSS extends SubsystemBase {
 
-    private TalonFX m_shooterRightMotor;
+    // private TalonFX m_shooterRightMotor;
     private TalonFX m_shooterLeftMotor;
 
     private final StatusSignal<AngularAcceleration> shotAcceleration;
@@ -50,10 +50,10 @@ public class LeftShooterSS extends SubsystemBase {
             m_shooterLeftMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterLeftConfig);
             m_shooterLeftMotor.setNeutralMode(NeutralModeValue.Coast);
             
-            m_shooterRightMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Right_Motor, CTREConfigs.CanivoreCANbus);
-            m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterRightConfig);
-            m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
-            m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
+            // m_shooterRightMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Right_Motor, CTREConfigs.CanivoreCANbus);
+            // m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.LeftshooterRightConfig);
+            // m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
+            // m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
        
             shotAcceleration = m_shooterLeftMotor.getAcceleration();
 
@@ -93,7 +93,7 @@ public class LeftShooterSS extends SubsystemBase {
             
             
             // SmartDashboard.putNumber("LeftShooterSetSpeed", speed.in(RotationsPerSecond));
-            SmartDashboard.putNumber("LeftRightShooterCurrentSpeed", m_shooterRightMotor.getVelocity().getValueAsDouble());
+            // SmartDashboard.putNumber("LeftRightShooterCurrentSpeed", m_shooterRightMotor.getVelocity().getValueAsDouble());
             SmartDashboard.putNumber("LeftLeftShooterCurrentSpeed", m_shooterLeftMotor.getVelocity().getValueAsDouble());
             SmartDashboard.putNumber("Left Turret TY", TyValue());
             SmartDashboard.putNumber("Left Shooter Tolerance", Shooter_Tolerance.in(RotationsPerSecond));

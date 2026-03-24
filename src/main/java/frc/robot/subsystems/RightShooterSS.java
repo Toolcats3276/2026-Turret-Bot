@@ -36,7 +36,7 @@ import static frc.robot.Constants.RobotConstants.FrontRightTurret.FUEL_EXIT_ANGL
 public class RightShooterSS extends SubsystemBase {
 
     private TalonFX m_shooterLeftMotor;
-    private TalonFX m_shooterRightMotor;
+    // private TalonFX m_shooterRightMotor;
 
     private final StatusSignal<AngularVelocity> flywheelVelocity;
     private final StatusSignal<AngularAcceleration> flywheelAcceleration;
@@ -51,10 +51,10 @@ public class RightShooterSS extends SubsystemBase {
             m_shooterLeftMotor.setNeutralMode(NeutralModeValue.Coast);
             
 
-            m_shooterRightMotor = new TalonFX(RobotConstants.FrontRightTurret.Shoot_Motor_Right_Motor, CTREConfigs.CanivoreCANbus);
-            m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.RightshooterRightConfig);
-            m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
-            m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
+            // m_shooterRightMotor = new TalonFX(RobotConstants.FrontRightTurret.Shoot_Motor_Right_Motor, CTREConfigs.CanivoreCANbus);
+            // m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.RightshooterRightConfig);
+            // m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
+            // m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
 
             flywheelVelocity = m_shooterLeftMotor.getVelocity();
             flywheelAcceleration = m_shooterLeftMotor.getAcceleration();
@@ -87,7 +87,7 @@ public class RightShooterSS extends SubsystemBase {
         }
 
         SmartDashboard.putNumber("RightLeftShooterCurrentSpeed", m_shooterLeftMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("RightRightShooterCurrentSpeed", m_shooterRightMotor.getVelocity().getValueAsDouble());
+        // SmartDashboard.putNumber("RightRightShooterCurrentSpeed", m_shooterRightMotor.getVelocity().getValueAsDouble());
 
     }
 

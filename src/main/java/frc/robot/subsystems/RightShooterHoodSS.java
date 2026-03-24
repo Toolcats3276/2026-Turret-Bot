@@ -30,7 +30,7 @@ public class RightShooterHoodSS extends SubsystemBase{
     
     public RightShooterHoodSS() {
         
-        s_LinearActuator = new Servo(8);
+        s_LinearActuator = new Servo(6);
         s_LinearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
     }
 

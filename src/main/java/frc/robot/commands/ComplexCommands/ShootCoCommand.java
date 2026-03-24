@@ -157,7 +157,7 @@ public class ShootCoCommand extends ParallelCommandGroup {
         new FeederCommand(s_Feeder, Constants.RobotConstants.Feeder.MAX_ANGULAR_VELOCITY)
       ),
         new ShootRightTurret(s_RightShooter, .8),
-        new ShootLeftTurret(s_LeftShooter, .8)
+        new ShootLeftTurret(s_LeftShooter, RotationsPerSecond.of(80))
 
       );
     addRequirements(s_Indexer, s_LeftShooter, s_RightShooter, s_LeftTurret, s_LeftTurret);

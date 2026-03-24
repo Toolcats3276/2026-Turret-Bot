@@ -50,6 +50,7 @@ import frc.robot.subsystems.*;
 
 
 
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -136,9 +137,12 @@ public class RobotContainer {
         // AutoChooser.addOption("Depot Advanced", new PathPlannerAuto("Depot Half"));
 
         // Configure the button bindings
+
+        
         configureButtonBindings();
 
     }
+
 
     /**
      * Use this method to define your button->command mappings. Buttons can be created by

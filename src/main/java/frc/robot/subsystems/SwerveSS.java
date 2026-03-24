@@ -3,12 +3,18 @@ package frc.robot.subsystems;
 import frc.robot.SwerveModule;
 import frc.robot.Constants.Swerve;
 import static frc.robot.Constants.RobotConstants.VisionConstants.APRILTAG_CAMERA_NAMES;
+import static frc.robot.Constants.RobotConstants.VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS;
+import static frc.robot.Constants.RobotConstants.VisionConstants.APRILTAG_STD_DEVS;
+import static frc.robot.Constants.RobotConstants.VisionConstants.TAG_DISTANCE_THRESHOLD;
+import static frc.robot.Constants.RobotConstants.VisionConstants.ANGULAR_VELOCITY_THRESHOLD;
 import frc.robot.subsystems.vision.LimelightHelpers;
+import frc.robot.subsystems.vision.LimelightHelpers.PoseEstimate;
 import frc.robot.CTREConfigs;
 import frc.robot.Constants;
 import frc.robot.Robot;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -29,6 +35,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.PoseEstimator;
@@ -38,6 +45,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -48,7 +57,6 @@ public class SwerveSS extends SubsystemBase {
     public SwerveDrivePoseEstimator swerveOdometry;
     public SwerveModule[] mSwerveMods;
     public static Pigeon2 gyro;
-    public boolean doRejectUpdate;
     public RobotConfig config;
 
     public static SwerveDrivePoseEstimator m_poseEstimator;
@@ -82,6 +90,8 @@ public class SwerveSS extends SubsystemBase {
     
             swerveOdometry = new SwerveDrivePoseEstimator(Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), new Pose2d());
             m_poseEstimator = new SwerveDrivePoseEstimator(Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), new Pose2d());
+            // m_poseEstimator = new PoseEstimator<>(Swerve.swerveKinematics, null, VecBuilder.fill(0, 0, 0), VecBuilder.fill(.5,.5,9999999));
+
             
             try{
                   config = RobotConfig.fromGUISettings();
@@ -213,9 +223,9 @@ public class SwerveSS extends SubsystemBase {
             swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), pose);
         }
     
-        public void resetPoseEstimate(Pose2d pose){
-            m_poseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
-        }
+        // public void resetPoseEstimate(Pose2d pose){
+        //     m_poseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
+        // }
     
         public Rotation2d getHeading(){
             return getPose().getRotation();
@@ -238,9 +248,8 @@ public class SwerveSS extends SubsystemBase {
                 mod.resetToAbsolute();
             }
         }
-
-
     
+
     
         public void setNeutralMode(NeutralModeValue driveNeutralMode){
             this.driveNeutralMode = driveNeutralMode;
@@ -261,14 +270,20 @@ public class SwerveSS extends SubsystemBase {
         m_poseEstimator.update(getGyroYaw(), getModulePositions());
 
         getPoseEstimate();
+        getPose();
+        
 
-        m_field.setRobotPose(getPose());
+        m_field.setRobotPose(swerveOdometry.getEstimatedPosition());
         m_LLfield.setRobotPose(getPoseEstimate());
+        
+        
 
         SmartDashboard.putData("BotPose", m_field);
         SmartDashboard.putData("LLBotPose", m_LLfield);
 
         SmartDashboard.putNumber("GetHeading", getHeading().getDegrees());
+
+        boolean doRejectUpdate = true;
 
         String[] cameraNames = {"limelight-l", "limelight-r"};
         for (String cameraName : cameraNames){
@@ -298,9 +313,9 @@ public class SwerveSS extends SubsystemBase {
         
             if(!doRejectUpdate)
             {
-              m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
-              m_poseEstimator.addVisionMeasurement(
-                  mt1.pose,
+              swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
+              swerveOdometry.addVisionMeasurement(
+                  mt1.pose.toPose2d(),
                   mt1.timestampSeconds);
             }
         }

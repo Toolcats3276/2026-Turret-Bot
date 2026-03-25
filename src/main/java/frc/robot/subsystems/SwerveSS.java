@@ -283,7 +283,7 @@ public class SwerveSS extends SubsystemBase {
 
         SmartDashboard.putNumber("GetHeading", getHeading().getDegrees());
 
-        boolean doRejectUpdate = true;
+        boolean doRejectUpdate = false;
 
         String[] cameraNames = {"limelight-l", "limelight-r"};
         for (String cameraName : cameraNames){

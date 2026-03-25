@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autos.*;
 import frc.robot.commands.*;
 import frc.robot.commands.BaseCommands.InterpolatorShootCommand;
+import frc.robot.commands.BaseCommands.LookAtTargetCommand;
 import frc.robot.commands.BaseCommands.SlavedTurretCommand;
 import frc.robot.commands.BaseCommands.Feeder.FeederCommand;
 import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
@@ -48,6 +50,13 @@ import frc.robot.commands.ComplexCommands.ShootCoCommand;
 import frc.robot.commands.ComplexCommands.ShuttleCoCommand;
 import frc.robot.subsystems.*;
 
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.Hub_SetPoints_By_Limelight_Degrees_Right;
+import static frc.robot.Constants.RobotConstants.VisionConstants.TARGET_BLUE;
+import static frc.robot.Constants.RobotConstants.VisionConstants.TARGET_RED;
+import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
+
+import java.util.function.Function;
+
 
 
 
@@ -74,7 +83,7 @@ public class RobotContainer {
     private final int leftTurretSup = XboxController.Axis.kLeftY.value;
 
     /* Driver Buttons */
-    private final JoystickButton zeroGyro = new JoystickButton(driver, 14);
+    private final JoystickButton zeroGyro = new JoystickButton(driver, 11);
     private final JoystickButton robotCentric = new JoystickButton(driver, 0);
 
     private final JoystickButton Shoot = new JoystickButton(driver, 1);
@@ -86,6 +95,7 @@ public class RobotContainer {
     private final JoystickButton Shuttle = new JoystickButton(driver, 9);
     private final JoystickButton xDrive = new JoystickButton(driver, 8);
 
+    private final JoystickButton LookatTarget = new JoystickButton(driver, 6);
     private final JoystickButton Outfeed = new JoystickButton(driver, 7);
 
 
@@ -166,6 +176,7 @@ public class RobotContainer {
         ResetTurret.onTrue(new ResetTurretCoCommand(s_RightTurret, s_LeftTurret));
 
         xDrive.whileTrue(Commands.run(() -> s_Swerve.Xdrive(true), s_Swerve));
+        LookatTarget.onTrue(new LookAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, t -> DriverStation.getAlliance().orElse(Blue) == Blue ? TARGET_BLUE : TARGET_RED));
         // Shuttle.onTrue(new FeederCommand(s_Feeder, RotationsPerSecond.of(1)));
         // Shuttle.onTrue(new IndexerCommand(s_Indexer, RotationsPerSecond.of(1)));
         // Shuttle.onTrue(new ShootLeftTurret(s_LeftShooter, 1));

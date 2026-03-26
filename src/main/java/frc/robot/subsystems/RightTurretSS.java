@@ -58,16 +58,16 @@ public class RightTurretSS extends SubsystemBase{
     public static final Angle YAW_POSITION_TOLERANCE = Degrees.of(2.5);
 
 
-    private final double kP = 12;
+    private final double kP = .35;
     private final double kS = 0.42;
     private final double kV = 1;
 
     public static final MotionMagicConfigs YAW_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-        .withMotionMagicAcceleration(12.0)
+        .withMotionMagicAcceleration(9.5)
         .withMotionMagicCruiseVelocity(10.0);
     public static final double YAW_MOTOR_TO_SENSOR_RATIO = 1;
-    public static final double YAW_SENSOR_TO_Turret_RATIO = 192/18;
-    public static final double YAW_MAGNETIC_OFFSET = 0.02490234375;
+    public static final double YAW_SENSOR_TO_Turret_RATIO = 192.0/18.0;
+    public static final double YAW_MAGNETIC_OFFSET = -0.400634765625;
     public static final Angle YAW_ENCODER_DISCONTINUITY_POINT = YAW_LIMIT_REVERSE.plus(YAW_LIMIT_FORWARD)
         .div(2.0)
         .plus(Rotations.of(0.5));
@@ -104,7 +104,7 @@ public class RightTurretSS extends SubsystemBase{
         /*Turret General Rotation*/
         TalonFXConfiguration yawTalonConfig = new TalonFXConfiguration()
             .withMotorOutput(
-                new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Coast))
+                new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast))
             .withFeedback(
                 new FeedbackConfigs().withRotorToSensorRatio(YAW_MOTOR_TO_SENSOR_RATIO)
                     .withFusedCANcoder(e_TurretEncoder)
@@ -122,7 +122,7 @@ public class RightTurretSS extends SubsystemBase{
 
         CANcoderConfiguration yawCanCoderConfig = new CANcoderConfiguration().withMagnetSensor(
             new MagnetSensorConfigs().withMagnetOffset(YAW_MAGNETIC_OFFSET)
-                .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
+                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
                 .withAbsoluteSensorDiscontinuityPoint(YAW_ENCODER_DISCONTINUITY_POINT));
         e_TurretEncoder.setPosition(e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
         e_TurretEncoder.getConfigurator().apply(yawCanCoderConfig);
@@ -134,7 +134,7 @@ public class RightTurretSS extends SubsystemBase{
         LLRotationPidController = new PIDController(LLkP, LLkI, LLkD);
 
         rightTurretMotionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
-        yawPosition = e_TurretEncoder.getPosition();
+        yawPosition = m_TurretMotor.getPosition();
         yawVelocity = m_TurretMotor.getVelocity();
         
     }
@@ -270,16 +270,10 @@ public class RightTurretSS extends SubsystemBase{
     public void setYawAngle(Angle targetYaw) {
         // Wrap the input to match the range of the turret. The input is probably in the range of (-0.5, 0.5], but the
         // turret range is more like [-0.75, 0.25].
-        targetRotations = MathUtil
+        targetRotations = -MathUtil
             .inputModulus(targetYaw.in(Rotations), YAW_RANGE_REVERSE.in(Rotations), YAW_RANGE_FORWARD.in(Rotations));
         Angle currentYaw = getYaw();
-        double ffVolts = 0.0;
-        if (currentYaw.gt(Rotations.of(.5))) {
-          ffVolts = .5;
-        } else if (currentYaw.lt(Rotations.of(-0.5))) {
-          ffVolts = -1;
-        }
-        m_TurretMotor.setControl(rightTurretMotionMagicVoltage.withPosition(targetRotations).withFeedForward(Volts.of(ffVolts)));
+        m_TurretMotor.setControl(rightTurretMotionMagicVoltage.withPosition(targetRotations));
     }
 
     public Angle getYaw() {

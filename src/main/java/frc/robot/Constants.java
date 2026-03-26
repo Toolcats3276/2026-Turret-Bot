@@ -257,8 +257,8 @@ public final class Constants {
             public static final double MAX_SPEED = .35;
             public static final double MAX_SPEED_Auto = .50;
 
-            public static final Angle YAW_LIMIT_FORWARD = Rotations.of(192/36);
-            public static final Angle YAW_LIMIT_REVERSE = Rotations.of(-192/36);
+            public static final Angle YAW_LIMIT_FORWARD = Rotations.of(.5);
+            public static final Angle YAW_LIMIT_REVERSE = Rotations.of(-.5);
 
             public static final Angle YAW_RANGE_FORWARD = YAW_LIMIT_FORWARD
                 .minus(YAW_LIMIT_FORWARD.minus(YAW_LIMIT_REVERSE).minus(Rotations.one()).div(2.0));

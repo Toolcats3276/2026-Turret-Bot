@@ -27,7 +27,6 @@ public class RightTurretPIDFollow extends Command{
 
     @Override
     public void execute(){
-        s_RightTurret.PID(s_LeftTurret.returnPOS(), maxSpeed);
         s_LeftTurret.AutoAim(maxSpeed);
     }
 

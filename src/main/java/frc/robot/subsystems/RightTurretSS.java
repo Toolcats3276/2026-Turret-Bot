@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.math.util.Units.degreesToRadians;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
@@ -17,6 +18,7 @@ import com.ctre.phoenix6.configs.SlotConfigs;
 import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -52,25 +54,24 @@ public class RightTurretSS extends SubsystemBase{
 
     private PIDController TurretPIDController;
 
-    private MotionMagicVoltage rightTurretMotionMagicVoltage;
+    private PositionVoltage rightTurretMotionMagicVoltage;
+    // private MotionMagicVoltage rightTurretMotionMagicVoltage;
     private final StatusSignal<Angle> yawPosition;
     private final StatusSignal<AngularVelocity> yawVelocity;
     public static final Angle YAW_POSITION_TOLERANCE = Degrees.of(2.5);
 
 
-    private final double kP = .35;
-    private final double kS = 0.42;
-    private final double kV = 1;
+    private final double kP = 50;
+    private final double kS = 0.47;
+    private final double kV = 10;
+    private final double kD = 3.25;
 
     public static final MotionMagicConfigs YAW_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
         .withMotionMagicAcceleration(9.5)
         .withMotionMagicCruiseVelocity(10.0);
     public static final double YAW_MOTOR_TO_SENSOR_RATIO = 1;
     public static final double YAW_SENSOR_TO_Turret_RATIO = 192.0/18.0;
-    public static final double YAW_MAGNETIC_OFFSET = -0.400634765625;
-    public static final Angle YAW_ENCODER_DISCONTINUITY_POINT = YAW_LIMIT_REVERSE.plus(YAW_LIMIT_FORWARD)
-        .div(2.0)
-        .plus(Rotations.of(0.5));
+    public static final double YAW_MAGNETIC_OFFSET = 0.072021484375;
 
     private double output;
     private double shootangle;
@@ -109,8 +110,7 @@ public class RightTurretSS extends SubsystemBase{
                 new FeedbackConfigs().withRotorToSensorRatio(YAW_MOTOR_TO_SENSOR_RATIO)
                     .withFusedCANcoder(e_TurretEncoder)
                     .withSensorToMechanismRatio(YAW_SENSOR_TO_Turret_RATIO))
-            .withSlot0(Slot0Configs.from(new SlotConfigs().withKP(kP).withKS(kS).withKV(kV)))
-            .withMotionMagic(YAW_MOTION_MAGIC_CONFIGS)
+            .withSlot0(Slot0Configs.from(new SlotConfigs().withKP(kP).withKS(kS).withKV(kV).withKD(kD)))
             .withSoftwareLimitSwitch(
                 new SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true)
                     .withForwardSoftLimitThreshold(YAW_LIMIT_FORWARD)
@@ -123,8 +123,8 @@ public class RightTurretSS extends SubsystemBase{
         CANcoderConfiguration yawCanCoderConfig = new CANcoderConfiguration().withMagnetSensor(
             new MagnetSensorConfigs().withMagnetOffset(YAW_MAGNETIC_OFFSET)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
-                .withAbsoluteSensorDiscontinuityPoint(YAW_ENCODER_DISCONTINUITY_POINT));
-        e_TurretEncoder.setPosition(e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
+                .withAbsoluteSensorDiscontinuityPoint(.5));
+        // e_TurretEncoder.setPosition(e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
         e_TurretEncoder.getConfigurator().apply(yawCanCoderConfig);
 
         /*Limelight*/
@@ -133,7 +133,8 @@ public class RightTurretSS extends SubsystemBase{
 
         LLRotationPidController = new PIDController(LLkP, LLkI, LLkD);
 
-        rightTurretMotionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
+        // rightTurretMotionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
+        rightTurretMotionMagicVoltage = new PositionVoltage(0).withEnableFOC(true);
         yawPosition = m_TurretMotor.getPosition();
         yawVelocity = m_TurretMotor.getVelocity();
         
@@ -218,8 +219,9 @@ public class RightTurretSS extends SubsystemBase{
         SmartDashboard.putBoolean("RightTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop);
         SmartDashboard.putBoolean("RightTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < NegativeDeadStop);
         SmartDashboard.putBoolean("RightTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop);
-        SmartDashboard.putNumber("Turret Yaw", getYaw().in(Rotations));
+        SmartDashboard.putNumber("Right Turret Yaw", getYaw().in(Rotations));
         SmartDashboard.putNumber("Right Turret Target", targetRotations);
+        SmartDashboard.putBoolean("RightYawCorrect", isYawAtSetpoint());
 
         returnPOS();
 

@@ -78,12 +78,10 @@ public class RightShooterHoodSS extends SubsystemBase{
     }
 
     public static record RightShooterConversion(
-        Distance shotAngle,
         Angle outputAngle) {
         
         public RightShooterConversion interpolate(RightShooterConversion endValue, double t) {
           RightShooterConversion result = new RightShooterConversion(
-            Millimeters.of(MathUtil.interpolate(shotAngle.in(Millimeters), endValue.shotAngle.in(Millimeters), t)),
             Degrees.of(
                   MathUtil.interpolate(
                       outputAngle.in(Degrees),

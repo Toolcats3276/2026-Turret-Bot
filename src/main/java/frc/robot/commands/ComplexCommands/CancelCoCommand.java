@@ -37,10 +37,10 @@ public class CancelCoCommand extends ParallelCommandGroup {
           new InfeedCommand(s_Infeed, RotationsPerSecond.of(0)),
           new FeederCommand(s_feeder, RotationsPerSecond.of(0)),
           new IndexerCommand(s_Indexer, RotationsPerSecond.of(0)),
-          new ShootLeftTurret(s_LeftShooter, RotationsPerSecond.of(0)),
+          new ShootLeftTurret(s_LeftShooter, 0),
           new ShootRightTurret(s_RightShooter, 0),
-          new LeftTurretPID(s_LeftTurret, 0, Constants.RobotConstants.FrontLeftTurret.MAX_SPEED),
-          new RightTurretPID(s_RightTurret, 0, Constants.RobotConstants.FrontRightTurret.MAX_SPEED),
+          // new LeftTurretPID(s_LeftTurret, 0, Constants.RobotConstants.FrontLeftTurret.MAX_SPEED),
+          // new RightTurretPID(s_RightTurret, 0, Constants.RobotConstants.FrontRightTurret.MAX_SPEED),
           new RightTurretLinearActuator(s_RightShooterHood, Millimeter.of(0)),
           new LeftTurretLinearActuator(s_LeftShooterHood, Millimeter.of(0))
         )

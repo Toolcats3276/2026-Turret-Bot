@@ -25,6 +25,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.FeederSS;
 import frc.robot.subsystems.IndexerSS;
 import frc.robot.subsystems.InfeedSS;
+import frc.robot.subsystems.LeftShooterHoodSS;
+import frc.robot.subsystems.LeftShooterSS;
+import frc.robot.subsystems.LeftShooterSS.LeftShooterSetpoints;
+import frc.robot.subsystems.LeftTurretSS;
 import frc.robot.subsystems.RightShooterHoodSS;
 import frc.robot.subsystems.RightShooterHoodSS.RightShooterConversion;
 import frc.robot.subsystems.RightShooterSS;
@@ -50,15 +54,20 @@ public class LookAtTargetCommand extends Command {
   private final RightShooterSS s_RightShooter;
   private final RightTurretSS s_RightTurret;
   private final RightShooterHoodSS s_RightShooterHood;
+  private final LeftShooterSS s_LeftShooter;
+  private final LeftTurretSS s_LeftTurret;
+  private final LeftShooterHoodSS s_LeftShooterHood;
   private final FeederSS s_Feeder;
   private final IndexerSS s_Indexer;
   private final InfeedSS s_Infeed;
   private final SwerveSS s_Swerve;
   private final Function<Translation2d, Translation2d> targetSelector;
-  // private final InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR;
+  private final InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR;
+  private final InterpolatingTreeMap<Double, LeftShooterSetpoints> lookupTableL;
 
   // Reusable object to prevent reallocation (to reduce memory pressure)
-  private final MutAngle turretYawTarget = Rotations.mutable(0);
+  private final MutAngle RightTurretYawTarget = Rotations.mutable(0);
+  private final MutAngle LeftTurretYawTarget = Rotations.mutable(0);
 
   private boolean isShooting;
 
@@ -76,24 +85,32 @@ public class LookAtTargetCommand extends Command {
       RightShooterSS s_RightShooter,
       RightTurretSS s_RightTurret,
       RightShooterHoodSS s_RightShooterHood,
+      LeftShooterSS s_LeftShooter,
+      LeftTurretSS s_LeftTurret,
+      LeftShooterHoodSS s_LeftShooterHood,
       FeederSS s_Feeder,
       IndexerSS s_Indexer,
       InfeedSS s_Infeed,
       SwerveSS s_Swerve,
-      Function<Translation2d, Translation2d> targetSelector
-      // InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR
+      Function<Translation2d, Translation2d> targetSelector,
+      InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR,
+      InterpolatingTreeMap<Double, LeftShooterSetpoints> lookupTableL
       ) {
     this.s_RightShooter = s_RightShooter;
     this.s_RightTurret = s_RightTurret;
     this.s_RightShooterHood = s_RightShooterHood;
+    this.s_LeftShooter = s_LeftShooter;
+    this.s_LeftTurret = s_LeftTurret;
+    this.s_LeftShooterHood = s_LeftShooterHood;
     this.s_Feeder = s_Feeder;
     this.s_Indexer = s_Indexer;
     this.s_Infeed = s_Infeed;
     this.s_Swerve = s_Swerve;
     this.targetSelector = targetSelector;
-    // this.lookupTableR = lookupTableR;
+    this.lookupTableR = lookupTableR;
+    this.lookupTableL = lookupTableL;
 
-    addRequirements(s_RightShooter, s_Feeder, s_Indexer, s_RightTurret, s_RightShooterHood, s_Infeed);
+    addRequirements(s_RightShooter, s_Feeder, s_Indexer, s_RightTurret, s_RightShooterHood, s_Infeed, s_LeftShooter, s_LeftShooterHood, s_LeftTurret);
   }
 
   @Override
@@ -108,14 +125,18 @@ public class LookAtTargetCommand extends Command {
     var currentChassisSpeeds = s_Swerve.getRobotSpeed();
 
     // Translation of the shooter on the field (used for distance/angle calculations).
-    var shooterTranslation = RightShooterSS.getShooterTranslation(robotPose);
+    var rightShooterTranslation = RightShooterSS.getShooterTranslation(robotPose);
+    var leftShooterTranslation = LeftShooterSS.getShooterTranslation(robotPose);
 
     // Get the target to shoot at
-    var targetTranslation = targetSelector.apply(shooterTranslation);
-    var actualTargetDistance = shooterTranslation.getDistance(targetTranslation);
+    var rightTargetTranslation = targetSelector.apply(rightShooterTranslation);
+    var leftTargetTranslation = targetSelector.apply(leftShooterTranslation);
+    var rightActualTargetDistance = rightShooterTranslation.getDistance(rightTargetTranslation);
+    var leftActualTargetDistance = rightShooterTranslation.getDistance(rightTargetTranslation);
 
     // If the shooter is under the trench or over the bump, don't shoot
-    var shooterX = shooterTranslation.getX();
+    var rightShooterX = rightShooterTranslation.getX();
+    var leftShooterX = rightShooterTranslation.getX();
 
     // 1. Compute the velocity of the fuel at the shooter's location on the field.
     //
@@ -123,7 +144,7 @@ public class LookAtTargetCommand extends Command {
     // predict where the fuel will land we must account for that initial velocity.
     // - There are two contributions:
     // A) vRobot: the robot's linear translation velocity
-    // B) vTan: tangential velocity at the shooter from angular rotation acting on the shooter
+    // B) vRightTan: tangential velocity at the shooter from angular rotation acting on the shooter
     //
     // The sum of these gives the initial velocity of the fuel relative to the field, which we use to compute how far
     // the projectile will shift during its flight.
@@ -134,49 +155,63 @@ public class LookAtTargetCommand extends Command {
 
     // Convert rotation about the robot center into a tangential linear velocity at the shooter.
     // This creates a tangential velocity at the shooter mount because the shooter is offset from the robot center.
-    var robotToShooter = shooterTranslation.minus(robotPose.getTranslation());
-    var vTan = new Translation2d(-omega * robotToShooter.getY(), omega * robotToShooter.getX());
+    var robotToRightShooter = rightShooterTranslation.minus(robotPose.getTranslation());
+    var robotToLeftShooter = leftShooterTranslation.minus(robotPose.getTranslation());
+    var vRightTan = new Translation2d(-omega * robotToRightShooter.getY(), omega * robotToRightShooter.getX());
+    var vLeftTan = new Translation2d(-omega * robotToLeftShooter.getY(), omega * robotToLeftShooter.getX());
 
     // Effective shooter velocity = robot linear + tangential from rotation.
-    var effectiveShooterVelocity = vRobot.plus(vTan);
+    var effectiveRightShooterVelocity = vRobot.plus(vRightTan);
+    var effectiveLeftShooterVelocity = vRobot.plus(vLeftTan);
 
     // 2. Iteratively solve for the aim point that compensates for time-of-flight.
     //
     // Rationale:
-    // - The flight time depends on the flywheel speed and pitch, which are chosen based on the distance to the target.
+    // - The flight time depends on the flywheel speed and rpitch, which are chosen based on the distance to the target.
     // But the distance depends on the offset caused by the robot's motion during flight — a circular dependency.
     // - We therefore perform a few iterations: estimate distance -> choose shooter setpoints -> compute flight time ->
     // predict where the target will appear after that flight -> repeat.
-    var predictedTargetTranslation = targetTranslation;
-    Translation2d targetPredictedOffset = new Translation2d();
+    var predictedRightTargetTranslation = rightTargetTranslation;
+    var predictedLeftTargetTranslation = leftTargetTranslation;
+    Translation2d targetRightPredictedOffset = new Translation2d();
+    Translation2d targetLeftPredictedOffset = new Translation2d();
 
-    // RightShooterSetpoints RightshootingSettings;
+    RightShooterSetpoints RightshootingSettings;
+    LeftShooterSetpoints LeftshootingSettings;
     for (int i = 0; i < 4; i++) {
       // Distance from the shooter to the currently predicted target point.
-      // This distance drives the lookup table which selects pitch and flywheel speed.
-      var predictedTargetDistance = shooterTranslation.getDistance(predictedTargetTranslation);
-      // RightshootingSettings = lookupTableR.get(predictedTargetDistance);
+      // This distance drives the lookup table which selects rpitch and flywheel speed.
+      var predictedRightTargetDistance = rightShooterTranslation.getDistance(predictedRightTargetTranslation);
+      var predictedLeftTargetDistance = leftShooterTranslation.getDistance(predictedLeftTargetTranslation);
+      RightshootingSettings = lookupTableR.get(predictedRightTargetDistance);
+      LeftshootingSettings = lookupTableL.get(predictedLeftTargetDistance);
 
-      // RightShooterConversion setpointsRight = RightShooterHoodConversion.get(RightshootingSettings.shotAngle().in(Millimeter));
+      RightShooterConversion ShooterConversion = RightShooterHoodConversion.get(RightshootingSettings.shotAngle().in(Millimeter));
 
 
       var timeUntilScored = 0.0;
-      // var rps = RightshootingSettings.shotVelocity().in(RotationsPerSecond);
-      // var pitch = RightshootingSettings.shotAngle();
-      // var pitchConversion = setpointsRight.outputAngle();
+      var rrps = RightshootingSettings.shotVelocity().in(RotationsPerSecond);
+      var lrps = LeftshootingSettings.shotVelocity().in(RotationsPerSecond);
+      var rpitch = RightshootingSettings.shotAngle();
+      var lpitch = RightshootingSettings.shotAngle();
+      var pitchConversion = ShooterConversion.outputAngle();
 
-      // if (Math.abs(rps) > 1e-3) { // Avoid divide-by-zero if flywheel is stopped.
+      if (Math.abs(rrps) > 1e-3) { // Avoid divide-by-zero if flywheel is stopped.
         // Approximate time-of-flight using the horizontal component of the fuel's exit velocity. Use actual distance to
         // target (not predicted) for flight time to avoid divergence when moving away from the target.
         //
         // - For compensating lateral translation caused by robot motion, the horizontal (field-parallel) component of
         // the fuel velocity determines how far the fuel travels horizontally during flight. How high the ball arcs
         // doesn't matter, it only matters how fast it moves horizontally.
-        // - We approximate flight time as: time = horizontal_distance / (exit_speed * cos(pitch)).
-      //   double fuelExitVelocity = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * rps;
-      //   timeUntilScored = actualTargetDistance
-      //       / (fuelExitVelocity * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversion).in(Degrees)));
-      // }
+        // - We approximate flight time as: time = horizontal_distance / (exit_speed * cos(rpitch)).
+        double fuelExitVelocityRight = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * rrps;
+        timeUntilScored = rightActualTargetDistance
+            / (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversion).in(Degrees)));
+
+        double fuelExitVelocityLeft = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * lrps;
+        timeUntilScored = leftActualTargetDistance
+            / (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversion).in(Degrees)));
+      }
 
       // Compute how far the fuel initial velocity (from robot motion) will shift the target point.
       // We subtract this offset from the real target position to produce a "lead" point to aim at.
@@ -184,22 +219,33 @@ public class LookAtTargetCommand extends Command {
       // - If the robot is moving forward, the fuel will land further forward relative to a stationary shot. To hit the
       // desired (static) target we need to aim backwards relative to the instantaneous target position by the amount
       // the fuel will be carried during flight.
-      targetPredictedOffset = effectiveShooterVelocity.times(timeUntilScored);
-      predictedTargetTranslation = targetTranslation.minus(targetPredictedOffset);
+      targetRightPredictedOffset = effectiveRightShooterVelocity.times(timeUntilScored);
+      targetLeftPredictedOffset = effectiveLeftShooterVelocity.times(timeUntilScored);
+      predictedRightTargetTranslation = rightTargetTranslation.minus(targetRightPredictedOffset);
+      predictedLeftTargetTranslation = rightTargetTranslation.minus(targetRightPredictedOffset);
+
+      SmartDashboard.putNumber("Target distance Right", predictedRightTargetDistance);
+      SmartDashboard.putNumber("Target distance Left", predictedLeftTargetDistance);
     }
 
-    SmartDashboard.putNumber("Shooting offset X", targetPredictedOffset.getX());
-    SmartDashboard.putNumber("Shooting offset Y", targetPredictedOffset.getY());
+    SmartDashboard.putNumber("Shooting offset X Right", targetRightPredictedOffset.getX());
+    SmartDashboard.putNumber("Shooting offset X Left", targetLeftPredictedOffset.getX());
+    SmartDashboard.putNumber("Shooting offset Y Right", targetRightPredictedOffset.getY());
+    SmartDashboard.putNumber("Shooting offset Y Left", targetLeftPredictedOffset.getY());
 
     // After iterating, resolve final shooter setpoints for the converged predicted target.
-    // RightshootingSettings = lookupTableR.get(predictedTargetTranslation.getDistance(shooterTranslation));
+    // RightshootingSettings = lookupTableR.get(predictedRightTargetTranslation.getDistance(rightShooterTranslation));
+    // RightshootingSettings = lookupTableR.get(predictedLeftTargetTranslation.getDistance(rightShooterTranslation));
 
     // Compute the turret yaw required to point at the compensated aim point.
-    var angleToTarget = predictedTargetTranslation.minus(shooterTranslation).getAngle();
-    turretYawTarget.mut_replace(angleToTarget.minus(robotPose.getRotation()).getRotations(), Rotations);
+    var angleToRightTarget = predictedRightTargetTranslation.minus(rightShooterTranslation).getAngle();
+    var angleToLeftTarget = predictedLeftTargetTranslation.minus(rightShooterTranslation).getAngle();
+    RightTurretYawTarget.mut_replace(angleToRightTarget.minus(robotPose.getRotation()).getRotations(), Rotations);
+    LeftTurretYawTarget.mut_replace(angleToRightTarget.minus(robotPose.getRotation()).getRotations(), Rotations);
 
-    // Command the shooter pitch, yaw, and flywheel speed from the lookup table.
-    s_RightTurret.setYawAngle(turretYawTarget);
+    // Command the shooter rpitch, yaw, and flywheel speed from the lookup table.
+    s_RightTurret.setYawAngle(RightTurretYawTarget);
+    s_LeftTurret.setYawAngle(LeftTurretYawTarget);
     // s_RightShooterHood.LinearActuator(RightshootingSettings.shotAngle());
     // s_RightShooter.setSpeed(RightshootingSettings.shotVelocity());
 

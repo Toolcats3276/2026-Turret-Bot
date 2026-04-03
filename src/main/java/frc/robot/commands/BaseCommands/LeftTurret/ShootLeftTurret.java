@@ -9,16 +9,16 @@ import frc.robot.subsystems.LeftShooterSS;
 public class ShootLeftTurret extends Command {
 
   private LeftShooterSS s_LeftShooter;
-  private AngularVelocity speed;
+  private double speed;
 
-  public ShootLeftTurret(LeftShooterSS s_LeftShooter, AngularVelocity speed) {
+  public ShootLeftTurret(LeftShooterSS s_LeftShooter, double speed) {
     this.s_LeftShooter = s_LeftShooter;
     this.speed = speed;
   }
 
   @Override
   public void initialize() {
-    s_LeftShooter.setSpeed(speed);
+    s_LeftShooter.setSpeed(RotationsPerSecond.of(speed));
   }
 
   @Override

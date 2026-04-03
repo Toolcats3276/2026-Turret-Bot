@@ -49,7 +49,7 @@ import java.util.function.Supplier;
  * This command has configurability to be used for both shooting at the hub and shooting while shuttling fuel across the
  * field. The target to shoot at is determined by a function, and the shooter settings lookup table is a parameter.
  */
-public class ShootAtTargetCommand extends Command {
+public class SmartCompCommand extends Command {
 
   private final RightShooterSS s_RightShooter;
   private final RightTurretSS s_RightTurret;
@@ -81,7 +81,7 @@ public class ShootAtTargetCommand extends Command {
    * @param targetSelector function that takes the shooter's translation and returns the target translation to shoot at
    * @param lookupTableR lookup table mapping distance to shooter setpoints
    */
-  public ShootAtTargetCommand(
+  public SmartCompCommand(
       RightShooterSS s_RightShooter,
       RightTurretSS s_RightTurret,
       RightShooterHoodSS s_RightShooterHood,
@@ -200,34 +200,6 @@ public class ShootAtTargetCommand extends Command {
       var pitchConversionR = ShooterConversionR.outputAngle();
       var pitchConversionL = ShooterConversionL.outputAngle();
 
-      if (Math.abs(rrps) > 1e-3) { // Avoid divide-by-zero if flywheel is stopped.
-        // Approximate time-of-flight using the horizontal component of the fuel's exit velocity. Use actual distance to
-        // target (not predicted) for flight time to avoid divergence when moving away from the target.
-        //
-        // - For compensating lateral translation caused by robot motion, the horizontal (field-parallel) component of
-        // the fuel velocity determines how far the fuel travels horizontally during flight. How high the ball arcs
-        // doesn't matter, it only matters how fast it moves horizontally.
-        // - We approximate flight time as: time = horizontal_distance / (exit_speed * cos(rpitch)).
-        double fuelExitVelocityRight = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * rrps;
-        RTimeUntilScored = rightActualTargetDistance
-            / (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversionR).in(Radians)));
-
-        double fuelExitVelocityLeft = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * lrps;
-        LTimeUntilScored = leftActualTargetDistance
-            / (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversionL).in(Radians)));
-
-        SmartDashboard.putNumber("RightShooterDevider", (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversionR).in(Degrees))));
-        SmartDashboard.putNumber("LeftShooterDevider", (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversionR).in(Degrees))));
-        SmartDashboard.putNumber("fuelexitvelocityl", fuelExitVelocityLeft);
-        SmartDashboard.putNumber("fuelexitvelocityr", fuelExitVelocityRight);
-        SmartDashboard.putNumber("cos(lpitch)", Math.cos(s_LeftShooterHood.getFuelPitch(pitchConversionL).in(Radians)));
-        SmartDashboard.putNumber("cos(rpitch)", Math.cos(s_RightShooterHood.getFuelPitch(pitchConversionR).in(Radians)));
-        SmartDashboard.putNumber("RightFuelPitch", s_RightShooterHood.getFuelPitch(pitchConversionR).in(Degrees));
-        SmartDashboard.putNumber("LeftFuelPitch", s_LeftShooterHood.getFuelPitch(pitchConversionL).in(Degrees));
-        SmartDashboard.putNumber("LTimeUntilScored", LTimeUntilScored);
-        SmartDashboard.putNumber("RTimeUntilScored", RTimeUntilScored);
-      }
-
       // Compute how far the fuel initial velocity (from robot motion) will shift the target point.
       // We subtract this offset from the real target position to produce a "lead" point to aim at.
       //
@@ -245,54 +217,19 @@ public class ShootAtTargetCommand extends Command {
       SmartDashboard.putNumber("Left Shooter Pitch", s_RightShooterHood.getFuelPitch(pitchConversionL).in(Degrees));
     }
 
-    SmartDashboard.putNumber("Shooting offset X Right", targetRightPredictedOffset.getX());
-    SmartDashboard.putNumber("Shooting offset X Left", targetLeftPredictedOffset.getX());
-    SmartDashboard.putNumber("Shooting offset Y Right", targetRightPredictedOffset.getY());
-    SmartDashboard.putNumber("Shooting offset Y Left", targetLeftPredictedOffset.getY());
-
     // After iterating, resolve final shooter setpoints for the converged predicted target.
     RightshootingSettings = lookupTableR.get(predictedRightTargetTranslation.getDistance(rightShooterTranslation));
     LeftshootingSettings = lookupTableL.get(predictedLeftTargetTranslation.getDistance(leftShooterTranslation));
 
-    // Compute the turret yaw required to point at the compensated aim point.
-    var angleToRightTarget = predictedRightTargetTranslation.minus(rightShooterTranslation).getAngle();
-    var angleToLeftTarget = predictedLeftTargetTranslation.minus(leftShooterTranslation).getAngle();
-    RightTurretYawTarget.mut_replace(angleToRightTarget.minus(robotPose.getRotation()).getRotations(), Rotations);
-    LeftTurretYawTarget.mut_replace(angleToLeftTarget.minus(robotPose.getRotation()).getRotations(), Rotations);
-
     // Command the shooter pitch, yaw, and flywheel speed from the lookup table.
-    s_RightTurret.setYawAngle(RightTurretYawTarget);
     s_RightShooterHood.LinearActuator(RightshootingSettings.shotAngle());
     s_RightShooter.setSpeed(RightshootingSettings.shotVelocity());
-    s_LeftTurret.setYawAngle(LeftTurretYawTarget);
     s_LeftShooterHood.LinearActuator(LeftshootingSettings.shotAngle());
     s_LeftShooter.setSpeed(LeftshootingSettings.shotVelocity());
 
-    // Check if all of the conditions are met to be ready to shoot
-    var isRightFlywheelReady = s_RightShooter.isFlywheelAtSpeed();
-    var isLeftFlywheelReady = s_LeftShooter.isFlywheelAtSpeed();
-    var isRightYawReady = s_RightTurret.isYawAtSetpoint();
-    var isLeftYawReady = s_RightTurret.isYawAtSetpoint();
-    if ((isRightFlywheelReady && isRightYawReady && isShooting) || isShooting || (isLeftFlywheelReady && isLeftYawReady && isShooting) || (isRightFlywheelReady && isRightYawReady) || (isLeftFlywheelReady && isLeftYawReady)) {
-      // All conditions met. Continuously feeding until the command is interrupted
-      s_Indexer.setSpeed(RotationsPerSecond.of(1));
-      s_Feeder.setSpeed(RotationsPerSecond.of(1));
-      s_Infeed.SetSpeed(RotationsPerSecond.of(1));
-
-      isShooting = true;
-    } else {
-      // Not ready. Don't feed and display readiness using segmented LED lights.
-      s_Indexer.Stop();
-      s_Feeder.Stop();
-      s_Infeed.Stop();
-    }
   }
 
   @Override
   public void end(boolean interrupted) {
-    s_RightShooter.Stop();
-    s_LeftShooter.Stop();
-    s_Feeder.Stop();
-    s_Indexer.Stop();
   }
 }

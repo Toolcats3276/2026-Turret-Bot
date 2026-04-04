@@ -30,7 +30,7 @@ public class RightShooterHoodSS extends SubsystemBase{
     
     public RightShooterHoodSS() {
         
-        s_LinearActuator = new Servo(8);
+        s_LinearActuator = new Servo(6);
         s_LinearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
     }
 
@@ -78,12 +78,10 @@ public class RightShooterHoodSS extends SubsystemBase{
     }
 
     public static record RightShooterConversion(
-        Distance shotAngle,
         Angle outputAngle) {
         
         public RightShooterConversion interpolate(RightShooterConversion endValue, double t) {
           RightShooterConversion result = new RightShooterConversion(
-            Millimeters.of(MathUtil.interpolate(shotAngle.in(Millimeters), endValue.shotAngle.in(Millimeters), t)),
             Degrees.of(
                   MathUtil.interpolate(
                       outputAngle.in(Degrees),

@@ -2,12 +2,19 @@ package frc.robot.subsystems;
 
 import frc.robot.SwerveModule;
 import frc.robot.Constants.Swerve;
+import static frc.robot.Constants.RobotConstants.VisionConstants.APRILTAG_CAMERA_NAMES;
+import static frc.robot.Constants.RobotConstants.VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS;
+import static frc.robot.Constants.RobotConstants.VisionConstants.APRILTAG_STD_DEVS;
+import static frc.robot.Constants.RobotConstants.VisionConstants.TAG_DISTANCE_THRESHOLD;
+import static frc.robot.Constants.RobotConstants.VisionConstants.ANGULAR_VELOCITY_THRESHOLD;
 import frc.robot.subsystems.vision.LimelightHelpers;
+import frc.robot.subsystems.vision.LimelightHelpers.PoseEstimate;
 import frc.robot.CTREConfigs;
 import frc.robot.Constants;
 import frc.robot.Robot;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -19,23 +26,35 @@ import static edu.wpi.first.units.Units.Rotation;
 
 import org.ejml.equation.IntegerSequence.For;
 
+import com.ctre.phoenix6.configs.CustomParamsConfigs;
+import com.ctre.phoenix6.configs.GyroTrimConfigs;
+import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
+import com.ctre.phoenix6.configs.Pigeon2FeaturesConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.*;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -45,14 +64,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class SwerveSS extends SubsystemBase {
     public SwerveDrivePoseEstimator swerveOdometry;
     public SwerveModule[] mSwerveMods;
-    public static Pigeon2 gyro;
-    public boolean doRejectUpdate;
+    public static Pigeon2 gyro = new Pigeon2(Swerve.pigeonID);
     public RobotConfig config;
 
     public static SwerveDrivePoseEstimator m_poseEstimator;
 
     public Field2d LLPose;
     public Field2d BotPose;
+
+    private final Field2d m_field = new Field2d();
+    private final Field2d m_LLfield = new Field2d();
 
 
     @SuppressWarnings("unused")
@@ -62,9 +83,12 @@ public class SwerveSS extends SubsystemBase {
         public SwerveSS() {
     
             driveNeutralMode = NeutralModeValue.Brake;
+
+            Pigeon2Configuration pigeon2Configuration = new Pigeon2Configuration()
+                .withMountPose(new MountPoseConfigs().withMountPosePitch(0).withMountPoseRoll(0).withMountPoseYaw(0))
+                .withGyroTrim(new GyroTrimConfigs().withGyroScalarZ(180));
     
-            gyro = new Pigeon2(Swerve.pigeonID);
-            gyro.getConfigurator().apply(Robot.ctreConfigs.gyroConfig);
+            gyro.getConfigurator().apply(pigeon2Configuration);
             // gyro.setYaw(180);
         
     
@@ -76,37 +100,39 @@ public class SwerveSS extends SubsystemBase {
             };
     
             swerveOdometry = new SwerveDrivePoseEstimator(Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), new Pose2d());
+            m_poseEstimator = new SwerveDrivePoseEstimator(Swerve.swerveKinematics, getGyroYaw(), getModulePositions(), new Pose2d());
+            // m_poseEstimator = new PoseEstimator<>(Swerve.swerveKinematics, null, VecBuilder.fill(0, 0, 0), VecBuilder.fill(.5,.5,9999999));
+
             
-                try{
+            try{
                   config = RobotConfig.fromGUISettings();
                 } catch (Exception e) {
                   // Handle exception as needed
                   e.printStackTrace();
             }
 
-            // Configure AutoBuilder last
             AutoBuilder.configure(
                 this::getPose, 
                 this::setPose, 
-                this::getRobotSpeed, 
+                this::getCurrentFieldChassisSpeeds, 
                 this::driveRobotRelative,
                 new PPHolonomicDriveController(
                     new PIDConstants(3.5, 0, 0.1), // Translation constants //3.5
-                    new PIDConstants(.1, 0, 0) // Rotation constants P = 1.5
+                    new PIDConstants(.1, 0, 0)  // Rotation constants P = 1.5
                 ),
                 config,
-                // () ->  false,
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-            
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                }, 
+                () -> false,
+                // () -> {
+                //     // Boolean supplier that controls when the path will be mirrored for the red alliance
+                //     // This will flip the path being followed to the red side of the field.
+                //     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                //     var alliance = DriverStation.getAlliance();
+                //     if (alliance.isPresent()) {
+                //         return alliance.get() == DriverStation.Alliance.Red;
+                //     }
+                //     return false;
+                // }, 
                 this);
         }
 
@@ -148,7 +174,14 @@ public class SwerveSS extends SubsystemBase {
         
         
         public void driveRobotRelative(ChassisSpeeds robotRelativeSpeeds) {
-            ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(robotRelativeSpeeds, 0.02);
+            // Match the same rotation convention teleop currently uses so PathPlanner
+            // commands turn in the same direction as the driver-controlled path.
+            ChassisSpeeds correctedSpeeds = new ChassisSpeeds(
+                robotRelativeSpeeds.vxMetersPerSecond,
+                robotRelativeSpeeds.vyMetersPerSecond,
+                -robotRelativeSpeeds.omegaRadiansPerSecond
+            );
+            ChassisSpeeds targetSpeeds = ChassisSpeeds.discretize(correctedSpeeds, 0.02);
     
             SwerveModuleState[] targetState = Swerve.swerveKinematics.toSwerveModuleStates(targetSpeeds);
             // SwerveDriveKinematics.desaturateWheelSpeeds(targetState, Swerve.maxSpeed);
@@ -194,6 +227,11 @@ public class SwerveSS extends SubsystemBase {
         public ChassisSpeeds getRobotSpeed(){
             return Swerve.swerveKinematics.toChassisSpeeds(getModuleStates());
         }
+
+        public ChassisSpeeds getCurrentFieldChassisSpeeds() {
+            // AutoBuilder expects robot-relative chassis speeds here.
+            return getRobotSpeed();
+        }
     
         public Pose2d getPose() {
             return swerveOdometry.getEstimatedPosition();
@@ -207,9 +245,9 @@ public class SwerveSS extends SubsystemBase {
             swerveOdometry.resetPosition(getGyroYaw(), getModulePositions(), pose);
         }
     
-        public void resetPoseEstimate(Pose2d pose){
-            m_poseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
-        }
+        // public void resetPoseEstimate(Pose2d pose){
+        //     m_poseEstimator.resetPosition(getGyroYaw(), getModulePositions(), pose);
+        // }
     
         public Rotation2d getHeading(){
             return getPose().getRotation();
@@ -224,7 +262,7 @@ public class SwerveSS extends SubsystemBase {
         }
     
         public Rotation2d getGyroYaw() {
-            return Rotation2d.fromDegrees(gyro.getYaw().getValue().in(Degrees));
+            return Rotation2d.fromDegrees(gyro.getYaw().getValueAsDouble());
         }
     
         public void resetModulesToAbsolute(){
@@ -232,9 +270,8 @@ public class SwerveSS extends SubsystemBase {
                 mod.resetToAbsolute();
             }
         }
-
-
     
+
     
         public void setNeutralMode(NeutralModeValue driveNeutralMode){
             this.driveNeutralMode = driveNeutralMode;
@@ -252,45 +289,104 @@ public class SwerveSS extends SubsystemBase {
     @Override
     public void periodic(){
         swerveOdometry.update(getGyroYaw(), getModulePositions());
+        m_poseEstimator.update(getGyroYaw(), getModulePositions());
 
+        getPoseEstimate();
+        getPose();
+        
+
+        m_field.setRobotPose(swerveOdometry.getEstimatedPosition());
+        m_LLfield.setRobotPose(getPoseEstimate());
+        
+        
+
+        SmartDashboard.putData("BotPose", m_field);
+        SmartDashboard.putData("LLBotPose", m_LLfield);
+        
         SmartDashboard.putNumber("GetHeading", getHeading().getDegrees());
-
-        String[] cameraNames = {"limelight-1", "limelight-2", "limelight-3", "limelight-4"};
-        for (String cameraName : cameraNames){
-
-
-        LimelightHelpers.PoseEstimate mt1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(cameraName);
         
-        if (mt1 == null){
-            continue;
-        }
-
-            if(mt1.tagCount == 1 && mt1.rawFiducials.length == 1)
-            {
-              if(mt1.rawFiducials[0].ambiguity > .7)
-              {
-                doRejectUpdate = true;
-              }
-              if(mt1.rawFiducials[0].distToCamera > 3)
-              {
-                doRejectUpdate = true;
-              }
-            }
-            if(mt1.tagCount == 0)
-            {
-              doRejectUpdate = true;
-            }
         
-            if(!doRejectUpdate)
-            {
-              m_poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
-              m_poseEstimator.addVisionMeasurement(
-                  mt1.pose,
-                  mt1.timestampSeconds);
-            }
-        }
+        LimelightHelpers.PoseEstimate mt1l = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-l");
+        LimelightHelpers.PoseEstimate mt1f = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-f");
+        LimelightHelpers.PoseEstimate mt1r = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-r");
         
+        boolean doRejectUpdater = false;
+        boolean doRejectUpdatef = false;
+        boolean doRejectUpdatel = false;
+        
+            if(mt1l.tagCount == 1 && mt1l.rawFiducials.length == 1)
+            {
+                if(mt1l.rawFiducials[0].ambiguity > .7)
+                {
+                    doRejectUpdatel = true;
+                }
+                if(mt1l.rawFiducials[0].distToCamera > 1)
+                {
+                    doRejectUpdatel = true;
+                }
+            }
+            if(mt1l.tagCount == 0)
+            {
+                doRejectUpdatel = true;
+            }
+            
+            if(!doRejectUpdatel)
+            {
+              swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
+              swerveOdometry.addVisionMeasurement(
+                  mt1l.pose.toPose2d(),
+                  mt1l.timestampSeconds);
+            }
 
+            if(mt1f.tagCount == 1 && mt1f.rawFiducials.length == 1)
+            {
+                if(mt1f.rawFiducials[0].ambiguity > .7)
+                {
+                    doRejectUpdatef = true;
+                }
+                if(mt1f.rawFiducials[0].distToCamera > 3)
+                {
+                    doRejectUpdatef = true;
+                }
+            }
+            if(mt1f.tagCount == 0)
+            {
+                doRejectUpdatef = true;
+            }
+            
+            if(!doRejectUpdatef)
+            {
+              swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
+              swerveOdometry.addVisionMeasurement(
+                  mt1f.pose.toPose2d(),
+                  mt1f.timestampSeconds);
+            }
+            
+            if(mt1r.tagCount == 1 && mt1r.rawFiducials.length == 1)
+            {
+                if(mt1r.rawFiducials[0].ambiguity > .7)
+                {
+                    doRejectUpdater = true;
+                }
+                if(mt1r.rawFiducials[0].distToCamera > 3)
+                {
+                    doRejectUpdater = true;
+                }
+            }
+            if(mt1r.tagCount == 0)
+            {
+                doRejectUpdater = true;
+            }
+            
+            if(!doRejectUpdater)
+            {
+              swerveOdometry.setVisionMeasurementStdDevs(VecBuilder.fill(.5,.5,9999999));
+              swerveOdometry.addVisionMeasurement(
+                  mt1r.pose.toPose2d(),
+                  mt1r.timestampSeconds);
+            }
+            
+            
 
         for(SwerveModule mod : mSwerveMods){
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " CANcoder", mod.getCANcoder().getDegrees());

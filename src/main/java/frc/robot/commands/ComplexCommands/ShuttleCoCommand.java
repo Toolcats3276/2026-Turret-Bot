@@ -35,18 +35,16 @@ public class ShuttleCoCommand extends SequentialCommandGroup {
     addCommands(
       new ParallelCommandGroup(
           new SequentialCommandGroup(
-            new WaitCommand(1.5),
+            new WaitCommand(1.25),
             new ParallelCommandGroup(
               new IndexerCommand(s_Indexer, RotationsPerSecond.of(1)),
               new FeederCommand(s_Feeder, RotationsPerSecond.of(1))
             )
           ),
-            new ShootRightTurret(s_RightShooter, 85),
-            new ShootLeftTurret(s_LeftShooter, 85),
-            new RightTurretPID(s_RightTurret, 0, Constants.RobotConstants.FrontRightTurret.MAX_SPEED),
-            new LeftTurretPID(s_LeftTurret, 0, Constants.RobotConstants.FrontLeftTurret.MAX_SPEED),
-            new LeftTurretLinearActuator(s_LeftShooterHood, Millimeter.of(.75)),
-            new RightTurretLinearActuator(s_RightShooterHood, Millimeter.of(.75)),
+            new ShootRightTurret(s_RightShooter, 42.25),
+            new ShootLeftTurret(s_LeftShooter, 42.25),
+            new LeftTurretLinearActuator(s_LeftShooterHood, Millimeter.of(.5)),
+            new RightTurretLinearActuator(s_RightShooterHood, Millimeter.of(.5)),
             new InfeedCoCommand(s_Infeed, s_InfeedPivot)
       )
     );

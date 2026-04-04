@@ -3,10 +3,13 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Millimeter;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.FUEL_EXIT_ANGLE_OFFSET;
+
 
 
 public class LeftShooterHoodSS extends SubsystemBase{
@@ -18,7 +21,7 @@ public class LeftShooterHoodSS extends SubsystemBase{
     
     public LeftShooterHoodSS() {
         
-        s_LinearActuator = new Servo(9);
+        s_LinearActuator = new Servo(5);
         s_LinearActuator.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
     }
 
@@ -92,6 +95,12 @@ public class LeftShooterHoodSS extends SubsystemBase{
         }
         return Inrange;
     }
+
+    public Angle getFuelPitch(Angle shooterPitch) {
+        // The hood moving up (positive) lowers the exit angle, so the angle has to be subtracted.
+        // Turret 0 shoots fuel at FUEL_EXIT_ANGLE_OFFSET
+        return FUEL_EXIT_ANGLE_OFFSET.minus(shooterPitch);
+    }  
 }
 
 

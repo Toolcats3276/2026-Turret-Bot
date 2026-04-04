@@ -1,16 +1,30 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.math.util.Units.degreesToRadians;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.MathUtil;
@@ -35,21 +49,29 @@ import static frc.robot.Constants.RobotConstants.FrontRightTurret.YAW_RANGE_REVE
 
 public class RightTurretSS extends SubsystemBase{
     /*General Turret Rotation*/
-    private TalonFX m_TurretMotor;
-    private CANcoder e_TurretEncoder;
+    private TalonFX m_TurretMotor = new TalonFX(RobotConstants.FrontRightTurret.Turret_Rotation_Motor, CTREConfigs.CanivoreCANbus);
+    private CANcoder e_TurretEncoder = new CANcoder(RobotConstants.FrontRightTurret.Turret_Rotation_Encoder, CTREConfigs.CanivoreCANbus);
 
     private PIDController TurretPIDController;
 
-    private MotionMagicVoltage rightTurretMotionMagicVoltage;
+    private PositionVoltage rightTurretMotionMagicVoltage;
+    // private MotionMagicVoltage rightTurretMotionMagicVoltage;
     private final StatusSignal<Angle> yawPosition;
     private final StatusSignal<AngularVelocity> yawVelocity;
     public static final Angle YAW_POSITION_TOLERANCE = Degrees.of(2.5);
 
 
-    private final double kP = .14;
-    private final double kI = 0;
-    private final double kD = 0
-    ;
+    private final double kP = 50;
+    private final double kS = 0.47;
+    private final double kV = 10;
+    private final double kD = 3.25;
+
+    public static final MotionMagicConfigs YAW_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
+        .withMotionMagicAcceleration(9.5)
+        .withMotionMagicCruiseVelocity(10.0);
+    public static final double YAW_MOTOR_TO_SENSOR_RATIO = 1;
+    public static final double YAW_SENSOR_TO_Turret_RATIO = 192.0/18.0;
+    public static final double YAW_MAGNETIC_OFFSET = 0.072021484375;
 
     private double output;
     private double shootangle;
@@ -59,6 +81,7 @@ public class RightTurretSS extends SubsystemBase{
     private double TX;
     private double shotPower;
     private double shooterAngle;
+    private double targetRotations;
 
     private double s_speed;
     private double s_length;
@@ -80,15 +103,29 @@ public class RightTurretSS extends SubsystemBase{
     
     public RightTurretSS() {
         /*Turret General Rotation*/
-        m_TurretMotor = new TalonFX(RobotConstants.FrontRightTurret.Turret_Rotation_Motor, CTREConfigs.CanivoreCANbus);
-        m_TurretMotor.getConfigurator().apply(Robot.ctreConfigs.RightTurretConfig);
-        m_TurretMotor.setNeutralMode(NeutralModeValue.Coast);
+        TalonFXConfiguration yawTalonConfig = new TalonFXConfiguration()
+            .withMotorOutput(
+                new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast))
+            .withFeedback(
+                new FeedbackConfigs().withRotorToSensorRatio(YAW_MOTOR_TO_SENSOR_RATIO)
+                    .withFusedCANcoder(e_TurretEncoder)
+                    .withSensorToMechanismRatio(YAW_SENSOR_TO_Turret_RATIO))
+            .withSlot0(Slot0Configs.from(new SlotConfigs().withKP(kP).withKS(kS).withKV(kV).withKD(kD)))
+            .withSoftwareLimitSwitch(
+                new SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true)
+                    .withForwardSoftLimitThreshold(YAW_LIMIT_FORWARD)
+                    .withReverseSoftLimitEnable(true)
+                    .withReverseSoftLimitThreshold(YAW_LIMIT_REVERSE));
+        
+        m_TurretMotor.getConfigurator().apply(yawTalonConfig);
+        
 
-        e_TurretEncoder = new CANcoder(RobotConstants.FrontRightTurret.Turret_Rotation_Encoder, CTREConfigs.CanivoreCANbus);
-        e_TurretEncoder.getConfigurator().apply(Robot.ctreConfigs.RightTurretCancoderConfig);
-        e_TurretEncoder.setPosition(e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
-
-        TurretPIDController = new PIDController(kP, kI, kD);
+        CANcoderConfiguration yawCanCoderConfig = new CANcoderConfiguration().withMagnetSensor(
+            new MagnetSensorConfigs().withMagnetOffset(YAW_MAGNETIC_OFFSET)
+                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+                .withAbsoluteSensorDiscontinuityPoint(.5));
+        // e_TurretEncoder.setPosition(e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
+        e_TurretEncoder.getConfigurator().apply(yawCanCoderConfig);
 
         /*Limelight*/
         LeftLimelight = new LimelightAssistant("limelight-rlt", VecBuilder.fill(0,0,0), false);
@@ -96,7 +133,8 @@ public class RightTurretSS extends SubsystemBase{
 
         LLRotationPidController = new PIDController(LLkP, LLkI, LLkD);
 
-        rightTurretMotionMagicVoltage = new MotionMagicVoltage(0);
+        // rightTurretMotionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
+        rightTurretMotionMagicVoltage = new PositionVoltage(0).withEnableFOC(true);
         yawPosition = m_TurretMotor.getPosition();
         yawVelocity = m_TurretMotor.getVelocity();
         
@@ -175,20 +213,17 @@ public class RightTurretSS extends SubsystemBase{
         SmartDashboard.putNumber("RightTurret Output", output);
         SmartDashboard.putNumber("RightTurret setPoint", setPoint);
         SmartDashboard.putNumber("RightTurret Encoder Pose", e_TurretEncoder.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("RightTurret Rotation Encoder Pose", e_TurretEncoder.getPosition().getValue().in(Rotations));
         SmartDashboard.putNumber("RightTurret AbsEncoder Pose", e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
         SmartDashboard.putNumber("TX RightTurret", TX);
         SmartDashboard.putBoolean("RightTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop);
         SmartDashboard.putBoolean("RightTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < NegativeDeadStop);
         SmartDashboard.putBoolean("RightTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop);
-        SmartDashboard.putBoolean("RightLeftLimeLightTarget", LeftLimelightTargetBoolean());
-        SmartDashboard.putBoolean("RightRightLimeLightTarget", RightLimelightTargetBoolean());
-        SmartDashboard.putBoolean("RightBothLimeLightTarget", LimeLightTargetBoolean());
+        SmartDashboard.putNumber("Right Turret Yaw", getYaw().in(Rotations));
+        SmartDashboard.putNumber("Right Turret Target", targetRotations);
+        SmartDashboard.putBoolean("RightYawCorrect", isYawAtSetpoint());
 
         returnPOS();
-
-        LeftLimelightTargetBoolean();
-        RightLimelightTargetBoolean();
-        LimeLightTargetBoolean();
 
         TX = LeftLimelight.getTX() + RightLimelight.getTX();
     }
@@ -234,63 +269,13 @@ public class RightTurretSS extends SubsystemBase{
         return (LeftLimelight.getTY() + RightLimelight.getTY())/2;
     }
 
-    public boolean LeftLimelightTargetBoolean(){
-        return  LeftLimelight.getFiducialID() == 21 || 
-                LeftLimelight.getFiducialID() == 24 || 
-                LeftLimelight.getFiducialID() == 25 || 
-                LeftLimelight.getFiducialID() == 26 || 
-                LeftLimelight.getFiducialID() == 27 || 
-                LeftLimelight.getFiducialID() == 18 || 
-                LeftLimelight.getFiducialID() == 19 ||
-                LeftLimelight.getFiducialID() == 20 ||
-                LeftLimelight.getFiducialID() == 5 || 
-                LeftLimelight.getFiducialID() == 8 || 
-                LeftLimelight.getFiducialID() == 9 || 
-                LeftLimelight.getFiducialID() == 10 || 
-                LeftLimelight.getFiducialID() == 11 ||
-                LeftLimelight.getFiducialID() == 12 || 
-                LeftLimelight.getFiducialID() == 2 || 
-                LeftLimelight.getFiducialID() == 3 || 
-                LeftLimelight.getFiducialID() == 4;
-    }
-
-    public boolean RightLimelightTargetBoolean(){
-        return  RightLimelight.getFiducialID() == 21 || 
-                RightLimelight.getFiducialID() == 24 || 
-                RightLimelight.getFiducialID() == 25 || 
-                RightLimelight.getFiducialID() == 27 || 
-                RightLimelight.getFiducialID() == 26 || 
-                RightLimelight.getFiducialID() == 18 || 
-                RightLimelight.getFiducialID() == 19 ||
-                RightLimelight.getFiducialID() == 20 ||
-                RightLimelight.getFiducialID() == 5 || 
-                RightLimelight.getFiducialID() == 8 || 
-                RightLimelight.getFiducialID() == 9 || 
-                RightLimelight.getFiducialID() == 10 || 
-                RightLimelight.getFiducialID() == 11 || 
-                RightLimelight.getFiducialID() == 12 ||
-                RightLimelight.getFiducialID() == 2 || 
-                RightLimelight.getFiducialID() == 3 || 
-                RightLimelight.getFiducialID() == 4;
-    }
-
-    public boolean LimeLightTargetBoolean(){
-        return LeftLimelightTargetBoolean() || RightLimelightTargetBoolean();
-    }
-
     public void setYawAngle(Angle targetYaw) {
         // Wrap the input to match the range of the turret. The input is probably in the range of (-0.5, 0.5], but the
         // turret range is more like [-0.75, 0.25].
-        double targetRotations = MathUtil
+        targetRotations = -MathUtil
             .inputModulus(targetYaw.in(Rotations), YAW_RANGE_REVERSE.in(Rotations), YAW_RANGE_FORWARD.in(Rotations));
         Angle currentYaw = getYaw();
-        double ffVolts = 0.0;
-        if (currentYaw.gt(Rotations.of(-0.195))) {
-          ffVolts = 0.5;
-        } else if (currentYaw.lt(Rotations.of(-0.468))) {
-          ffVolts = -1.0375;
-        }
-        m_TurretMotor.setControl(rightTurretMotionMagicVoltage.withPosition(targetRotations).withFeedForward(Volts.of(ffVolts)));
+        m_TurretMotor.setControl(rightTurretMotionMagicVoltage.withPosition(targetRotations));
     }
 
     public Angle getYaw() {

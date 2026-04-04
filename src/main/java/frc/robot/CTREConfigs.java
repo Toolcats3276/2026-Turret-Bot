@@ -61,7 +61,7 @@ public final class CTREConfigs {
         /* Right Shooter */
         RightTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         RightTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
-        RightTurretCancoderConfig.MagnetSensor.MagnetOffset = -0.33349609375;
+        RightTurretCancoderConfig.MagnetSensor.MagnetOffset = 0.02490234375;
 
         RightshooterLeftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         RightshooterRightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -76,7 +76,7 @@ public final class CTREConfigs {
         /* Left Shooter */
         LeftTurretCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         LeftTurretCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
-        LeftTurretCancoderConfig.MagnetSensor.MagnetOffset = 0.39013671875;
+        LeftTurretCancoderConfig.MagnetSensor.MagnetOffset = 0.425048828125;
 
         LeftshooterLeftConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
         LeftshooterRightConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
@@ -90,7 +90,7 @@ public final class CTREConfigs {
         /* Infeed */
         InfeedCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         InfeedCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
-        // InfeedCancoderConfig.MagnetSensor.MagnetOffset = -0.218505859375;
+        InfeedCancoderConfig.MagnetSensor.MagnetOffset = 0.068603515625;
 
         InfeedPivotLeftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         InfeedPivotRightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;

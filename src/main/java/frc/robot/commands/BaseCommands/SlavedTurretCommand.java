@@ -23,22 +23,6 @@ public class SlavedTurretCommand extends Command {
   @Override
   public void execute() {
 
-    if(s_RightTurret.LimeLightTargetBoolean() == true && s_LeftTurret.LimeLightTargetBoolean() == true){
-      s_RightTurret.AutoAim(1);
-      s_LeftTurret.AutoAim(1);
-    }
-    else if(s_RightTurret.LimeLightTargetBoolean() == true && s_LeftTurret.LimeLightTargetBoolean() == false){
-      s_RightTurret.AutoAim(1);
-      s_LeftTurret.PID(s_RightTurret.returnPOS(), 1);
-    }
-    else if(s_RightTurret.LimeLightTargetBoolean() == false && s_LeftTurret.LimeLightTargetBoolean() == true){
-      s_RightTurret.PID(s_LeftTurret.returnPOS(), 1);
-      s_LeftTurret.AutoAim(1);
-    }
-    else {
-      s_RightTurret.Stop();
-      s_LeftTurret.Stop();
-    }
   }
 
   @Override

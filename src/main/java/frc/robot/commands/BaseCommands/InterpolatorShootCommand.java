@@ -47,7 +47,7 @@ public class InterpolatorShootCommand extends Command {
       this.s_InfeedPivot = s_InfeedPivot;
   
       // setpointsRight = Hub_SetPoints_By_Limelight_Degrees_Right.get(s_RightShooter.TyValue());
-      setpointsLeft = Hub_SetPoints_By_Limelight_Degrees_Left.get(s_LeftShooter.TyValue());
+      // setpointsLeft = Hub_SetPoints_By_Limelight_Degrees_Left.get(s_LeftShooter.TyValue());
   
   
       addRequirements( s_Indexer, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter);
@@ -65,10 +65,10 @@ public class InterpolatorShootCommand extends Command {
       // SmartDashboard.putNumber("Left Shooter Setpoints", setpointsLeft.shotVelocity().in(RotationsPerSecond));
       // SmartDashboard.putNumber("Right LinearActuator Setpoint", setpointsRight.shotAngle().in(Millimeter));
       SmartDashboard.putNumber("Left LinearActuator Setpoint", setpointsLeft.shotAngle().in(Millimeter));
-      SmartDashboard.putBoolean("InRange", s_LeftShooter.shootervelocity().isNear(setpointsLeft.shotVelocity(), .5));
+      // SmartDashboard.putBoolean("InRange", s_LeftShooter.shootervelocity().isNear(setpointsLeft.shotVelocity(), .5));
   
       // setpointsRight = Hub_SetPoints_By_Limelight_Degrees_Right.get(s_RightShooter.TyValue());
-      setpointsLeft = Hub_SetPoints_By_Limelight_Degrees_Left.get(s_LeftShooter.TyValue());
+      // setpointsLeft = Hub_SetPoints_By_Limelight_Degrees_Left.get(s_LeftShooter.TyValue());
         /*
      * sets the Yaw, Pitch, and Angle
      */

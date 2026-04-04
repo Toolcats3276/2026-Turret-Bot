@@ -22,8 +22,8 @@ public class OutFeed extends ParallelCommandGroup {
       new RepeatCommand(
         new ParallelCommandGroup(
           new InfeedCommand(s_Infeed, RotationsPerSecond.of(-.89)),
-          new FeederCommand(s_feeder, RotationsPerSecond.of(-1)),
-          new IndexerCommand(s_Indexer, RotationsPerSecond.of(-1))
+          new FeederCommand(s_feeder, RotationsPerSecond.of(-100)),
+          new IndexerCommand(s_Indexer, RotationsPerSecond.of(-100))
         )
       )
     );

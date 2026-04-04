@@ -5,10 +5,19 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.SlotConfigs;
+import com.ctre.phoenix6.configs.SoftwareLimitSwitchConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.StrictFollower;
+import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.config.PIDConstants;
 
@@ -35,26 +44,33 @@ import static frc.robot.Constants.RobotConstants.FrontRightTurret.FUEL_EXIT_ANGL
 
 public class RightShooterSS extends SubsystemBase {
 
-    private TalonFX m_shooterLeftMotor;
-    private TalonFX m_shooterRightMotor;
+    private TalonFX m_shooterLeftMotor = new TalonFX(RobotConstants.FrontRightTurret.Shoot_Motor_Left_Motor, CTREConfigs.CanivoreCANbus);
+
+    private final double kP = .35;
+    private final double kS = 0.22025;
+    private final double kV = .1235;
+    // private TalonFX m_shooterRightMotor;
 
     private final StatusSignal<AngularVelocity> flywheelVelocity;
     private final StatusSignal<AngularAcceleration> flywheelAcceleration;
-    private final VelocityTorqueCurrentFOC flywheelVelocityRequest = new VelocityTorqueCurrentFOC(0.0);
-    public static final AngularVelocity FLYWHEEL_VELOCITY_TOLERANCE = RotationsPerSecond.of(1.5);
+    private final VelocityVoltage flywheelVelocityRequest = new VelocityVoltage(0.0);
+    public static final AngularVelocity FLYWHEEL_VELOCITY_TOLERANCE = RotationsPerSecond.of(1);
 
     private AngularVelocity speed;
 
     public RightShooterSS(){
-            m_shooterLeftMotor = new TalonFX(RobotConstants.FrontRightTurret.Shoot_Motor_Left_Motor, CTREConfigs.CanivoreCANbus);
-            m_shooterLeftMotor.getConfigurator().apply(Robot.ctreConfigs.RightshooterLeftConfig);
-            m_shooterLeftMotor.setNeutralMode(NeutralModeValue.Coast);
+        TalonFXConfiguration yawTalonConfig = new TalonFXConfiguration()
+            .withMotorOutput(
+                new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Coast))
+            .withSlot0(Slot0Configs.from(new SlotConfigs().withKP(kP).withKS(kS).withKV(kV)));
+        
+        m_shooterLeftMotor.getConfigurator().apply(yawTalonConfig);
             
 
-            m_shooterRightMotor = new TalonFX(RobotConstants.FrontRightTurret.Shoot_Motor_Right_Motor, CTREConfigs.CanivoreCANbus);
-            m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.RightshooterRightConfig);
-            m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
-            m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
+            // m_shooterRightMotor = new TalonFX(RobotConstants.FrontRightTurret.Shoot_Motor_Right_Motor, CTREConfigs.CanivoreCANbus);
+            // m_shooterRightMotor.getConfigurator().apply(Robot.ctreConfigs.RightshooterRightConfig);
+            // m_shooterRightMotor.setNeutralMode(NeutralModeValue.Coast);
+            // m_shooterRightMotor.setControl(new StrictFollower(m_shooterLeftMotor.getDeviceID()));
 
             flywheelVelocity = m_shooterLeftMotor.getVelocity();
             flywheelAcceleration = m_shooterLeftMotor.getAcceleration();
@@ -86,8 +102,10 @@ public class RightShooterSS extends SubsystemBase {
 
         }
 
-        SmartDashboard.putNumber("RightLeftShooterCurrentSpeed", m_shooterLeftMotor.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("RightRightShooterCurrentSpeed", m_shooterRightMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("RightShooterCurrentSpeed", m_shooterLeftMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putBoolean("RightFlyWheelAtSpeed", isFlywheelAtSpeed());
+
+        // SmartDashboard.putNumber("RightRightShooterCurrentSpeed", m_shooterRightMotor.getVelocity().getValueAsDouble());
 
     }
 

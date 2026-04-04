@@ -1,12 +1,16 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Millimeter;
+import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -21,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autos.*;
 import frc.robot.commands.*;
 import frc.robot.commands.BaseCommands.InterpolatorShootCommand;
+import frc.robot.commands.BaseCommands.LookAtTargetCommand;
+import frc.robot.commands.BaseCommands.ShootAtTargetCommand;
 import frc.robot.commands.BaseCommands.SlavedTurretCommand;
 import frc.robot.commands.BaseCommands.Feeder.FeederCommand;
 import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
@@ -48,6 +54,25 @@ import frc.robot.commands.ComplexCommands.ShootCoCommand;
 import frc.robot.commands.ComplexCommands.ShuttleCoCommand;
 import frc.robot.subsystems.*;
 
+import static frc.robot.Constants.RobotConstants.FrontLeftTurret.Hub_SetPoints_By_Limelight_Degrees_Left;
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.Hub_SetPoints_By_Limelight_Degrees_Right;
+import static frc.robot.Constants.RobotConstants.FrontLeftTurret.Shuttle_SetPoints_By_Limelight_Degrees_Left;
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.Shuttle_SetPoints_By_Limelight_Degrees_Right;
+import static frc.robot.Constants.RobotConstants.VisionConstants.TARGET_BLUE;
+import static frc.robot.Constants.RobotConstants.VisionConstants.TARGET_RED;
+import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
+
+import static frc.robot.Constants.RobotConstants.VisionConstants.TARGET_BLUE;
+import static frc.robot.Constants.RobotConstants.VisionConstants.SHUTTLE_BLUE_LEFT;
+import static frc.robot.Constants.RobotConstants.VisionConstants.SHUTTLE_BLUE_RIGHT;
+import static frc.robot.Constants.RobotConstants.VisionConstants.SHUTTLE_RED_RIGHT;
+import static frc.robot.Constants.RobotConstants.VisionConstants.SHUTTLE_RED_LEFT;
+
+import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
+
+import java.util.function.Function;
+
+
 
 
 /**
@@ -73,7 +98,7 @@ public class RobotContainer {
     private final int leftTurretSup = XboxController.Axis.kLeftY.value;
 
     /* Driver Buttons */
-    private final JoystickButton zeroGyro = new JoystickButton(driver, 14);
+    private final JoystickButton zeroGyro = new JoystickButton(driver, 11);
     private final JoystickButton robotCentric = new JoystickButton(driver, 0);
 
     private final JoystickButton Shoot = new JoystickButton(driver, 1);
@@ -85,7 +110,10 @@ public class RobotContainer {
     private final JoystickButton Shuttle = new JoystickButton(driver, 9);
     private final JoystickButton xDrive = new JoystickButton(driver, 8);
 
+    private final JoystickButton LookatTarget = new JoystickButton(driver, 6);
     private final JoystickButton Outfeed = new JoystickButton(driver, 7);
+
+    private final JoystickButton TurretReset = new JoystickButton(driver, 14);
 
 
     /* Xbox Buttons */
@@ -113,7 +141,8 @@ public class RobotContainer {
                 () -> -driver.getRawAxis(translationAxis), 
                 () -> -driver.getRawAxis(strafeAxis), 
                 () -> -driver.getRawAxis(rotationAxis), 
-                () -> robotCentric.getAsBoolean()
+                () -> robotCentric.getAsBoolean(),
+                () -> LookatTarget.getAsBoolean()
             )
         );
 
@@ -129,16 +158,19 @@ public class RobotContainer {
 
         AutoChooser.addOption("None", new PrintCommand("No Auto??"));
         AutoChooser.addOption("Depot", new PathPlannerAuto("Depot"));
-        // AutoChooser.addOption("PID", new PathPlannerAuto("PID"));
+        AutoChooser.addOption("PID", new PathPlannerAuto("PID"));
         // AutoChooser.addOption("Left Mid To Depot", new PathPlannerAuto("Left Mid To Depot"));
         // AutoChooser.addOption("Left To Mid", new PathPlannerAuto("Left Mid To Depot"));
         // AutoChooser.addOption("Right Mid to Depot", new PathPlannerAuto("Right Mid to Depot"));
         // AutoChooser.addOption("Depot Advanced", new PathPlannerAuto("Depot Half"));
 
         // Configure the button bindings
+
+        
         configureButtonBindings();
 
     }
+
 
     /**
      * Use this method to define your button->command mappings. Buttons can be created by
@@ -150,7 +182,7 @@ public class RobotContainer {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
 
-        Shoot.onTrue(new InterpolatorShootCoCommand(s_Indexer, s_RightTurret, s_LeftTurret, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
+        Shoot.onTrue(new ShootAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, t -> DriverStation.getAlliance().orElse(Blue) == Blue ? TARGET_BLUE : TARGET_RED, Hub_SetPoints_By_Limelight_Degrees_Right, Hub_SetPoints_By_Limelight_Degrees_Left));
         Copmliance.onTrue(new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_Feeder));
 
         Infeed.onTrue(new InfeedCoCommand(s_Infeed, s_InfeedPivotSS));
@@ -162,13 +194,30 @@ public class RobotContainer {
         ResetTurret.onTrue(new ResetTurretCoCommand(s_RightTurret, s_LeftTurret));
 
         xDrive.whileTrue(Commands.run(() -> s_Swerve.Xdrive(true), s_Swerve));
-        // Shuttle.onTrue(new FeederCommand(s_Feeder, RotationsPerSecond.of(1)));
+        
+        // LookatTarget.onTrue(new LookAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, t -> DriverStation.getAlliance().orElse(Blue) == Blue ? TARGET_BLUE : TARGET_RED, Shuttle_SetPoints_By_Limelight_Degrees_Right, Shuttle_SetPoints_By_Limelight_Degrees_Left));
+        Shuttle.onTrue(new ShootAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve,         
+            targetSelector -> {
+              Translation2d target;
+              if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+                target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_LEFT : SHUTTLE_BLUE_RIGHT;
+              } else {
+                target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_RIGHT : SHUTTLE_RED_LEFT;
+              }
+            //   // Adjust the target to be "offset distance" short of target along the vector between the robot and the target
+            //   Translation2d vectorToTarget = target.minus(shooterTranslation);
+            //   double distanceToTarget = vectorToTarget.getNorm();
+            //   Translation2d adjustedTarget = shooterTranslation
+            //       .plus(vectorToTarget.times((distanceToTarget - SHUTTLE_OFFSET_DISTANCE.in(Meters)) / distanceToTarget));
+            //   return adjustedTarget;
+            return target;
+            }, Shuttle_SetPoints_By_Limelight_Degrees_Right, Shuttle_SetPoints_By_Limelight_Degrees_Left));
         // Shuttle.onTrue(new IndexerCommand(s_Indexer, RotationsPerSecond.of(1)));
         // Shuttle.onTrue(new ShootLeftTurret(s_LeftShooter, 1));
         // Shuttle.onTrue(new ShootRightTurret(s_RightShooter, 1));
         // Shuttle.onTrue(new InfeedCommand(s_Infeed, RotationsPerSecond.of(1)));
 
-        Shuttle.onTrue(new ShuttleCoCommand(s_Indexer, s_RightTurret, s_LeftTurret, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
+        // Shuttle.onTrue(new ShuttleCoCommand(s_Indexer, s_RightTurret, s_LeftTurret, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
 
         // InterpolatorShootShuttle.onTrue(new InterpolatorShootCommand(s_Indexer, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
 
@@ -180,7 +229,7 @@ public class RobotContainer {
         // TurretReset.onTrue(new RightTurretPID(s_RightShooterHood, 0, 1));
         // TurretReset.onTrue(new LeftTurretPID(s_LeftShooterHood, .1, 1));
         // TurretReset.onTrue(new InstantCommand(() -> s_RightTurret.LinearActuator(1)));
-        // TurretReset.onTrue(new InstantCommand(() -> s_LeftTurret.LinearActuator(1)));
+        TurretReset.onTrue(new LeftTurretLinearActuator(s_LeftShooterHood, Millimeter.of(0)));
         
 
     }

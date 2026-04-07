@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
-import frc.robot.commands.BaseCommands.InterpolatorShootCommand;
 import frc.robot.commands.BaseCommands.SlavedTurretCommand;
 import frc.robot.commands.BaseCommands.Feeder.FeederCommand;
 import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
@@ -34,7 +33,6 @@ public class InterpolatorShootCoCommand extends SequentialCommandGroup {
 
     addCommands(
       new ParallelCommandGroup(
-          new InterpolatorShootCommand(s_Indexer, s_InfeedPivot, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter),
           new SlavedTurretCommand(s_RightTurret, s_LeftTurret),
           new SequentialCommandGroup(
             new WaitCommand(.75),

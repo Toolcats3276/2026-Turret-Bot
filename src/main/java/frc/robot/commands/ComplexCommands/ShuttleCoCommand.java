@@ -1,9 +1,11 @@
 package frc.robot.commands.ComplexCommands;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Millimeter;
 import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -11,11 +13,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
 import frc.robot.commands.BaseCommands.Feeder.FeederCommand;
 import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
-import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretLinearActuator;
-import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretPID;
 import frc.robot.commands.BaseCommands.LeftTurret.ShootLeftTurret;
-import frc.robot.commands.BaseCommands.RightTurret.RightTurretLinearActuator;
-import frc.robot.commands.BaseCommands.RightTurret.RightTurretPID;
 import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurret;
 import frc.robot.subsystems.FeederSS;
 import frc.robot.subsystems.IndexerSS;
@@ -41,10 +39,10 @@ public class ShuttleCoCommand extends SequentialCommandGroup {
               new FeederCommand(s_Feeder, RotationsPerSecond.of(1))
             )
           ),
-            new ShootRightTurret(s_RightShooter, 42.25),
-            new ShootLeftTurret(s_LeftShooter, 42.25),
-            new LeftTurretLinearActuator(s_LeftShooterHood, Millimeter.of(.5)),
-            new RightTurretLinearActuator(s_RightShooterHood, Millimeter.of(.5)),
+            new ShootRightTurret(s_RightShooter, 49),
+            new ShootLeftTurret(s_LeftShooter, 49),
+            new InstantCommand(() -> s_LeftShooterHood.setPitchAngle(Degrees.of(43))),
+            new InstantCommand(() -> s_RightShooterHood.setPitchAngle(Degrees.of(43))),
             new InfeedCoCommand(s_Infeed, s_InfeedPivot)
       )
     );

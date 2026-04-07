@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -44,7 +45,7 @@ import static frc.robot.Constants.RobotConstants.FrontLeftTurret.ROBOT_TO_LEFT_S
 
 public class LeftShooterSS extends SubsystemBase {
 
-    private TalonFX m_shooterLeftMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor_Left_Motor, CTREConfigs.CanivoreCANbus);
+    private TalonFX m_shooterLeftMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor, CTREConfigs.CanivoreCANbus);
 
     private final double kP = .35;
     private final double kS = 0.225;
@@ -118,12 +119,12 @@ public class LeftShooterSS extends SubsystemBase {
     }
 
     public static record LeftShooterSetpoints(
-        Distance shotAngle,
+        Angle shotAngle,
         AngularVelocity shotVelocity) {
         
     public LeftShooterSetpoints interpolate(LeftShooterSetpoints endValue, double t) {
       LeftShooterSetpoints result = new LeftShooterSetpoints(
-        Millimeters.of(MathUtil.interpolate(shotAngle.in(Millimeters), endValue.shotAngle.in(Millimeters), t)),
+        Degrees.of(MathUtil.interpolate(shotAngle.in(Degrees), endValue.shotAngle.in(Degrees), t)),
         RotationsPerSecond.of(
               MathUtil.interpolate(
                   shotVelocity.in(RotationsPerSecond),

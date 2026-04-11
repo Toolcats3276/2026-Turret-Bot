@@ -6,6 +6,9 @@ import static frc.robot.Constants.RobotConstants.VisionConstants.APRILTAG_CAMERA
 import static frc.robot.Constants.RobotConstants.VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS;
 import static frc.robot.Constants.RobotConstants.VisionConstants.APRILTAG_STD_DEVS;
 import static frc.robot.Constants.RobotConstants.VisionConstants.TAG_DISTANCE_THRESHOLD;
+
+import javax.lang.model.type.NullType;
+
 import static frc.robot.Constants.RobotConstants.VisionConstants.ANGULAR_VELOCITY_THRESHOLD;
 import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.subsystems.vision.LimelightHelpers.PoseEstimate;
@@ -305,6 +308,8 @@ public class SwerveSS extends SubsystemBase {
         SmartDashboard.putData("LLBotPose", m_LLfield);
         
         SmartDashboard.putNumber("GetHeading", getHeading().getDegrees());
+        SmartDashboard.putNumber("RobotVelocityX", getRobotSpeed().vxMetersPerSecond);
+        SmartDashboard.putNumber("RobotVelocityY", getRobotSpeed().vyMetersPerSecond);
         
         
         LimelightHelpers.PoseEstimate mt1l = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-l");

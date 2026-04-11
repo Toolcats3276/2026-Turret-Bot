@@ -61,7 +61,7 @@ public class RightShooterHoodSS extends SubsystemBase{
     private Distance shootangle;
     public static final double HOOD_MOTOR_TO_ENCODER_RATIO = 24.0/18.0;
     public static final double HOOD_SENSOR_TO_MECHANISM_RATIO = 120.0/18.0;
-    public static final double YAW_MAGNETIC_OFFSET = 0.1954421875;
+    public static final double YAW_MAGNETIC_OFFSET = 0.708;
 
     private final double kP = 85;
     private final double kS = 0.44921875;
@@ -80,7 +80,7 @@ public class RightShooterHoodSS extends SubsystemBase{
 
         CANcoderConfiguration yawCanCoderConfig = new CANcoderConfiguration().withMagnetSensor(
             new MagnetSensorConfigs().withMagnetOffset(YAW_MAGNETIC_OFFSET)
-                .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
+                .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
                 .withAbsoluteSensorDiscontinuityPoint(1));
         e_HoodEncoder.getConfigurator().apply(yawCanCoderConfig);
         

@@ -36,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "RightDepotS1"
+                  "pathName": "Copy of LeftDepotSX_2"
                 }
               }
             ]
@@ -53,7 +53,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "RightDepotS1_X"
+                        "pathName": "Copy of LeftDepotS2_X"
                       }
                     },
                     {
@@ -126,7 +126,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "RightDepotSX_2"
+                  "pathName": "LeftDepotSX_2"
                 }
               },
               {
@@ -145,7 +145,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "RightDepotS2_X"
+                  "pathName": "LeftDepotS2_X"
                 }
               },
               {

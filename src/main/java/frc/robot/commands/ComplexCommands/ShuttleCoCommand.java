@@ -42,8 +42,8 @@ public class ShuttleCoCommand extends SequentialCommandGroup {
             new ShootRightTurret(s_RightShooter, 49),
             new ShootLeftTurret(s_LeftShooter, 49),
             new InstantCommand(() -> s_LeftShooterHood.setPitchAngle(Degrees.of(43))),
-            new InstantCommand(() -> s_RightShooterHood.setPitchAngle(Degrees.of(43))),
-            new InfeedCoCommand(s_Infeed, s_InfeedPivot)
+            new InstantCommand(() -> s_RightShooterHood.setPitchAngle(Degrees.of(43)))
+            // new InfeedCoCommand(s_Infeed, s_InfeedPivot)
       )
     );
   }

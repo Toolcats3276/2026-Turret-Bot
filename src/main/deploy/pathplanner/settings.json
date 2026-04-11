@@ -5,8 +5,9 @@
   "pathFolders": [
     "Depot",
     "Left Mid To Depot",
-    "Yoink",
-    "Right Mid"
+    "Right Mid To Depot",
+    "Right Mid",
+    "Yoink"
   ],
   "autoFolders": [
     "Shuttle"

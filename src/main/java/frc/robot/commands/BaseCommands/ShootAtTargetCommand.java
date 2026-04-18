@@ -159,7 +159,7 @@ public class ShootAtTargetCommand extends Command {
 
     // If the shooter is under the trench or over the bump, don't shoot
     var rightShooterX = rightShooterTranslation.getX();
-    var leftShooterX = rightShooterTranslation.getX();
+    var leftShooterX = leftShooterTranslation.getX();
     InterpolatingTreeMap<Double, LeftShooterSetpoints> lookupTableL;
     InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR;
     
@@ -257,16 +257,14 @@ public class ShootAtTargetCommand extends Command {
 
         double fuelExitVelocityLeft = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * lrps;
         LTimeUntilScored = leftActualTargetDistance
-            / (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(lpitch).in(Radians)));
+            / (fuelExitVelocityLeft * Math.cos(s_LeftShooterHood.getFuelPitch(lpitch).in(Radians)));
 
         SmartDashboard.putNumber("RightShooterDevider", (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(rpitch).in(Degrees))));
-        SmartDashboard.putNumber("LeftShooterDevider", (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(lpitch).in(Degrees))));
+        SmartDashboard.putNumber("LeftShooterDevider", (fuelExitVelocityLeft * Math.cos(s_LeftShooterHood.getFuelPitch(lpitch).in(Degrees))));
         SmartDashboard.putNumber("fuelexitvelocityl", fuelExitVelocityLeft);
         SmartDashboard.putNumber("fuelexitvelocityr", fuelExitVelocityRight);
         SmartDashboard.putNumber("cos(lpitch)", Math.cos(s_LeftShooterHood.getFuelPitch(lpitch).in(Radians)));
         SmartDashboard.putNumber("cos(rpitch)", Math.cos(s_RightShooterHood.getFuelPitch(rpitch).in(Radians)));
-        SmartDashboard.putNumber("RightFuelPitch", s_RightShooterHood.getFuelPitch(rpitch).in(Degrees));
-        SmartDashboard.putNumber("LeftFuelPitch", s_LeftShooterHood.getFuelPitch(lpitch).in(Degrees));
         SmartDashboard.putNumber("LTimeUntilScored", LTimeUntilScored);
         SmartDashboard.putNumber("RTimeUntilScored", RTimeUntilScored);
       }
@@ -277,15 +275,15 @@ public class ShootAtTargetCommand extends Command {
       // - If the robot is moving forward, the fuel will land further forward relative to a stationary shot. To hit the
       // desired (static) target we need to aim backwards relative to the instantaneous target position by the amount
       // the fuel will be carried during flight.
-      targetRightPredictedOffset = effectiveRightShooterVelocity.times(-RTimeUntilScored);
-      targetLeftPredictedOffset = effectiveLeftShooterVelocity.times(-LTimeUntilScored);
-      predictedRightTargetTranslation = rightTargetTranslation.plus(targetRightPredictedOffset);
-      predictedLeftTargetTranslation = leftTargetTranslation.plus(targetLeftPredictedOffset);
+      targetRightPredictedOffset = effectiveRightShooterVelocity.times(RTimeUntilScored);
+      targetLeftPredictedOffset = effectiveLeftShooterVelocity.times(LTimeUntilScored);
+      predictedRightTargetTranslation = rightTargetTranslation.minus(targetRightPredictedOffset);
+      predictedLeftTargetTranslation = leftTargetTranslation.minus(targetLeftPredictedOffset);
 
       SmartDashboard.putNumber("Target distance Right", predictedRightTargetDistance);
       SmartDashboard.putNumber("Target distance Left", predictedLeftTargetDistance);
       SmartDashboard.putNumber("Right Shooter Pitch", s_RightShooterHood.getFuelPitch(rpitch).in(Degrees));
-      SmartDashboard.putNumber("Left Shooter Pitch", s_RightShooterHood.getFuelPitch(rpitch).in(Degrees));
+      SmartDashboard.putNumber("Left Shooter Pitch", s_LeftShooterHood.getFuelPitch(rpitch).in(Degrees));
     }
 
     SmartDashboard.putNumber("Shooting offset X Right", targetRightPredictedOffset.getX());
@@ -321,8 +319,9 @@ public class ShootAtTargetCommand extends Command {
 
     if ((isRightFlywheelReady && isRightYawReady && isShooting) || isShooting || (isLeftFlywheelReady && isLeftYawReady && isShooting) || (isRightFlywheelReady && isRightYawReady) || (isLeftFlywheelReady && isLeftYawReady)) {
       // All conditions met. Continuously feeding until the command is interrupted
-      s_Indexer.setSpeed(RotationsPerSecond.of(1));
-      s_Feeder.setSpeed(RotationsPerSecond.of(1));
+      s_Indexer.setSpeed(RotationsPerSecond.of(.65));
+      // s_Indexer.setSpeed(RotationsPerSecond.of(65));
+      s_Feeder.setSpeed(RotationsPerSecond.of(.65));
 
       isShooting = true;
     } else {

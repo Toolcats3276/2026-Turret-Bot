@@ -47,9 +47,9 @@ public class LeftShooterSS extends SubsystemBase {
 
     private TalonFX m_shooterLeftMotor = new TalonFX(RobotConstants.FrontLeftTurret.Shoot_Motor, CTREConfigs.CanivoreCANbus);
 
-    private final double kP = .35;
-    private final double kS = 0.225;
-    private final double kV = .126;
+    private final double kP = .13;
+    private final double kS = 0.317;
+    private final double kV = .13;
     // private TalonFX m_shooterRightMotor;
 
     private final StatusSignal<AngularVelocity> flywheelVelocity;
@@ -62,7 +62,7 @@ public class LeftShooterSS extends SubsystemBase {
     public LeftShooterSS(){
         TalonFXConfiguration yawTalonConfig = new TalonFXConfiguration()
             .withMotorOutput(
-                new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast))
+                new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Coast))
             .withSlot0(Slot0Configs.from(new SlotConfigs().withKP(kP).withKS(kS).withKV(kV)));
         
         m_shooterLeftMotor.getConfigurator().apply(yawTalonConfig);

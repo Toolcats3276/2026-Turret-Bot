@@ -36,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Copy of LeftDepotSX_2"
+                  "pathName": "LeftDepotS1"
                 }
               }
             ]
@@ -53,7 +53,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Copy of LeftDepotS2_X"
+                        "pathName": "LeftDepotS1_X"
                       }
                     },
                     {
@@ -76,7 +76,26 @@
                           {
                             "type": "wait",
                             "data": {
-                              "waitTime": 4.0
+                              "waitTime": 0.5
+                            }
+                          },
+                          {
+                            "type": "named",
+                            "data": {
+                              "name": "ShootLow"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "type": "deadline",
+                      "data": {
+                        "commands": [
+                          {
+                            "type": "wait",
+                            "data": {
+                              "waitTime": 3.5
                             }
                           },
                           {
@@ -164,13 +183,13 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.125
+                  "waitTime": 0.5
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Shoot"
+                  "name": "ShootLow"
                 }
               }
             ]

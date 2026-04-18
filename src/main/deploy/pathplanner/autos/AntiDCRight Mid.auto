@@ -36,7 +36,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LeftDepotS1"
+                  "pathName": "AntiDCRightDepotS1"
                 }
               }
             ]
@@ -53,7 +53,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "LeftDepotS1_X"
+                        "pathName": "AntiDCRightDepotS1_X"
                       }
                     },
                     {
@@ -126,7 +126,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LeftDepotSX_2"
+                  "pathName": "RightDepotSX_2"
                 }
               },
               {
@@ -145,7 +145,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "LeftDepotS2_X"
+                  "pathName": "RightDepotS2_X"
                 }
               },
               {

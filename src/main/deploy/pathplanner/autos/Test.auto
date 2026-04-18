@@ -7,7 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Test"
+            "pathName": "LeftBumpS1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftBumpS1_1X"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftBumpS1X_X"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftBumpSX_2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LeftBumpS2_X"
           }
         }
       ]

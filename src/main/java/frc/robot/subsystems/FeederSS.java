@@ -42,9 +42,9 @@ public class FeederSS extends SubsystemBase {
     public FeederSS(){
         TalonFXConfiguration yawTalonConfig = new TalonFXConfiguration()
             .withMotorOutput(
-                new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Coast))
+                new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Coast));
             // .withSlot0(Slot0Configs.from(new SlotConfigs().withKP(kP).withKS(kS).withKV(kV)))
-            .withCurrentLimits(new CurrentLimitsConfigs().withStatorCurrentLimit(60).withSupplyCurrentLimit(25).withSupplyCurrentLowerLimit(5).withSupplyCurrentLowerTime(1));
+            // .withCurrentLimits(new CurrentLimitsConfigs().withStatorCurrentLimit(60).withSupplyCurrentLimit(25).withSupplyCurrentLowerLimit(5).withSupplyCurrentLowerTime(1));
         
         m_Motor.getConfigurator().apply(yawTalonConfig);
 

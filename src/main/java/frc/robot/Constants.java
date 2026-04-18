@@ -95,10 +95,8 @@ public final class Constants {
             /** The robot angular velocity threshold for accepting vision measurements */
             public static final AngularVelocity ANGULAR_VELOCITY_THRESHOLD = DegreesPerSecond.of(720);
 
-            /** Translation of the hub on the blue side */
-            public static final Translation2d TARGET_BLUE = new Translation2d(Inches.of(179.643595), Inches.of(158.84375));
-            // public static final Translation2d TARGET_BLUE = new Translation2d(Inches.of(174.643595), Inches.of(158.84375));
-
+            public static final Translation2d TARGET_BLUE = new Translation2d(Inches.of(182.143595), Inches.of(158.84375));
+                
             /** Translation of the hub on the red side */
             public static final Translation2d TARGET_RED = new Translation2d(Inches.of(469.078905), Inches.of(158.84375));
 
@@ -188,7 +186,7 @@ public final class Constants {
                             //Shot Angle
                             Degrees.of(25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(35)));
+                            RotationsPerSecond.of(34.5)));
                 map.put(
                     2.0, 
                         new LeftShooterSetpoints(
@@ -202,49 +200,49 @@ public final class Constants {
                             //Shot Angle
                             Degrees.of(27), 
                             //ShotSpeed
-                            RotationsPerSecond.of(39)));
+                            RotationsPerSecond.of(38)));
                 map.put(
                     3.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Degrees.of(29), 
                             //ShotSpeed
-                            RotationsPerSecond.of(42)));
+                            RotationsPerSecond.of(40)));
                 map.put(
                     3.5, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Degrees.of(32), 
                             //ShotSpeed
-                            RotationsPerSecond.of(43)));
+                            RotationsPerSecond.of(42)));
                 map.put(
                     4.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Degrees.of(36), 
                             //ShotSpeed
-                            RotationsPerSecond.of(45)));
+                            RotationsPerSecond.of(44)));
                 map.put(
                     4.5, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Degrees.of(38), 
                             //ShotSpeed
-                            RotationsPerSecond.of(46)));
+                            RotationsPerSecond.of(45)));
                 map.put(
                     5.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Degrees.of(40), 
                             //ShotSpeed
-                            RotationsPerSecond.of(48)));
+                            RotationsPerSecond.of(46)));
                 map.put(
                     5.7, 
                         new LeftShooterSetpoints(
                             //Shot Angle
                             Degrees.of(43), 
                             //ShotSpeed
-                            RotationsPerSecond.of(49)));
+                            RotationsPerSecond.of(47)));
                 return map;
             }
 
@@ -319,63 +317,63 @@ public final class Constants {
                             //Shot Angle
                             Degrees.of(25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(35)));
+                            RotationsPerSecond.of(34.5)));
                 map.put(
                     2.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Degrees.of(25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(37)));
+                            RotationsPerSecond.of(36)));
                 map.put(
                     2.5, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Degrees.of(27), 
                             //ShotSpeed
-                            RotationsPerSecond.of(40)));
+                            RotationsPerSecond.of(38)));
                 map.put(
                     3.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Degrees.of(29), 
                             //ShotSpeed
-                            RotationsPerSecond.of(42)));
+                            RotationsPerSecond.of(40)));
                 map.put(
                     3.5, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Degrees.of(32), 
                             //ShotSpeed
-                            RotationsPerSecond.of(43)));
+                            RotationsPerSecond.of(42)));
                 map.put(
                     4.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Degrees.of(36), 
                             //ShotSpeed
-                            RotationsPerSecond.of(45)));
+                            RotationsPerSecond.of(44)));
                 map.put(
                     4.5, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Degrees.of(38), 
                             //ShotSpeed
-                            RotationsPerSecond.of(46)));
+                            RotationsPerSecond.of(45)));
                 map.put(
                     5.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Degrees.of(40), 
                             //ShotSpeed
-                            RotationsPerSecond.of(48)));
+                            RotationsPerSecond.of(46)));
                 map.put(
                     5.7, 
                         new RightShooterSetpoints(
                             //Shot Angle
                             Degrees.of(43), 
                             //ShotSpeed
-                            RotationsPerSecond.of(49)));
+                            RotationsPerSecond.of(47)));
                 return map;
             }
 
@@ -384,7 +382,7 @@ public final class Constants {
 
         public static final class Feeder{
             /*Motors for Feeder */
-            public static final int Feeder_Motor = 45;
+            public static final int Feeder_Motor = 46;
 
             public static final AngularVelocity MAX_ANGULAR_VELOCITY = RotationsPerSecond.of(1);
         }
@@ -392,6 +390,7 @@ public final class Constants {
         public static final class Indexer{
             /*Motors for Belt System */
             public static final int Indexer_Motor_Left = 44;
+            public static final int Indexer_Motor_Right = 45;
 
             public static final AngularVelocity MAX_ANGULAR_VELOCITY = RotationsPerSecond.of(1);
         }
@@ -400,20 +399,20 @@ public final class Constants {
             /*Motors for Infeed */
             public static final int Infeed_Motor = 41;
             public static final int Infeed_Rotation_Motor_Left = 42;
-            public static final int Infeed_Rotation_Motor_Right = 43;
+            // public static final int Infeed_Rotation_Motor_Right = 43;
             /*Encoders for Infeed*/
             public static final int Infeed_Rotation_Encoder = 4;
 
             public static final double Max_Speed = 1;
-            public static final double Infeed_POS = -.32;
-            public static final double FullComp = .27;
+            public static final double Infeed_POS = -.30;
+            public static final double FullComp = .3;
 
 
 
-            public static final double Infeed_POS2 = -.13;
+            public static final double Infeed_POS2 = -.10;
 
 
-            public static final double Shooting_POS = -.18;
+            public static final double Shooting_POS = -.35;
             // public static final double Infeed_Compliance_Pos = .11;
 
         }

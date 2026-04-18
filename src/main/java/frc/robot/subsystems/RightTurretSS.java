@@ -55,7 +55,7 @@ public class RightTurretSS extends SubsystemBase{
     private PositionVoltage TurretPositionVoltage;
     private final StatusSignal<Angle> yawPosition;
     private final StatusSignal<AngularVelocity> yawVelocity;
-    public static final Angle YAW_POSITION_TOLERANCE = Degrees.of(4.5);
+    public static final Angle YAW_POSITION_TOLERANCE = Degrees.of(1.5);
 
 
     private final double kP = 50;
@@ -96,25 +96,9 @@ public class RightTurretSS extends SubsystemBase{
         yawVelocity = m_TurretMotor.getVelocity();
         
     }
-
-     public enum Mode{
-        Stop
-    }
-
-    Mode TurretMode = Mode.Stop;
     
     @Override
-
     public void periodic() {
-
-        switch(TurretMode) {
-
-            case Stop:{
-                m_TurretMotor.set(0);
-                break;
-            }
-
-        }
 
         SmartDashboard.putNumber("RightTurret Output", output);
         SmartDashboard.putNumber("RightTurret Encoder Pose", e_TurretEncoder.getPosition().getValueAsDouble());
@@ -123,10 +107,6 @@ public class RightTurretSS extends SubsystemBase{
         SmartDashboard.putNumber("Right Turret Yaw", getYaw().in(Rotations));
         SmartDashboard.putBoolean("RightYawCorrect", isYawAtSetpoint());
 
-    }
-    
-    public void Stop(){
-        TurretMode = Mode.Stop;
     }
 
     public void stowYaw(){

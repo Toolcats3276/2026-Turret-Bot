@@ -42,6 +42,6 @@ public class CancelCoCommand extends ParallelCommandGroup {
       )
     );
 
-    addRequirements(s_Infeed, s_feeder, s_Indexer);
+    addRequirements(s_Infeed, s_feeder, s_Indexer, s_RightShooter, s_LeftShooter, s_RightShooter, s_LeftShooterHood);
   }
 }

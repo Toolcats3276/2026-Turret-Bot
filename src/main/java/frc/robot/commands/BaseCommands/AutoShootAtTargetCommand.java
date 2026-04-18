@@ -159,7 +159,7 @@ public class AutoShootAtTargetCommand extends Command {
 
     // If the shooter is under the trench or over the bump, don't shoot
     var rightShooterX = rightShooterTranslation.getX();
-    var leftShooterX = rightShooterTranslation.getX();
+    var leftShooterX = leftShooterTranslation.getX();
     InterpolatingTreeMap<Double, LeftShooterSetpoints> lookupTableL;
     InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR;
     
@@ -257,7 +257,7 @@ public class AutoShootAtTargetCommand extends Command {
 
         double fuelExitVelocityLeft = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * lrps;
         LTimeUntilScored = leftActualTargetDistance
-            / (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(lpitch).in(Radians)));
+            / (fuelExitVelocityLeft * Math.cos(s_LeftShooterHood.getFuelPitch(lpitch).in(Radians)));
 
         SmartDashboard.putNumber("RightShooterDevider", (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(rpitch).in(Degrees))));
         SmartDashboard.putNumber("LeftShooterDevider", (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(lpitch).in(Degrees))));
@@ -321,8 +321,8 @@ public class AutoShootAtTargetCommand extends Command {
 
     if ((isRightFlywheelReady && isRightYawReady && isShooting) || isShooting || (isLeftFlywheelReady && isLeftYawReady && isShooting) || (isRightFlywheelReady && isRightYawReady) || (isLeftFlywheelReady && isLeftYawReady)) {
       // All conditions met. Continuously feeding until the command is interrupted
-      s_Indexer.setSpeed(RotationsPerSecond.of(1));
-      s_Feeder.setSpeed(RotationsPerSecond.of(1));
+      s_Indexer.setSpeed(RotationsPerSecond.of(65));
+      s_Feeder.setSpeed(RotationsPerSecond.of(.65));
 
       isShooting = true;
     } else {

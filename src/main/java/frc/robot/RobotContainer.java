@@ -1,6 +1,8 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
@@ -25,6 +27,7 @@ import frc.robot.commands.BaseCommands.LookAtTargetCommand;
 import frc.robot.commands.BaseCommands.ShootAtTargetCommand;
 import frc.robot.commands.BaseCommands.SmartCompCommand;
 import frc.robot.commands.BaseCommands.SmartInfeedCommand;
+import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
 import frc.robot.commands.ComplexCommands.CancelCoCommand;
 import frc.robot.commands.ComplexCommands.ComplianceCoCommand;
 import frc.robot.commands.ComplexCommands.FullCompCommand;
@@ -154,13 +157,18 @@ public class RobotContainer {
         NamedCommands.registerCommand("Shoot", new AutoShootAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, s_InfeedPivot, 
             targetSelector -> {
               Translation2d target;
-            //   if (targetSelector.getX() > AUTO_SHOOTER_BARRIER_BLUE.in(Meters) && targetSelector.getX() < AUTO_SHOOTER_BARRIER_RED.in(Meters)) {
-            //     if (DriverStation.getAlliance().orElse(Blue) == Blue) {
-            //         target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_LEFT : SHUTTLE_BLUE_RIGHT;
-            //     } else {
-            //         target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_RIGHT : SHUTTLE_RED_LEFT;
-            //     }
-            //   } else {
+                if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+                    target = TARGET_BLUE;
+                }
+                else {
+                    target = TARGET_RED;
+                }
+            //   }
+            return target;
+            }));
+        NamedCommands.registerCommand("ShootLow", new ShootAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, s_InfeedPivot, 
+            targetSelector -> {
+              Translation2d target;
                 if (DriverStation.getAlliance().orElse(Blue) == Blue) {
                     target = TARGET_BLUE;
                 }
@@ -195,13 +203,13 @@ public class RobotContainer {
         AutoChooser.addOption("None", new PrintCommand("No Auto??"));
         AutoChooser.addOption("Depot", new PathPlannerAuto("Depot"));
         // AutoChooser.addOption("PID", new PathPlannerAuto("PID"));
-        AutoChooser.addOption("Left Mid To Depot", new PathPlannerAuto("Left Mid To Depot"));
-        AutoChooser.addOption("Right Mid To Depot", new PathPlannerAuto("Right Mid To Depot"));
-        AutoChooser.addOption("AntiDCDouble Swipe", new PathPlannerAuto("Copy of Left Mid To Depot"));
+        AutoChooser.addOption("Left Mid", new PathPlannerAuto("Left Mid"));
+        AutoChooser.addOption("Right Mid", new PathPlannerAuto("Right Mid"));
+        AutoChooser.addOption("AntiDCDouble Swipe Right", new PathPlannerAuto("AntiDCRight Mid"));
         // AutoChooser.addOption("Left To Mid", new PathPlannerAuto("Left Mid To Depot"));
         // AutoChooser.addOption("Right Mid to Depot", new PathPlannerAuto("Right Mid to Depot"));
         // AutoChooser.addOption("Shuttle", new PathPlannerAuto("Shuttle"));
-        // AutoChooser.addOption("Test", new PathPlannerAuto("Test"));
+        AutoChooser.addOption("Test", new PathPlannerAuto("Test"));
 
         // Configure the button bindings
 
@@ -315,7 +323,7 @@ public class RobotContainer {
             return target;
             }));
 
-        // LookatTarget.onTrue(new LookAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, t -> DriverStation.getAlliance().orElse(Blue) == Blue ? TARGET_BLUE : TARGET_RED, Hub_SetPoints_Right, Hub_SetPoints_Left));
+        Shuttle.onTrue(new LookAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, t -> DriverStation.getAlliance().orElse(Blue) == Blue ? TARGET_BLUE : TARGET_RED, Hub_SetPoints_Right, Hub_SetPoints_Left));
         // Shuttle.onTrue(new ShuttleCoCommand(s_Indexer, s_RightTurret, s_LeftTurret, s_Infeed, s_InfeedPivot, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
     }
 

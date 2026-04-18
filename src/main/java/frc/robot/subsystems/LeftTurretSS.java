@@ -55,7 +55,7 @@ public class LeftTurretSS extends SubsystemBase{
     private PositionVoltage TurretPositionVoltage;
     private final StatusSignal<Angle> yawPosition;
     private final StatusSignal<AngularVelocity> yawVelocity;
-    public static final Angle YAW_POSITION_TOLERANCE = Degrees.of(4.5);
+    public static final Angle YAW_POSITION_TOLERANCE = Degrees.of(1.5);
 
 
     private final double kP = 75;
@@ -65,7 +65,7 @@ public class LeftTurretSS extends SubsystemBase{
 
     public static final double YAW_MOTOR_TO_SENSOR_RATIO = 1;
     public static final double YAW_SENSOR_TO_Turret_RATIO = 192.0/18.0;
-    public static final double YAW_MAGNETIC_OFFSET = -0.248046875;
+    public static final double YAW_MAGNETIC_OFFSET = 0.400390625;
 
     private double output;
     private double targetRotations;
@@ -96,25 +96,10 @@ public class LeftTurretSS extends SubsystemBase{
         yawVelocity = m_TurretMotor.getVelocity();
         
     }
-
-     public enum Mode{
-        Stop
-    }
-
-    Mode TurretMode = Mode.Stop;
     
     @Override
 
     public void periodic() {
-
-        switch(TurretMode) {
-
-            case Stop:{
-                m_TurretMotor.set(0);
-                break;
-            }
-
-        }
 
         SmartDashboard.putNumber("LeftTurret Output", output);
         SmartDashboard.putNumber("LeftTurret Encoder Pose", e_TurretEncoder.getPosition().getValueAsDouble());
@@ -123,10 +108,6 @@ public class LeftTurretSS extends SubsystemBase{
         SmartDashboard.putNumber("Left Turret Yaw", getYaw().in(Rotations));
         SmartDashboard.putBoolean("LeftYawCorrect", isYawAtSetpoint());
 
-    }
-    
-    public void Stop(){
-        TurretMode = Mode.Stop;
     }
 
     public void stowYaw(){

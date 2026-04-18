@@ -16,7 +16,7 @@ import frc.robot.Constants.RobotConstants;
 public class InfeedPivotSS extends SubsystemBase{
 
     private TalonFX m_Infeed_Pivot_Left;
-    private TalonFX m_Infeed_Pivot_Right;
+    // private TalonFX m_Infeed_Pivot_Right;
     private CANcoder e_InfeedEncoder;
 
     private PIDController InfeedPIDController;
@@ -35,9 +35,9 @@ public class InfeedPivotSS extends SubsystemBase{
         m_Infeed_Pivot_Left.getConfigurator().apply(Robot.ctreConfigs.InfeedPivotLeftConfig);
         m_Infeed_Pivot_Left.setNeutralMode(NeutralModeValue.Brake);
 
-        m_Infeed_Pivot_Right = new TalonFX(RobotConstants.Infeed.Infeed_Rotation_Motor_Right, CTREConfigs.CanivoreCANbus);
-        m_Infeed_Pivot_Right.getConfigurator().apply(Robot.ctreConfigs.InfeedPivotRightConfig);
-        m_Infeed_Pivot_Right.setNeutralMode(NeutralModeValue.Brake);
+        // m_Infeed_Pivot_Right = new TalonFX(RobotConstants.Infeed.Infeed_Rotation_Motor_Right, CTREConfigs.CanivoreCANbus);
+        // m_Infeed_Pivot_Right.getConfigurator().apply(Robot.ctreConfigs.InfeedPivotRightConfig);
+        // m_Infeed_Pivot_Right.setNeutralMode(NeutralModeValue.Brake);
         // m_Infeed_Pivot_Right.setControl(new StrictFollower(m_Infeed_Pivot_Left.getDeviceID()));
 
         e_InfeedEncoder = new CANcoder(RobotConstants.Infeed.Infeed_Rotation_Encoder, CTREConfigs.CanivoreCANbus);
@@ -63,7 +63,7 @@ public class InfeedPivotSS extends SubsystemBase{
 
             case Stop:{
                 m_Infeed_Pivot_Left.set(0);
-                m_Infeed_Pivot_Right.set(0);
+                // m_Infeed_Pivot_Right.set(0);
                 break;
             }
 
@@ -77,7 +77,7 @@ public class InfeedPivotSS extends SubsystemBase{
                 InfeedPIDController.reset();
                 output = MathUtil.clamp(InfeedPIDController.calculate(e_InfeedEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
                 m_Infeed_Pivot_Left.set(output);
-                m_Infeed_Pivot_Right.set(output);
+                // m_Infeed_Pivot_Right.set(output);
                 break;
             }
 
@@ -88,7 +88,7 @@ public class InfeedPivotSS extends SubsystemBase{
         SmartDashboard.putNumber("Infeed Pivot Encoder Pose", e_InfeedEncoder.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("Infeed Pivot AbsEncoder Pose", e_InfeedEncoder.getAbsolutePosition().getValueAsDouble());
         SmartDashboard.putNumber("Infeed Left Velocity", m_Infeed_Pivot_Left.getVelocity().getValueAsDouble());
-        SmartDashboard.putNumber("Infeed Right Velocity", m_Infeed_Pivot_Right.getVelocity().getValueAsDouble());
+        // SmartDashboard.putNumber("Infeed Right Velocity", m_Infeed_Pivot_Right.getVelocity().getValueAsDouble());
     }
     
     public void Stop(){

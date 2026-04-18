@@ -4,7 +4,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Millimeter;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotation;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -38,7 +38,6 @@ import frc.robot.subsystems.RightShooterSS;
 import frc.robot.subsystems.LeftShooterSS.LeftShooterSetpoints;
 import frc.robot.subsystems.RightShooterHoodSS;
 import frc.robot.subsystems.RightShooterSS.RightShooterSetpoints;
-import frc.robot.subsystems.RightShooterHoodSS.RightShooterConversion;
 
 public final class Constants {
 
@@ -96,9 +95,8 @@ public final class Constants {
             /** The robot angular velocity threshold for accepting vision measurements */
             public static final AngularVelocity ANGULAR_VELOCITY_THRESHOLD = DegreesPerSecond.of(720);
 
-            /** Translation of the hub on the blue side */
-            public static final Translation2d TARGET_BLUE = new Translation2d(Inches.of(177.643595), Inches.of(158.84375));
-
+            public static final Translation2d TARGET_BLUE = new Translation2d(Inches.of(182.143595), Inches.of(158.84375));
+                
             /** Translation of the hub on the red side */
             public static final Translation2d TARGET_RED = new Translation2d(Inches.of(469.078905), Inches.of(158.84375));
 
@@ -112,15 +110,23 @@ public final class Constants {
             public static final Translation2d SHUTTLE_RED_RIGHT = FlippingUtil.flipFieldPosition(SHUTTLE_BLUE_RIGHT);
             /** Translations for shuttling on the red side, with Z < 1/2 of the field */
             public static final Translation2d SHUTTLE_RED_LEFT = FlippingUtil.flipFieldPosition(SHUTTLE_BLUE_LEFT);
+
+            public static final Distance DANGER_ZONE_MIN_BLUE = Meters.of(4.15);
+            public static final Distance DANGER_ZONE_MAX_BLUE = Meters.of(5.25);
+            public static final Distance DANGER_ZONE_MIN_RED = FIELD_LENGTH.minus(DANGER_ZONE_MAX_BLUE);
+            public static final Distance DANGER_ZONE_MAX_RED = FIELD_LENGTH.minus(DANGER_ZONE_MIN_BLUE);
+            public static final Distance AUTO_SHOOTER_BARRIER_BLUE = (DANGER_ZONE_MIN_BLUE.plus(DANGER_ZONE_MAX_BLUE)).div(2);
+            public static final Distance AUTO_SHOOTER_BARRIER_RED = FIELD_LENGTH.minus(AUTO_SHOOTER_BARRIER_BLUE);
         }   
         
         public static final class FrontLeftTurret{
             /*Motors for Turret */
-            public static final int Shoot_Motor_Left_Motor = 51;
-            // public static final int Shoot_Motor_Right_Motor = 52;
+            public static final int Shoot_Motor = 51;
+            public static final int Hood_Rotation_Motor = 52;
             public static final int Turret_Rotation_Motor = 50;
             /*Encoders for Turret */
             public static final int Turret_Rotation_Encoder = 5;
+            public static final int Hood_Encoder = 7;
             /*MAX SPEED DONT CHANGE */
             public static final double MAX_SPEED = .35;
             public static final double MAX_SPEED_Auto = .50;
@@ -133,32 +139,36 @@ public final class Constants {
             public static final Angle YAW_RANGE_REVERSE = YAW_LIMIT_REVERSE
                 .plus(YAW_LIMIT_FORWARD.minus(YAW_LIMIT_REVERSE).minus(Rotations.one()).div(2.0));
 
+            public static final Angle PITCH_LIMIT_FORWARD = Degrees.of(54.7);
+            public static final Angle PITCH_LIMIT_REVERSE = Degrees.of(25);
+            public static final Angle PITCH_HOME_ANGLE = PITCH_LIMIT_REVERSE;
+
             public static final Translation2d ROBOT_TO_LEFT_SHOOTER = new Translation2d(Inches.of(6.5), Inches.of(7.126));
 
-            public static final double FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER = 0.29;
-                public static final Angle FUEL_EXIT_ANGLE_OFFSET = Degrees.of(65.0);
+            // public static final double FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER = 0.29;
+            public static final Angle FUEL_EXIT_ANGLE_OFFSET = Degrees.of(65.0);
 
             private static InterpolatingTreeMap<Double, LeftShooterSS.LeftShooterSetpoints> createLeftShooterShuttleInterpolator(){
                 var map = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), LeftShooterSetpoints::interpolate);
 
                 map.put(
-                    5.5, 
+                    2.5, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(.75), 
+                            Degrees.of(45), 
                             //ShotSpeed
-                            RotationsPerSecond.of(25)));
+                            RotationsPerSecond.of(15)));
                 map.put(
-                    17.5, 
+                    16.5, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(1), 
+                            Degrees.of(54.5), 
                             //ShotSpeed
-                            RotationsPerSecond.of(100)));
+                            RotationsPerSecond.of(80)));
                 return map;
             }
 
-            public static final InterpolatingTreeMap<Double, LeftShooterSS.LeftShooterSetpoints> Shuttle_SetPoints_By_Limelight_Degrees_Left = createLeftShooterShuttleInterpolator();
+            public static final InterpolatingTreeMap<Double, LeftShooterSS.LeftShooterSetpoints> Shuttle_SetPoints_Left = createLeftShooterShuttleInterpolator();
 
             private static InterpolatingTreeMap<Double, LeftShooterSS.LeftShooterSetpoints> createLeftShooterInterpolator(){
                 var map = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), LeftShooterSetpoints::interpolate);
@@ -167,85 +177,87 @@ public final class Constants {
                     1.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0), 
+                            Degrees.of(25), 
                             //ShotSpeed
                             RotationsPerSecond.of(31)));
                 map.put(
                     1.5, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0), 
+                            Degrees.of(25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(33)));
+                            RotationsPerSecond.of(34.5)));
                 map.put(
                     2.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0), 
+                            Degrees.of(25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(35)));
+                            RotationsPerSecond.of(36)));
                 map.put(
                     2.5, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.05), 
+                            Degrees.of(27), 
                             //ShotSpeed
                             RotationsPerSecond.of(38)));
                 map.put(
                     3.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.18), 
+                            Degrees.of(29), 
                             //ShotSpeed
-                            RotationsPerSecond.of(39)));
+                            RotationsPerSecond.of(40)));
                 map.put(
                     3.5, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.24), 
+                            Degrees.of(32), 
                             //ShotSpeed
-                            RotationsPerSecond.of(41)));
+                            RotationsPerSecond.of(42)));
                 map.put(
                     4.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.32), 
+                            Degrees.of(36), 
                             //ShotSpeed
-                            RotationsPerSecond.of(42)));
+                            RotationsPerSecond.of(44)));
                 map.put(
                     4.5, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.42), 
+                            Degrees.of(38), 
                             //ShotSpeed
-                            RotationsPerSecond.of(42.5)));
+                            RotationsPerSecond.of(45)));
                 map.put(
                     5.0, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.5), 
+                            Degrees.of(40), 
                             //ShotSpeed
-                            RotationsPerSecond.of(42.25)));
+                            RotationsPerSecond.of(46)));
                 map.put(
-                    5.5, 
+                    5.7, 
                         new LeftShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.7), 
+                            Degrees.of(43), 
                             //ShotSpeed
-                            RotationsPerSecond.of(44.5)));
+                            RotationsPerSecond.of(47)));
                 return map;
             }
 
-            public static final InterpolatingTreeMap<Double, LeftShooterSS.LeftShooterSetpoints> Hub_SetPoints_By_Limelight_Degrees_Left = createLeftShooterInterpolator();
+            public static final InterpolatingTreeMap<Double, LeftShooterSS.LeftShooterSetpoints> Hub_SetPoints_Left = createLeftShooterInterpolator();
         }
 
         public static final class FrontRightTurret{
             /*Motors for Turret */
-            public static final int Shoot_Motor_Left_Motor = 61;
-            public static final int Shoot_Motor_Right_Motor = 62;
+            public static final int Shoot_Motor = 61;
+            public static final int Hood_Rotation_Motor = 62;
             public static final int Turret_Rotation_Motor = 60;
             /*Encoders for Turret */
             public static final int Turret_Rotation_Encoder = 6;
+
+            public static final int Hood_Encoder = 8;
             /*MAX SPEED DONT CHANGE */
             public static final double MAX_SPEED = .35;
             public static final double MAX_SPEED_Auto = .50;
@@ -258,51 +270,36 @@ public final class Constants {
             public static final Angle YAW_RANGE_REVERSE = YAW_LIMIT_REVERSE
                 .plus(YAW_LIMIT_FORWARD.minus(YAW_LIMIT_REVERSE).minus(Rotations.one()).div(2.0));
 
+            public static final Angle PITCH_LIMIT_FORWARD = Degrees.of(54.7);
+            public static final Angle PITCH_LIMIT_REVERSE = Degrees.of(25);
+            public static final Angle PITCH_HOME_ANGLE = PITCH_LIMIT_REVERSE;
+
             public static final Translation2d ROBOT_TO_Right_SHOOTER = new Translation2d(Inches.of(6.5), Inches.of(-7.126));
 
-            public static final double FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER = 0.05;
-                public static final Angle FUEL_EXIT_ANGLE_OFFSET = Degrees.of(75.0);
-
-            private static InterpolatingTreeMap<Double, RightShooterHoodSS.RightShooterConversion> createRightShooterConversionInterpolator(){
-                var map = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), RightShooterConversion::interpolate);
-
-                map.put(
-                    0.0, 
-                    new RightShooterConversion(
-                        Degrees.of(28))
-                    );
-                map.put(
-                    1.0, 
-                    new RightShooterConversion(
-                        Degrees.of(57))
-                    );
-
-                return map;
-            }
-
-            public static final InterpolatingTreeMap<Double, RightShooterHoodSS.RightShooterConversion> RightShooterHoodConversion = createRightShooterConversionInterpolator();
+            public static final double FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER = 0.08;
+            public static final Angle FUEL_EXIT_ANGLE_OFFSET = Degrees.of(75.0);
 
             private static InterpolatingTreeMap<Double, RightShooterSS.RightShooterSetpoints> createRightShooterShuttleInterpolator(){
                 var map = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), RightShooterSetpoints::interpolate);
 
                 map.put(
-                    6.0, 
+                    2.5, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.75), 
+                            Degrees.of(45), 
                             //ShotSpeed
-                            RotationsPerSecond.of(25)));
+                            RotationsPerSecond.of(15)));
                 map.put(
-                    17.5, 
+                    16.5, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(1), 
+                            Degrees.of(54.5), 
                             //ShotSpeed
-                            RotationsPerSecond.of(100)));
+                            RotationsPerSecond.of(80)));
                 return map;
             }
 
-            public static final InterpolatingTreeMap<Double, RightShooterSS.RightShooterSetpoints> Shuttle_SetPoints_By_Limelight_Degrees_Right = createRightShooterShuttleInterpolator();
+            public static final InterpolatingTreeMap<Double, RightShooterSS.RightShooterSetpoints> Shuttle_SetPoints_Right = createRightShooterShuttleInterpolator();
 
             private static InterpolatingTreeMap<Double, RightShooterSS.RightShooterSetpoints> createRightShooterInterpolator(){
                 var map = new InterpolatingTreeMap<>(InverseInterpolator.forDouble(), RightShooterSetpoints::interpolate);
@@ -311,81 +308,81 @@ public final class Constants {
                     1.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0), 
+                            Degrees.of(25), 
                             //ShotSpeed
                             RotationsPerSecond.of(31)));
                 map.put(
                     1.5, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0), 
+                            Degrees.of(25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(33)));
+                            RotationsPerSecond.of(34.5)));
                 map.put(
                     2.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0), 
+                            Degrees.of(25), 
                             //ShotSpeed
-                            RotationsPerSecond.of(35)));
+                            RotationsPerSecond.of(36)));
                 map.put(
                     2.5, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.05), 
+                            Degrees.of(27), 
                             //ShotSpeed
                             RotationsPerSecond.of(38)));
                 map.put(
                     3.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.18), 
+                            Degrees.of(29), 
                             //ShotSpeed
-                            RotationsPerSecond.of(39)));
+                            RotationsPerSecond.of(40)));
                 map.put(
                     3.5, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(.24), 
+                            Degrees.of(32), 
                             //ShotSpeed
-                            RotationsPerSecond.of(41)));
+                            RotationsPerSecond.of(42)));
                 map.put(
                     4.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.32), 
+                            Degrees.of(36), 
                             //ShotSpeed
-                            RotationsPerSecond.of(42)));
+                            RotationsPerSecond.of(44)));
                 map.put(
                     4.5, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.42), 
+                            Degrees.of(38), 
                             //ShotSpeed
-                            RotationsPerSecond.of(42.5)));
+                            RotationsPerSecond.of(45)));
                 map.put(
                     5.0, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.5), 
+                            Degrees.of(40), 
                             //ShotSpeed
-                            RotationsPerSecond.of(42.25)));
+                            RotationsPerSecond.of(46)));
                 map.put(
-                    5.8, 
+                    5.7, 
                         new RightShooterSetpoints(
                             //Shot Angle
-                            Millimeter.of(0.7), 
+                            Degrees.of(43), 
                             //ShotSpeed
-                            RotationsPerSecond.of(44.5)));
+                            RotationsPerSecond.of(47)));
                 return map;
             }
 
-            public static final InterpolatingTreeMap<Double, RightShooterSS.RightShooterSetpoints> Hub_SetPoints_By_Limelight_Degrees_Right = createRightShooterInterpolator();
+            public static final InterpolatingTreeMap<Double, RightShooterSS.RightShooterSetpoints> Hub_SetPoints_Right = createRightShooterInterpolator();
         }
 
         public static final class Feeder{
             /*Motors for Feeder */
-            public static final int Feeder_Motor = 45;
+            public static final int Feeder_Motor = 46;
 
             public static final AngularVelocity MAX_ANGULAR_VELOCITY = RotationsPerSecond.of(1);
         }
@@ -393,6 +390,7 @@ public final class Constants {
         public static final class Indexer{
             /*Motors for Belt System */
             public static final int Indexer_Motor_Left = 44;
+            public static final int Indexer_Motor_Right = 45;
 
             public static final AngularVelocity MAX_ANGULAR_VELOCITY = RotationsPerSecond.of(1);
         }
@@ -401,18 +399,20 @@ public final class Constants {
             /*Motors for Infeed */
             public static final int Infeed_Motor = 41;
             public static final int Infeed_Rotation_Motor_Left = 42;
-            public static final int Infeed_Rotation_Motor_Right = 43;
+            // public static final int Infeed_Rotation_Motor_Right = 43;
             /*Encoders for Infeed*/
             public static final int Infeed_Rotation_Encoder = 4;
 
             public static final double Max_Speed = 1;
-            public static final double Infeed_POS = -.28;
+            public static final double Infeed_POS = -.30;
+            public static final double FullComp = .3;
 
 
-            public static final double Infeed_POS2 = -.13;
+
+            public static final double Infeed_POS2 = -.10;
 
 
-            public static final double Shooting_POS = -.18;
+            public static final double Shooting_POS = -.35;
             // public static final double Infeed_Compliance_Pos = .11;
 
         }
@@ -421,9 +421,6 @@ public final class Constants {
     public static final class Swerve {
 
         public static final String[] cameraNames = {"limelight-1", "limelight-2", "limelight-3", "limelight-4"};
-
-
-
 
         public static final int pigeonID = 5;
 

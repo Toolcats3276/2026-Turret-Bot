@@ -30,13 +30,11 @@ import frc.robot.subsystems.LeftShooterSS;
 import frc.robot.subsystems.LeftShooterSS.LeftShooterSetpoints;
 import frc.robot.subsystems.LeftTurretSS;
 import frc.robot.subsystems.RightShooterHoodSS;
-import frc.robot.subsystems.RightShooterHoodSS.RightShooterConversion;
 import frc.robot.subsystems.RightShooterSS;
 import frc.robot.subsystems.RightTurretSS;
 import frc.robot.subsystems.SwerveSS;
 import frc.robot.subsystems.RightShooterSS.RightShooterSetpoints;
 import static frc.robot.Constants.RobotConstants.FrontRightTurret.FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER;
-import static frc.robot.Constants.RobotConstants.FrontRightTurret.RightShooterHoodConversion;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -186,15 +184,11 @@ public class LookAtTargetCommand extends Command {
       RightshootingSettings = lookupTableR.get(predictedRightTargetDistance);
       LeftshootingSettings = lookupTableL.get(predictedLeftTargetDistance);
 
-      RightShooterConversion ShooterConversion = RightShooterHoodConversion.get(RightshootingSettings.shotAngle().in(Millimeter));
-
-
       var timeUntilScored = 0.0;
       var rrps = RightshootingSettings.shotVelocity().in(RotationsPerSecond);
       var lrps = LeftshootingSettings.shotVelocity().in(RotationsPerSecond);
       var rpitch = RightshootingSettings.shotAngle();
       var lpitch = RightshootingSettings.shotAngle();
-      var pitchConversion = ShooterConversion.outputAngle();
 
       if (Math.abs(rrps) > 1e-3) { // Avoid divide-by-zero if flywheel is stopped.
         // Approximate time-of-flight using the horizontal component of the fuel's exit velocity. Use actual distance to
@@ -206,11 +200,11 @@ public class LookAtTargetCommand extends Command {
         // - We approximate flight time as: time = horizontal_distance / (exit_speed * cos(rpitch)).
         double fuelExitVelocityRight = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * rrps;
         timeUntilScored = rightActualTargetDistance
-            / (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversion).in(Degrees)));
+            / (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(rpitch).in(Degrees)));
 
         double fuelExitVelocityLeft = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * lrps;
         timeUntilScored = leftActualTargetDistance
-            / (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversion).in(Degrees)));
+            / (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(lpitch).in(Degrees)));
       }
 
       // Compute how far the fuel initial velocity (from robot motion) will shift the target point.

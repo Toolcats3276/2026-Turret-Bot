@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -44,11 +45,11 @@ import static frc.robot.Constants.RobotConstants.FrontRightTurret.FUEL_EXIT_ANGL
 
 public class RightShooterSS extends SubsystemBase {
 
-    private TalonFX m_shooterLeftMotor = new TalonFX(RobotConstants.FrontRightTurret.Shoot_Motor_Left_Motor, CTREConfigs.CanivoreCANbus);
+    private TalonFX m_shooterLeftMotor = new TalonFX(RobotConstants.FrontRightTurret.Shoot_Motor, CTREConfigs.CanivoreCANbus);
 
-    private final double kP = .35;
-    private final double kS = 0.22025;
-    private final double kV = .1235;
+    private final double kP = .2;
+    private final double kS = 0.3;
+    private final double kV = .128;
     // private TalonFX m_shooterRightMotor;
 
     private final StatusSignal<AngularVelocity> flywheelVelocity;
@@ -61,7 +62,7 @@ public class RightShooterSS extends SubsystemBase {
     public RightShooterSS(){
         TalonFXConfiguration yawTalonConfig = new TalonFXConfiguration()
             .withMotorOutput(
-                new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive).withNeutralMode(NeutralModeValue.Coast))
+                new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast))
             .withSlot0(Slot0Configs.from(new SlotConfigs().withKP(kP).withKS(kS).withKV(kV)));
         
         m_shooterLeftMotor.getConfigurator().apply(yawTalonConfig);
@@ -119,12 +120,12 @@ public class RightShooterSS extends SubsystemBase {
     }
 
     public static record RightShooterSetpoints(
-        Distance shotAngle,
+        Angle shotAngle,
         AngularVelocity shotVelocity) {
         
     public RightShooterSetpoints interpolate(RightShooterSetpoints endValue, double t) {
       RightShooterSetpoints result = new RightShooterSetpoints(
-        Millimeters.of(MathUtil.interpolate(shotAngle.in(Millimeters), endValue.shotAngle.in(Millimeters), t)),
+        Degrees.of(MathUtil.interpolate(shotAngle.in(Degrees), endValue.shotAngle.in(Degrees), t)),
         RotationsPerSecond.of(
               MathUtil.interpolate(
                   shotVelocity.in(RotationsPerSecond),

@@ -6,6 +6,9 @@ import static frc.robot.Constants.RobotConstants.VisionConstants.APRILTAG_CAMERA
 import static frc.robot.Constants.RobotConstants.VisionConstants.ROBOT_TO_CAMERA_TRANSFORMS;
 import static frc.robot.Constants.RobotConstants.VisionConstants.APRILTAG_STD_DEVS;
 import static frc.robot.Constants.RobotConstants.VisionConstants.TAG_DISTANCE_THRESHOLD;
+
+import javax.lang.model.type.NullType;
+
 import static frc.robot.Constants.RobotConstants.VisionConstants.ANGULAR_VELOCITY_THRESHOLD;
 import frc.robot.subsystems.vision.LimelightHelpers;
 import frc.robot.subsystems.vision.LimelightHelpers.PoseEstimate;
@@ -37,7 +40,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.swerve.*;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -85,8 +87,7 @@ public class SwerveSS extends SubsystemBase {
             driveNeutralMode = NeutralModeValue.Brake;
 
             Pigeon2Configuration pigeon2Configuration = new Pigeon2Configuration()
-                .withMountPose(new MountPoseConfigs().withMountPosePitch(0).withMountPoseRoll(0).withMountPoseYaw(0))
-                .withGyroTrim(new GyroTrimConfigs().withGyroScalarZ(180));
+                .withMountPose(new MountPoseConfigs().withMountPosePitch(0).withMountPoseRoll(0).withMountPoseYaw(0));
     
             gyro.getConfigurator().apply(pigeon2Configuration);
             // gyro.setYaw(180);
@@ -114,25 +115,25 @@ public class SwerveSS extends SubsystemBase {
             AutoBuilder.configure(
                 this::getPose, 
                 this::setPose, 
-                this::getCurrentFieldChassisSpeeds, 
+                this::getRobotSpeed, 
                 this::driveRobotRelative,
                 new PPHolonomicDriveController(
                     new PIDConstants(3.5, 0, 0.1), // Translation constants //3.5
-                    new PIDConstants(.1, 0, 0)  // Rotation constants P = 1.5
+                    new PIDConstants(1.75, 0, 0)  // Rotation constants P = .1
                 ),
                 config,
-                () -> false,
-                // () -> {
-                //     // Boolean supplier that controls when the path will be mirrored for the red alliance
-                //     // This will flip the path being followed to the red side of the field.
-                //     // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                // () -> false,
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
 
-                //     var alliance = DriverStation.getAlliance();
-                //     if (alliance.isPresent()) {
-                //         return alliance.get() == DriverStation.Alliance.Red;
-                //     }
-                //     return false;
-                // }, 
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                }, 
                 this);
         }
 
@@ -229,8 +230,11 @@ public class SwerveSS extends SubsystemBase {
         }
 
         public ChassisSpeeds getCurrentFieldChassisSpeeds() {
-            // AutoBuilder expects robot-relative chassis speeds here.
-            return getRobotSpeed();
+            var robotAngle = getHeading();
+            var chassisSpeeds = Swerve.swerveKinematics.toChassisSpeeds(getModuleStates());
+            var fieldSpeeds = new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)
+                .rotateBy(robotAngle);
+            return new ChassisSpeeds(fieldSpeeds.getX(), fieldSpeeds.getY(), chassisSpeeds.omegaRadiansPerSecond);
         }
     
         public Pose2d getPose() {
@@ -304,6 +308,8 @@ public class SwerveSS extends SubsystemBase {
         SmartDashboard.putData("LLBotPose", m_LLfield);
         
         SmartDashboard.putNumber("GetHeading", getHeading().getDegrees());
+        SmartDashboard.putNumber("RobotVelocityX", getRobotSpeed().vxMetersPerSecond);
+        SmartDashboard.putNumber("RobotVelocityY", getRobotSpeed().vyMetersPerSecond);
         
         
         LimelightHelpers.PoseEstimate mt1l = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight-l");

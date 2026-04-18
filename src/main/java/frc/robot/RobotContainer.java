@@ -1,15 +1,13 @@
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Millimeter;
-import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -21,56 +19,42 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-
-import frc.robot.autos.*;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.commands.*;
-import frc.robot.commands.BaseCommands.InterpolatorShootCommand;
+import frc.robot.commands.BaseCommands.AutoComplianceCommand;
+import frc.robot.commands.BaseCommands.AutoShootAtTargetCommand;
 import frc.robot.commands.BaseCommands.LookAtTargetCommand;
 import frc.robot.commands.BaseCommands.ShootAtTargetCommand;
-import frc.robot.commands.BaseCommands.SlavedTurretCommand;
-import frc.robot.commands.BaseCommands.Feeder.FeederCommand;
+import frc.robot.commands.BaseCommands.SmartCompCommand;
+import frc.robot.commands.BaseCommands.SmartInfeedCommand;
 import frc.robot.commands.BaseCommands.Indexer.IndexerCommand;
-import frc.robot.commands.BaseCommands.Infeed.InfeedCommand;
-import frc.robot.commands.BaseCommands.Infeed.InfeedPID;
-import frc.robot.commands.BaseCommands.LeftTurret.LeftInterpolatorShoot;
-import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretAutoAim;
-import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretLinearActuator;
-import frc.robot.commands.BaseCommands.LeftTurret.LeftTurretPID;
-import frc.robot.commands.BaseCommands.LeftTurret.ManualLeftTurretCommand;
-import frc.robot.commands.BaseCommands.LeftTurret.ShootLeftTurret;
-import frc.robot.commands.BaseCommands.RightTurret.ManualRightTurretCommand;
-import frc.robot.commands.BaseCommands.RightTurret.RightInterpolatorShoot;
-import frc.robot.commands.BaseCommands.RightTurret.RightTurretAutoAim;
-import frc.robot.commands.BaseCommands.RightTurret.RightTurretLinearActuator;
-import frc.robot.commands.BaseCommands.RightTurret.ShootRightTurret;
 import frc.robot.commands.ComplexCommands.CancelCoCommand;
 import frc.robot.commands.ComplexCommands.ComplianceCoCommand;
+import frc.robot.commands.ComplexCommands.FullCompCommand;
 import frc.robot.commands.ComplexCommands.InfeedCoCommand;
 import frc.robot.commands.ComplexCommands.InfeedCoCommand2;
 import frc.robot.commands.ComplexCommands.InterpolatorShootCoCommand;
 import frc.robot.commands.ComplexCommands.OutFeed;
-import frc.robot.commands.ComplexCommands.ResetTurretCoCommand;
-import frc.robot.commands.ComplexCommands.ShootCoCommand;
 import frc.robot.commands.ComplexCommands.ShuttleCoCommand;
 import frc.robot.subsystems.*;
 
-import static frc.robot.Constants.RobotConstants.FrontLeftTurret.Hub_SetPoints_By_Limelight_Degrees_Left;
-import static frc.robot.Constants.RobotConstants.FrontRightTurret.Hub_SetPoints_By_Limelight_Degrees_Right;
-import static frc.robot.Constants.RobotConstants.FrontLeftTurret.Shuttle_SetPoints_By_Limelight_Degrees_Left;
-import static frc.robot.Constants.RobotConstants.FrontRightTurret.Shuttle_SetPoints_By_Limelight_Degrees_Right;
+import static frc.robot.Constants.RobotConstants.FrontLeftTurret.Hub_SetPoints_Left;
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.Hub_SetPoints_Right;
+import static frc.robot.Constants.RobotConstants.FrontLeftTurret.Shuttle_SetPoints_Left;
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.Shuttle_SetPoints_Right;
 import static frc.robot.Constants.RobotConstants.VisionConstants.TARGET_BLUE;
 import static frc.robot.Constants.RobotConstants.VisionConstants.TARGET_RED;
 import static edu.wpi.first.wpilibj.DriverStation.Alliance.Blue;
+import static edu.wpi.first.wpilibj.DriverStation.Alliance.Red;
+import static frc.robot.Constants.RobotConstants.VisionConstants.AUTO_SHOOTER_BARRIER_BLUE;
+import static frc.robot.Constants.RobotConstants.VisionConstants.AUTO_SHOOTER_BARRIER_RED;
 
-import static frc.robot.Constants.RobotConstants.VisionConstants.TARGET_BLUE;
 import static frc.robot.Constants.RobotConstants.VisionConstants.SHUTTLE_BLUE_LEFT;
 import static frc.robot.Constants.RobotConstants.VisionConstants.SHUTTLE_BLUE_RIGHT;
 import static frc.robot.Constants.RobotConstants.VisionConstants.SHUTTLE_RED_RIGHT;
 import static frc.robot.Constants.RobotConstants.VisionConstants.SHUTTLE_RED_LEFT;
 
 import static frc.robot.Constants.FieldConstants.FIELD_WIDTH;
-
-import java.util.function.Function;
 
 
 
@@ -94,9 +78,6 @@ public class RobotContainer {
     private final int strafeAxis = Joystick.AxisType.kX.value;
     private final int rotationAxis = Joystick.AxisType.kZ.value;
 
-    private final int rightTurretSup = XboxController.Axis.kRightY.value;
-    private final int leftTurretSup = XboxController.Axis.kLeftY.value;
-
     /* Driver Buttons */
     private final JoystickButton zeroGyro = new JoystickButton(driver, 11);
     private final JoystickButton robotCentric = new JoystickButton(driver, 0);
@@ -106,18 +87,21 @@ public class RobotContainer {
     private final JoystickButton Infeed = new JoystickButton(driver, 3);
     private final JoystickButton Infeed2 = new JoystickButton(driver, 4);
     private final JoystickButton Cancel = new JoystickButton(driver, 10);
-    private final JoystickButton ResetTurret = new JoystickButton(driver, 13);
     private final JoystickButton Shuttle = new JoystickButton(driver, 9);
     private final JoystickButton xDrive = new JoystickButton(driver, 8);
 
-    private final JoystickButton LookatTarget = new JoystickButton(driver, 6);
     private final JoystickButton Outfeed = new JoystickButton(driver, 7);
+    private final JoystickButton SmartComp = new JoystickButton(driver, 0);
+    private final JoystickButton FullComp = new JoystickButton(driver, 6);
 
-    private final JoystickButton TurretReset = new JoystickButton(driver, 14);
-
-
-    /* Xbox Buttons */
-    private final JoystickButton RightTurretManual = new JoystickButton(xboxController, 1);
+    private final POVButton Top = new POVButton(driver, 0);
+    private final POVButton Top_Right = new POVButton(driver, 45);
+    private final POVButton Right = new POVButton(driver, 90);
+    private final POVButton Bottom_Right = new POVButton(driver, 135);
+    private final POVButton Bottom = new POVButton(driver, 180);
+    private final POVButton Bottom_Left = new POVButton(driver, 225);
+    private final POVButton Left = new POVButton(driver, 270);
+    private final POVButton Top_Left = new POVButton(driver, 315);
 
     /* Subsystems */
     private final SwerveSS s_Swerve = new SwerveSS();
@@ -129,7 +113,7 @@ public class RobotContainer {
     private final RightShooterHoodSS s_RightShooterHood = new RightShooterHoodSS();
     private final IndexerSS s_Indexer = new IndexerSS();
     private final InfeedSS s_Infeed = new InfeedSS();
-    private final InfeedPivotSS s_InfeedPivotSS = new InfeedPivotSS();
+    private final InfeedPivotSS s_InfeedPivot = new InfeedPivotSS();
     private final FeederSS s_Feeder = new FeederSS();
 
 
@@ -141,8 +125,7 @@ public class RobotContainer {
                 () -> -driver.getRawAxis(translationAxis), 
                 () -> -driver.getRawAxis(strafeAxis), 
                 () -> -driver.getRawAxis(rotationAxis), 
-                () -> robotCentric.getAsBoolean(),
-                () -> LookatTarget.getAsBoolean()
+                () -> robotCentric.getAsBoolean()
             )
         );
 
@@ -150,19 +133,83 @@ public class RobotContainer {
         AutoChooser = new SendableChooser<Command>();
         SmartDashboard.putData(AutoChooser);
 
-        NamedCommands.registerCommand("Infeed", new InfeedCoCommand(s_Infeed, s_InfeedPivotSS));
-        NamedCommands.registerCommand("Shoot", new InterpolatorShootCoCommand(s_Indexer, s_RightTurret, s_LeftTurret, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
-        NamedCommands.registerCommand("Comp", new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_Feeder));
+        NamedCommands.registerCommand("SlapDown", new InfeedCoCommand(s_InfeedPivot));
+
+        NamedCommands.registerCommand("Infeed", new SmartInfeedCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, s_InfeedPivot, 
+            targetSelector -> {
+              Translation2d target;
+            //   if (targetSelector.getX() > AUTO_SHOOTER_BARRIER_BLUE.in(Meters) && targetSelector.getX() < AUTO_SHOOTER_BARRIER_RED.in(Meters)) {
+            //     if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+            //         target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_LEFT : SHUTTLE_BLUE_RIGHT;
+            //     } else {
+            //         target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_RIGHT : SHUTTLE_RED_LEFT;
+            //     }
+            //   } else {
+                if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+                    target = TARGET_BLUE;
+                }
+                else {
+                    target = TARGET_RED;
+                }
+            //   }
+            return target;
+            }));
+        NamedCommands.registerCommand("Shoot", new AutoShootAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, s_InfeedPivot, 
+            targetSelector -> {
+              Translation2d target;
+                if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+                    target = TARGET_BLUE;
+                }
+                else {
+                    target = TARGET_RED;
+                }
+            //   }
+            return target;
+            }));
+        NamedCommands.registerCommand("ShootLow", new ShootAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, s_InfeedPivot, 
+            targetSelector -> {
+              Translation2d target;
+                if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+                    target = TARGET_BLUE;
+                }
+                else {
+                    target = TARGET_RED;
+                }
+            //   }
+            return target;
+            }));
+        NamedCommands.registerCommand("Comp", new AutoComplianceCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, 
+            targetSelector -> {
+              Translation2d target;
+            //   if (targetSelector.getX() > AUTO_SHOOTER_BARRIER_BLUE.in(Meters) && targetSelector.getX() < AUTO_SHOOTER_BARRIER_RED.in(Meters)) {
+            //     if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+            //         target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_LEFT : SHUTTLE_BLUE_RIGHT;
+            //     } else {
+            //         target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_RIGHT : SHUTTLE_RED_LEFT;
+            //     }
+            //   } else {
+                if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+                    target = TARGET_BLUE;
+                }
+                else {
+                    target = TARGET_RED;
+                }
+            //   }
+            return target;
+            }));
         NamedCommands.registerCommand("ZeroGyro", new InstantCommand(() -> s_Swerve.zeroHeading()));
-        NamedCommands.registerCommand("Infeed2", new InfeedCoCommand2(s_Infeed, s_InfeedPivotSS));
+        NamedCommands.registerCommand("Infeed2", new InfeedCoCommand2(s_Infeed, s_InfeedPivot));
 
         AutoChooser.addOption("None", new PrintCommand("No Auto??"));
         AutoChooser.addOption("Depot", new PathPlannerAuto("Depot"));
-        AutoChooser.addOption("PID", new PathPlannerAuto("PID"));
-        // AutoChooser.addOption("Left Mid To Depot", new PathPlannerAuto("Left Mid To Depot"));
+        // AutoChooser.addOption("PID", new PathPlannerAuto("PID"));
+        AutoChooser.addOption("Left Mid", new PathPlannerAuto("Left Mid"));
+        AutoChooser.addOption("Right Mid", new PathPlannerAuto("Right Mid"));
+        AutoChooser.addOption("AntiDCDouble Swipe Right", new PathPlannerAuto("AntiDCRight Mid"));
         // AutoChooser.addOption("Left To Mid", new PathPlannerAuto("Left Mid To Depot"));
         // AutoChooser.addOption("Right Mid to Depot", new PathPlannerAuto("Right Mid to Depot"));
-        // AutoChooser.addOption("Depot Advanced", new PathPlannerAuto("Depot Half"));
+        // AutoChooser.addOption("Shuttle", new PathPlannerAuto("Shuttle"));
+        AutoChooser.addOption("Test", new PathPlannerAuto("Test"));
 
         // Configure the button bindings
 
@@ -182,56 +229,102 @@ public class RobotContainer {
         /* Driver Buttons */
         zeroGyro.onTrue(new InstantCommand(() -> s_Swerve.zeroHeading()));
 
-        Shoot.onTrue(new ShootAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, t -> DriverStation.getAlliance().orElse(Blue) == Blue ? TARGET_BLUE : TARGET_RED, Hub_SetPoints_By_Limelight_Degrees_Right, Hub_SetPoints_By_Limelight_Degrees_Left));
-        Copmliance.onTrue(new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_Feeder));
-
-        Infeed.onTrue(new InfeedCoCommand(s_Infeed, s_InfeedPivotSS));
-        Infeed2.onTrue(new InfeedCoCommand2(s_Infeed, s_InfeedPivotSS));
-
-        Outfeed.onTrue(new OutFeed(s_Infeed, s_Feeder, s_Indexer));
-        Cancel.onTrue(new CancelCoCommand(s_Indexer, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_LeftTurret, s_RightTurret, s_Infeed, s_Feeder));
-
-        ResetTurret.onTrue(new ResetTurretCoCommand(s_RightTurret, s_LeftTurret));
-
-        xDrive.whileTrue(Commands.run(() -> s_Swerve.Xdrive(true), s_Swerve));
-        
-        // LookatTarget.onTrue(new LookAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, t -> DriverStation.getAlliance().orElse(Blue) == Blue ? TARGET_BLUE : TARGET_RED, Shuttle_SetPoints_By_Limelight_Degrees_Right, Shuttle_SetPoints_By_Limelight_Degrees_Left));
-        Shuttle.onTrue(new ShootAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve,         
+        Shoot.onTrue(new ShootAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, s_InfeedPivot, 
             targetSelector -> {
               Translation2d target;
               if (DriverStation.getAlliance().orElse(Blue) == Blue) {
-                target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_LEFT : SHUTTLE_BLUE_RIGHT;
-              } else {
-                target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_RIGHT : SHUTTLE_RED_LEFT;
+                  if (targetSelector.getX() > AUTO_SHOOTER_BARRIER_BLUE.in(Meters)) {
+                      target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_LEFT : SHUTTLE_BLUE_RIGHT;
+                  }
+                  else{
+                      target = TARGET_BLUE;
+                  }
               }
-            //   // Adjust the target to be "offset distance" short of target along the vector between the robot and the target
-            //   Translation2d vectorToTarget = target.minus(shooterTranslation);
-            //   double distanceToTarget = vectorToTarget.getNorm();
-            //   Translation2d adjustedTarget = shooterTranslation
-            //       .plus(vectorToTarget.times((distanceToTarget - SHUTTLE_OFFSET_DISTANCE.in(Meters)) / distanceToTarget));
-            //   return adjustedTarget;
+              else{
+                  if(targetSelector.getX() < AUTO_SHOOTER_BARRIER_RED.in(Meters)){
+                    target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_RIGHT : SHUTTLE_RED_LEFT;
+                  }
+                  else{
+                    target = TARGET_RED;
+                  }
+                }
             return target;
-            }, Shuttle_SetPoints_By_Limelight_Degrees_Right, Shuttle_SetPoints_By_Limelight_Degrees_Left));
-        // Shuttle.onTrue(new IndexerCommand(s_Indexer, RotationsPerSecond.of(1)));
-        // Shuttle.onTrue(new ShootLeftTurret(s_LeftShooter, 1));
-        // Shuttle.onTrue(new ShootRightTurret(s_RightShooter, 1));
-        // Shuttle.onTrue(new InfeedCommand(s_Infeed, RotationsPerSecond.of(1)));
+            }));
 
-        // Shuttle.onTrue(new ShuttleCoCommand(s_Indexer, s_RightTurret, s_LeftTurret, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
+        // Copmliance.onTrue(new ComplianceCoCommand(s_RightShooter, s_RightTurret, s_LeftShooter, s_LeftTurret, s_Indexer, s_Infeed, s_InfeedPivot, s_RightShooterHood, s_LeftShooterHood, s_Feeder));
 
-        // InterpolatorShootShuttle.onTrue(new InterpolatorShootCommand(s_Indexer, s_Infeed, s_InfeedPivotSS, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
+        // Infeed.onTrue(new InfeedCoCommand(s_Infeed, s_InfeedPivot));
+        Infeed.onTrue(new SmartInfeedCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, s_InfeedPivot, 
+            targetSelector -> {
+              Translation2d target;
+              if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+                  if (targetSelector.getX() > AUTO_SHOOTER_BARRIER_BLUE.in(Meters)) {
+                      target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_LEFT : SHUTTLE_BLUE_RIGHT;
+                  }
+                  else{
+                      target = TARGET_BLUE;
+                  }
+              }
+              else{
+                  if(targetSelector.getX() < AUTO_SHOOTER_BARRIER_RED.in(Meters)){
+                    target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_RIGHT : SHUTTLE_RED_LEFT;
+                  }
+                  else{
+                    target = TARGET_RED;
+                  }
+                }
+            return target;
+            }));
+        Infeed2.onTrue(new InfeedCoCommand2(s_Infeed, s_InfeedPivot));
 
-        /* Xbox Controller */
-        RightTurretManual.onTrue(new ManualRightTurretCommand(s_RightTurret, () -> xboxController.getRawAxis(rightTurretSup)));
-        RightTurretManual.onTrue(new ManualLeftTurretCommand(s_LeftTurret, () -> xboxController.getRawAxis(leftTurretSup)));
+        Outfeed.onTrue(new OutFeed(s_Infeed, s_Feeder, s_Indexer, s_RightShooter, s_LeftShooter));
+        Cancel.onTrue(new CancelCoCommand(s_Indexer, s_InfeedPivot, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_LeftTurret, s_RightTurret, s_Infeed, s_Feeder));
 
-
-        // TurretReset.onTrue(new RightTurretPID(s_RightShooterHood, 0, 1));
-        // TurretReset.onTrue(new LeftTurretPID(s_LeftShooterHood, .1, 1));
-        // TurretReset.onTrue(new InstantCommand(() -> s_RightTurret.LinearActuator(1)));
-        TurretReset.onTrue(new LeftTurretLinearActuator(s_LeftShooterHood, Millimeter.of(0)));
+        xDrive.whileTrue(Commands.run(() -> s_Swerve.Xdrive(true), s_Swerve));
+        FullComp.onTrue(new FullCompCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_InfeedPivot));
         
+        // LookatTarget.onTrue(new LookAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, t -> DriverStation.getAlliance().orElse(Blue) == Blue ? TARGET_BLUE : TARGET_RED, Shuttle_SetPoints_By_Limelight_Degrees_Right, Shuttle_SetPoints_By_Limelight_Degrees_Left));
+        // Shuttle.onTrue(new ShootAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, s_InfeedPivot,         
+        //     targetSelector -> {
+        //       Translation2d target;
+        //       if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+        //         target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_LEFT : SHUTTLE_BLUE_RIGHT;
+        //       } else {
+        //         target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_RIGHT : SHUTTLE_RED_LEFT;
+        //       }
+        //     //   // Adjust the target to be "offset distance" short of target along the vector between the robot and the target
+        //     //   Translation2d vectorToTarget = target.minus(shooterTranslation);
+        //     //   double distanceToTarget = vectorToTarget.getNorm();
+        //     //   Translation2d adjustedTarget = shooterTranslation
+        //     //       .plus(vectorToTarget.times((distanceToTarget - SHUTTLE_OFFSET_DISTANCE.in(Meters)) / distanceToTarget));
+        //     //   return adjustedTarget;
+        //     return target;
+        //     }, Shuttle_SetPoints_Right, Shuttle_SetPoints_Left));
 
+        Copmliance.onTrue(new SmartCompCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, 
+            targetSelector -> {
+              Translation2d target;
+              if (DriverStation.getAlliance().orElse(Blue) == Blue) {
+                  if (targetSelector.getX() > AUTO_SHOOTER_BARRIER_BLUE.in(Meters)) {
+                      target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_BLUE_LEFT : SHUTTLE_BLUE_RIGHT;
+                  }
+                  else{
+                      target = TARGET_BLUE;
+                  }
+              }
+              else{
+                  if(targetSelector.getX() < AUTO_SHOOTER_BARRIER_RED.in(Meters)){
+                    target = targetSelector.getY() > FIELD_WIDTH.in(Meters) / 2.0 ? SHUTTLE_RED_RIGHT : SHUTTLE_RED_LEFT;
+                  }
+                  else{
+                    target = TARGET_RED;
+                  }
+                }
+            return target;
+            }));
+
+        Shuttle.onTrue(new LookAtTargetCommand(s_RightShooter, s_RightTurret, s_RightShooterHood, s_LeftShooter, s_LeftTurret, s_LeftShooterHood, s_Feeder, s_Indexer, s_Infeed, s_Swerve, t -> DriverStation.getAlliance().orElse(Blue) == Blue ? TARGET_BLUE : TARGET_RED, Hub_SetPoints_Right, Hub_SetPoints_Left));
+        // Shuttle.onTrue(new ShuttleCoCommand(s_Indexer, s_RightTurret, s_LeftTurret, s_Infeed, s_InfeedPivot, s_RightShooterHood, s_LeftShooterHood, s_RightShooter, s_LeftShooter, s_Feeder));
     }
 
     /**

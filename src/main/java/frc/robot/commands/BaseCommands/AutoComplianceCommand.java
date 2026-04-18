@@ -59,7 +59,7 @@ import java.util.function.Supplier;
  * This command has configurability to be used for both shooting at the hub and shooting while shuttling fuel across the
  * field. The target to shoot at is determined by a function, and the shooter settings lookup table is a parameter.
  */
-public class SmartCompCommand extends Command {
+public class AutoComplianceCommand extends Command {
 
   private final RightShooterSS s_RightShooter;
   private final RightTurretSS s_RightTurret;
@@ -89,7 +89,7 @@ public class SmartCompCommand extends Command {
    * @param targetSelector function that takes the shooter's translation and returns the target translation to shoot at
    * @param lookupTableR lookup table mapping distance to shooter setpoints
    */
-  public SmartCompCommand(
+  public AutoComplianceCommand(
       RightShooterSS s_RightShooter,
       RightTurretSS s_RightTurret,
       RightShooterHoodSS s_RightShooterHood,
@@ -147,37 +147,37 @@ public class SmartCompCommand extends Command {
     InterpolatingTreeMap<Double, LeftShooterSetpoints> lookupTableL;
     InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR;
     
-    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue){
-      if ((rightShooterX < AUTO_SHOOTER_BARRIER_BLUE.in(Meters))
-       || (leftShooterX < AUTO_SHOOTER_BARRIER_BLUE.in(Meters))){
+    // if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue){
+    //   if ((rightShooterX < AUTO_SHOOTER_BARRIER_BLUE.in(Meters))
+    //    || (leftShooterX < AUTO_SHOOTER_BARRIER_BLUE.in(Meters))){
         lookupTableR = Hub_SetPoints_Right;
         lookupTableL = Hub_SetPoints_Left;
-      }
-      else {
-        lookupTableR = Shuttle_SetPoints_Right;
-        lookupTableL = Shuttle_SetPoints_Left;
-      }
-    }
-    else{
-      if ((rightShooterX > AUTO_SHOOTER_BARRIER_RED.in(Meters))
-       || (leftShooterX > AUTO_SHOOTER_BARRIER_RED.in(Meters))){
-        lookupTableR = Hub_SetPoints_Right;
-        lookupTableL = Hub_SetPoints_Left;
-      }
-      else {
-        lookupTableR = Shuttle_SetPoints_Right;
-        lookupTableL = Shuttle_SetPoints_Left;
-      }
-    }
+      // }
+      // else {
+      //   lookupTableR = Shuttle_SetPoints_Right;
+      //   lookupTableL = Shuttle_SetPoints_Left;
+      // }
+    // }
+    // else{
+    //   if ((rightShooterX > AUTO_SHOOTER_BARRIER_RED.in(Meters))
+    //    || (leftShooterX > AUTO_SHOOTER_BARRIER_RED.in(Meters))){
+    //     lookupTableR = Hub_SetPoints_Right;
+    //     lookupTableL = Hub_SetPoints_Left;
+    //   }
+    //   else {
+    //     lookupTableR = Shuttle_SetPoints_Right;
+    //     lookupTableL = Shuttle_SetPoints_Left;
+    //   }
+    // }
 
-    if ((rightShooterX > DANGER_ZONE_MIN_BLUE.in(Meters) && rightShooterX < DANGER_ZONE_MAX_BLUE.in(Meters))
-     || (rightShooterX > DANGER_ZONE_MIN_RED.in(Meters) && rightShooterX < DANGER_ZONE_MAX_RED.in(Meters))
-     || (leftShooterX > DANGER_ZONE_MIN_BLUE.in(Meters) && leftShooterX < DANGER_ZONE_MAX_BLUE.in(Meters))
-     || (leftShooterX > DANGER_ZONE_MIN_RED.in(Meters) && leftShooterX < DANGER_ZONE_MAX_RED.in(Meters))){
-      s_RightShooterHood.stowPitch();
-      s_LeftShooterHood.stowPitch();
-      return;
-    }
+    // if ((rightShooterX > DANGER_ZONE_MIN_BLUE.in(Meters) && rightShooterX < DANGER_ZONE_MAX_BLUE.in(Meters))
+    //  || (rightShooterX > DANGER_ZONE_MIN_RED.in(Meters) && rightShooterX < DANGER_ZONE_MAX_RED.in(Meters))
+    //  || (leftShooterX > DANGER_ZONE_MIN_BLUE.in(Meters) && leftShooterX < DANGER_ZONE_MAX_BLUE.in(Meters))
+    //  || (leftShooterX > DANGER_ZONE_MIN_RED.in(Meters) && leftShooterX < DANGER_ZONE_MAX_RED.in(Meters))){
+    //   s_RightShooterHood.stowPitch();
+    //   s_LeftShooterHood.stowPitch();
+    //   return;
+    // }
 
     // 1. Compute the velocity of the fuel at the shooter's location on the field.
     //
@@ -259,11 +259,11 @@ public class SmartCompCommand extends Command {
     // Command the shooter pitch, yaw, and flywheel speed from the lookup table.
     s_RightTurret.stowYaw();
     // s_RightShooterHood.LinearActuator(RightshootingSettings.shotAngle());
-    s_RightShooterHood.setPitchAngle(RightshootingSettings.shotAngle());
+    s_RightShooterHood.stowPitch();
     s_RightShooter.setSpeed(RightshootingSettings.shotVelocity());
     s_LeftTurret.stowYaw();
     // s_LeftShooterHood.LinearActuator(LeftshootingSettings.shotAngle());
-    s_LeftShooterHood.setPitchAngle(LeftshootingSettings.shotAngle());
+    s_LeftShooterHood.stowPitch();
     s_LeftShooter.setSpeed(LeftshootingSettings.shotVelocity());
 
     s_Feeder.Stop();

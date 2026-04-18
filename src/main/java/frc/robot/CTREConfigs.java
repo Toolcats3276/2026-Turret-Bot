@@ -90,7 +90,7 @@ public final class CTREConfigs {
         /* Infeed */
         InfeedCancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
         InfeedCancoderConfig.MagnetSensor.AbsoluteSensorDiscontinuityPoint = .5;
-        InfeedCancoderConfig.MagnetSensor.MagnetOffset = 0.068603515625;
+        InfeedCancoderConfig.MagnetSensor.MagnetOffset = -0.353271484375;
 
         InfeedPivotLeftConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         InfeedPivotRightConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;

@@ -7,37 +7,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "LeftDepotS1"
+            "pathName": "LeftBumpS1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LeftDepotS1_X"
+            "pathName": "LeftBumpS1_1X"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LeftDepotSX_2"
+            "pathName": "LeftBumpS1X_X"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LeftDepotS2_X"
+            "pathName": "LeftBumpSX_2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "LeftDepotSX_3"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "LeftDepotS3-x"
+            "pathName": "LeftBumpS2_X"
           }
         }
       ]

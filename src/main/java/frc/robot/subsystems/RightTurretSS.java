@@ -52,13 +52,10 @@ public class RightTurretSS extends SubsystemBase{
     private TalonFX m_TurretMotor = new TalonFX(RobotConstants.FrontRightTurret.Turret_Rotation_Motor, CTREConfigs.CanivoreCANbus);
     private CANcoder e_TurretEncoder = new CANcoder(RobotConstants.FrontRightTurret.Turret_Rotation_Encoder, CTREConfigs.CanivoreCANbus);
 
-    private PIDController TurretPIDController;
-
-    private PositionVoltage rightTurretMotionMagicVoltage;
-    // private MotionMagicVoltage rightTurretMotionMagicVoltage;
+    private PositionVoltage TurretPositionVoltage;
     private final StatusSignal<Angle> yawPosition;
     private final StatusSignal<AngularVelocity> yawVelocity;
-    public static final Angle YAW_POSITION_TOLERANCE = Degrees.of(2.5);
+    public static final Angle YAW_POSITION_TOLERANCE = Degrees.of(1.5);
 
 
     private final double kP = 50;
@@ -66,57 +63,25 @@ public class RightTurretSS extends SubsystemBase{
     private final double kV = 10;
     private final double kD = 3.25;
 
-    public static final MotionMagicConfigs YAW_MOTION_MAGIC_CONFIGS = new MotionMagicConfigs()
-        .withMotionMagicAcceleration(9.5)
-        .withMotionMagicCruiseVelocity(10.0);
     public static final double YAW_MOTOR_TO_SENSOR_RATIO = 1;
     public static final double YAW_SENSOR_TO_Turret_RATIO = 192.0/18.0;
-    public static final double YAW_MAGNETIC_OFFSET = 0.072021484375;
+    public static final double YAW_MAGNETIC_OFFSET = -0.254638671875;
 
     private double output;
-    private double shootangle;
-    private double setPoint;
-    private double maxSpeed;
-    private double ManualVal;
-    private double TX;
-    private double shotPower;
-    private double shooterAngle;
     private double targetRotations;
-
-    private double s_speed;
-    private double s_length;
-    private double s_setPoint;
-    private double s_currentpos;
-
-    private double NegativeDeadStop = -3.2;
-    private double PositiveDeadStop = 3.2;
-    
-    /*Limelight*/
-
-    public final LimelightAssistant LeftLimelight;
-    public final LimelightAssistant RightLimelight;
-
-    private final PIDController LLRotationPidController;
-        private final double LLkP = 0.004;
-        private final double LLkI = 0;
-        private final double LLkD = 0;
     
     public RightTurretSS() {
         /*Turret General Rotation*/
         TalonFXConfiguration yawTalonConfig = new TalonFXConfiguration()
-            .withMotorOutput(
-                new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast))
-            .withFeedback(
-                new FeedbackConfigs().withRotorToSensorRatio(YAW_MOTOR_TO_SENSOR_RATIO)
-                    .withFusedCANcoder(e_TurretEncoder)
-                    .withSensorToMechanismRatio(YAW_SENSOR_TO_Turret_RATIO))
+            .withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Brake))
+            .withFeedback(new FeedbackConfigs().withRotorToSensorRatio(YAW_MOTOR_TO_SENSOR_RATIO)
+            .withFusedCANcoder(e_TurretEncoder)
+            .withSensorToMechanismRatio(YAW_SENSOR_TO_Turret_RATIO))
             .withSlot0(Slot0Configs.from(new SlotConfigs().withKP(kP).withKS(kS).withKV(kV).withKD(kD)))
-            .withSoftwareLimitSwitch(
-                new SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true)
-                    .withForwardSoftLimitThreshold(YAW_LIMIT_FORWARD)
-                    .withReverseSoftLimitEnable(true)
-                    .withReverseSoftLimitThreshold(YAW_LIMIT_REVERSE));
-        
+            .withSoftwareLimitSwitch(new SoftwareLimitSwitchConfigs().withForwardSoftLimitEnable(true)
+            .withForwardSoftLimitThreshold(YAW_LIMIT_FORWARD)
+            .withReverseSoftLimitEnable(true)
+            .withReverseSoftLimitThreshold(YAW_LIMIT_REVERSE));
         m_TurretMotor.getConfigurator().apply(yawTalonConfig);
         
 
@@ -124,149 +89,28 @@ public class RightTurretSS extends SubsystemBase{
             new MagnetSensorConfigs().withMagnetOffset(YAW_MAGNETIC_OFFSET)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
                 .withAbsoluteSensorDiscontinuityPoint(.5));
-        // e_TurretEncoder.setPosition(e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
         e_TurretEncoder.getConfigurator().apply(yawCanCoderConfig);
 
-        /*Limelight*/
-        LeftLimelight = new LimelightAssistant("limelight-rlt", VecBuilder.fill(0,0,0), false);
-        RightLimelight = new LimelightAssistant("limelight-rrt", VecBuilder.fill(0,0,0), false);
-
-        LLRotationPidController = new PIDController(LLkP, LLkI, LLkD);
-
-        // rightTurretMotionMagicVoltage = new MotionMagicVoltage(0).withEnableFOC(true);
-        rightTurretMotionMagicVoltage = new PositionVoltage(0).withEnableFOC(true);
+        TurretPositionVoltage = new PositionVoltage(0).withEnableFOC(true);
         yawPosition = m_TurretMotor.getPosition();
         yawVelocity = m_TurretMotor.getVelocity();
         
     }
-
-     public enum Mode{
-        Stop,
-        PID,
-        AutoAim,
-        Manual,
-    }
-
-    Mode TurretMode = Mode.Stop;
     
     @Override
-
     public void periodic() {
 
-        switch(TurretMode) {
-
-            case Stop:{
-                m_TurretMotor.set(0);
-                break;
-            }
-
-            case PID:{
-                TurretPIDController.reset();
-                output = MathUtil.clamp(TurretPIDController.calculate(e_TurretEncoder.getPosition().getValueAsDouble(), setPoint), -maxSpeed, maxSpeed);
-                m_TurretMotor.set(output);
-                break;
-            }
-
-            case Manual:{
-                if(e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop){
-                output = MathUtil.clamp(ManualVal, -.1, .1);
-                m_TurretMotor.set(output);
-                }
-                else {
-                    output = 0;
-                }
-                break;
-            }
-
-            case AutoAim:{
-                    if(e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop){
-                        output = -MathUtil.clamp(LLRotationPidController.calculate(TxValue(), 0), -maxSpeed, maxSpeed);
-                        m_TurretMotor.set(output);
-                    }
-                    else if(e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop){
-                        if (TxValue() > 0){
-                            output = -MathUtil.clamp(LLRotationPidController.calculate(TxValue(), 0), -maxSpeed, maxSpeed);
-                        }
-                        else {
-                            output = 0;
-                        }
-                        m_TurretMotor.set(output);
-                    }
-                    else if(e_TurretEncoder.getPosition().getValueAsDouble() < NegativeDeadStop){
-                        if (TxValue() < 0){
-                            output = -MathUtil.clamp(LLRotationPidController.calculate(TxValue(), 0), -maxSpeed, maxSpeed);
-                        }
-                        else {
-                            output = 0;
-                        }                    
-                        m_TurretMotor.set(output);
-                    }
-                    else{
-                        output = 0;
-                        m_TurretMotor.set(output);
-                    }
-                }
-                break;
-
-        }
-
         SmartDashboard.putNumber("RightTurret Output", output);
-        SmartDashboard.putNumber("RightTurret setPoint", setPoint);
         SmartDashboard.putNumber("RightTurret Encoder Pose", e_TurretEncoder.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("RightTurret Rotation Encoder Pose", e_TurretEncoder.getPosition().getValue().in(Rotations));
         SmartDashboard.putNumber("RightTurret AbsEncoder Pose", e_TurretEncoder.getAbsolutePosition().getValueAsDouble());
-        SmartDashboard.putNumber("TX RightTurret", TX);
-        SmartDashboard.putBoolean("RightTurretInRange", e_TurretEncoder.getPosition().getValueAsDouble() > NegativeDeadStop && e_TurretEncoder.getPosition().getValueAsDouble() < PositiveDeadStop);
-        SmartDashboard.putBoolean("RightTurretInNegRange", e_TurretEncoder.getPosition().getValueAsDouble() < NegativeDeadStop);
-        SmartDashboard.putBoolean("RightTurretInPosRange", e_TurretEncoder.getPosition().getValueAsDouble() > PositiveDeadStop);
         SmartDashboard.putNumber("Right Turret Yaw", getYaw().in(Rotations));
-        SmartDashboard.putNumber("Right Turret Target", targetRotations);
         SmartDashboard.putBoolean("RightYawCorrect", isYawAtSetpoint());
 
-        returnPOS();
-
-        TX = LeftLimelight.getTX() + RightLimelight.getTX();
-    }
-    
-    public void Stop(){
-        TurretMode = Mode.Stop;
     }
 
-    public void Manual(double ManualVal){
-        this.ManualVal = ManualVal;
-        TurretMode = Mode.Manual;
-    }
-    
-    public void PID(double setPoint, double maxSpeed){
-        this.setPoint = setPoint;
-        this.maxSpeed = maxSpeed;
-        TurretPIDController.reset();
-        TurretMode = Mode.PID;
-    }
-
-    public double returnSetPoint(){
-        return setPoint;
-    }
-
-    public double returnPOS(){
-        return e_TurretEncoder.getPosition().getValueAsDouble();
-    }
-
-    public Boolean atSetPoint(){
-        return TurretPIDController.atSetpoint();
-    }
-
-    public void AutoAim(double maxSpeed){
-        this.maxSpeed = maxSpeed;
-        TurretMode = Mode.AutoAim;
-    }
-
-    public double TxValue(){
-        return TX;
-    }
-
-    public double TyValue(){
-        return (LeftLimelight.getTY() + RightLimelight.getTY())/2;
+    public void stowYaw(){
+        setYawAngle(Rotations.of(0));
     }
 
     public void setYawAngle(Angle targetYaw) {
@@ -274,8 +118,7 @@ public class RightTurretSS extends SubsystemBase{
         // turret range is more like [-0.75, 0.25].
         targetRotations = -MathUtil
             .inputModulus(targetYaw.in(Rotations), YAW_RANGE_REVERSE.in(Rotations), YAW_RANGE_FORWARD.in(Rotations));
-        Angle currentYaw = getYaw();
-        m_TurretMotor.setControl(rightTurretMotionMagicVoltage.withPosition(targetRotations));
+        m_TurretMotor.setControl(TurretPositionVoltage.withPosition(targetRotations));
     }
 
     public Angle getYaw() {
@@ -286,10 +129,8 @@ public class RightTurretSS extends SubsystemBase{
     public boolean isYawAtSetpoint() {
       BaseStatusSignal.refreshAll(yawPosition, yawVelocity);
       Angle currentYaw = BaseStatusSignal.getLatencyCompensatedValue(yawPosition, yawVelocity);
-      return MathUtil.isNear(rightTurretMotionMagicVoltage.Position, currentYaw.in(Rotations), YAW_POSITION_TOLERANCE.in(Rotations));
+      return MathUtil.isNear(TurretPositionVoltage.Position, currentYaw.in(Rotations), YAW_POSITION_TOLERANCE.in(Rotations));
     }
-
-
 }   
 
 

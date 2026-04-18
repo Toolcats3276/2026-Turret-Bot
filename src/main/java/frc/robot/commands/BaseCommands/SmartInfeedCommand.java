@@ -24,8 +24,10 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.FeederSS;
 import frc.robot.subsystems.IndexerSS;
+import frc.robot.subsystems.InfeedPivotSS;
 import frc.robot.subsystems.InfeedSS;
 import frc.robot.subsystems.LeftShooterHoodSS;
 import frc.robot.subsystems.LeftShooterSS;
@@ -59,7 +61,7 @@ import java.util.function.Supplier;
  * This command has configurability to be used for both shooting at the hub and shooting while shuttling fuel across the
  * field. The target to shoot at is determined by a function, and the shooter settings lookup table is a parameter.
  */
-public class SmartCompCommand extends Command {
+public class SmartInfeedCommand extends Command {
 
   private final RightShooterSS s_RightShooter;
   private final RightTurretSS s_RightTurret;
@@ -71,6 +73,7 @@ public class SmartCompCommand extends Command {
   private final IndexerSS s_Indexer;
   private final InfeedSS s_Infeed;
   private final SwerveSS s_Swerve;
+  private final InfeedPivotSS s_InfeedPivot;
   private final Function<Translation2d, Translation2d> targetSelector;
 
   // Reusable object to prevent reallocation (to reduce memory pressure)
@@ -89,7 +92,7 @@ public class SmartCompCommand extends Command {
    * @param targetSelector function that takes the shooter's translation and returns the target translation to shoot at
    * @param lookupTableR lookup table mapping distance to shooter setpoints
    */
-  public SmartCompCommand(
+  public SmartInfeedCommand(
       RightShooterSS s_RightShooter,
       RightTurretSS s_RightTurret,
       RightShooterHoodSS s_RightShooterHood,
@@ -100,6 +103,7 @@ public class SmartCompCommand extends Command {
       IndexerSS s_Indexer,
       InfeedSS s_Infeed,
       SwerveSS s_Swerve,
+      InfeedPivotSS s_InfeedPivot,
       Function<Translation2d, Translation2d> targetSelector
       ) {
     this.s_RightShooter = s_RightShooter;
@@ -112,6 +116,7 @@ public class SmartCompCommand extends Command {
     this.s_Indexer = s_Indexer;
     this.s_Infeed = s_Infeed;
     this.s_Swerve = s_Swerve;
+    this.s_InfeedPivot = s_InfeedPivot;
     this.targetSelector = targetSelector;
 
     addRequirements(s_RightShooter, s_Feeder, s_Indexer, s_RightTurret, s_RightShooterHood, s_Infeed, s_LeftShooter, s_LeftShooterHood, s_LeftTurret);
@@ -266,9 +271,11 @@ public class SmartCompCommand extends Command {
     s_LeftShooterHood.setPitchAngle(LeftshootingSettings.shotAngle());
     s_LeftShooter.setSpeed(LeftshootingSettings.shotVelocity());
 
+    s_Infeed.SetSpeed(RotationsPerSecond.of(1));
+    s_InfeedPivot.PID(Constants.RobotConstants.Infeed.Infeed_POS, Constants.RobotConstants.Infeed.Max_Speed);
+
     s_Feeder.Stop();
     s_Indexer.Stop();
-    s_Infeed.Stop();
 
   }
 

@@ -19,24 +19,43 @@ import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.FeederSS;
 import frc.robot.subsystems.IndexerSS;
+import frc.robot.subsystems.InfeedPivotSS;
 import frc.robot.subsystems.InfeedSS;
 import frc.robot.subsystems.LeftShooterHoodSS;
 import frc.robot.subsystems.LeftShooterSS;
 import frc.robot.subsystems.LeftShooterSS.LeftShooterSetpoints;
 import frc.robot.subsystems.LeftTurretSS;
 import frc.robot.subsystems.RightShooterHoodSS;
-import frc.robot.subsystems.RightShooterHoodSS.RightShooterConversion;
 import frc.robot.subsystems.RightShooterSS;
 import frc.robot.subsystems.RightTurretSS;
 import frc.robot.subsystems.SwerveSS;
 import frc.robot.subsystems.RightShooterSS.RightShooterSetpoints;
+
+import static frc.robot.Constants.RobotConstants.FrontLeftTurret.Hub_SetPoints_Left;
+import static frc.robot.Constants.RobotConstants.FrontLeftTurret.Shuttle_SetPoints_Left;
 import static frc.robot.Constants.RobotConstants.FrontRightTurret.FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER;
-import static frc.robot.Constants.RobotConstants.FrontRightTurret.RightShooterHoodConversion;
+import static frc.robot.Constants.RobotConstants.VisionConstants.DANGER_ZONE_MAX_BLUE;
+import static frc.robot.Constants.RobotConstants.VisionConstants.DANGER_ZONE_MAX_RED;
+import static frc.robot.Constants.RobotConstants.VisionConstants.DANGER_ZONE_MIN_BLUE;
+import static frc.robot.Constants.RobotConstants.VisionConstants.DANGER_ZONE_MIN_RED;
+import static frc.robot.Constants.RobotConstants.VisionConstants.DANGER_ZONE_MAX_BLUE;
+import static frc.robot.Constants.RobotConstants.VisionConstants.DANGER_ZONE_MAX_RED;
+import static frc.robot.Constants.RobotConstants.VisionConstants.DANGER_ZONE_MIN_BLUE;
+import static frc.robot.Constants.RobotConstants.VisionConstants.DANGER_ZONE_MIN_RED;
+import static frc.robot.Constants.RobotConstants.VisionConstants.AUTO_SHOOTER_BARRIER_BLUE;
+import static frc.robot.Constants.RobotConstants.VisionConstants.AUTO_SHOOTER_BARRIER_RED;
+import static frc.robot.Constants.RobotConstants.FrontLeftTurret.Hub_SetPoints_Left;
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.Hub_SetPoints_Right;
+import static frc.robot.Constants.RobotConstants.FrontLeftTurret.Shuttle_SetPoints_Left;
+import static frc.robot.Constants.RobotConstants.FrontRightTurret.Shuttle_SetPoints_Right;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -61,9 +80,10 @@ public class ShootAtTargetCommand extends Command {
   private final IndexerSS s_Indexer;
   private final InfeedSS s_Infeed;
   private final SwerveSS s_Swerve;
+  private final InfeedPivotSS s_InfeedPivot;
   private final Function<Translation2d, Translation2d> targetSelector;
-  private final InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR;
-  private final InterpolatingTreeMap<Double, LeftShooterSetpoints> lookupTableL;
+  // private final InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR;
+  // private final InterpolatingTreeMap<Double, LeftShooterSetpoints> lookupTableL;
 
   // Reusable object to prevent reallocation (to reduce memory pressure)
   private final MutAngle RightTurretYawTarget = Rotations.mutable(0);
@@ -92,9 +112,10 @@ public class ShootAtTargetCommand extends Command {
       IndexerSS s_Indexer,
       InfeedSS s_Infeed,
       SwerveSS s_Swerve,
-      Function<Translation2d, Translation2d> targetSelector,
-      InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR,
-      InterpolatingTreeMap<Double, LeftShooterSetpoints> lookupTableL
+      InfeedPivotSS s_InfeedPivot,
+      Function<Translation2d, Translation2d> targetSelector
+      // InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR,
+      // InterpolatingTreeMap<Double, LeftShooterSetpoints> lookupTableL
       ) {
     this.s_RightShooter = s_RightShooter;
     this.s_RightTurret = s_RightTurret;
@@ -106,9 +127,10 @@ public class ShootAtTargetCommand extends Command {
     this.s_Indexer = s_Indexer;
     this.s_Infeed = s_Infeed;
     this.s_Swerve = s_Swerve;
+    this.s_InfeedPivot = s_InfeedPivot;
     this.targetSelector = targetSelector;
-    this.lookupTableR = lookupTableR;
-    this.lookupTableL = lookupTableL;
+    // this.lookupTableR = lookupTableR;
+    // this.lookupTableL = lookupTableL;
 
     addRequirements(s_RightShooter, s_Feeder, s_Indexer, s_RightTurret, s_RightShooterHood, s_Infeed, s_LeftShooter, s_LeftShooterHood, s_LeftTurret);
   }
@@ -122,8 +144,8 @@ public class ShootAtTargetCommand extends Command {
   @Override
   public void execute() {
     var robotPose = s_Swerve.swerveOdometry.getEstimatedPosition();
-    // var currentChassisSpeeds = s_Swerve.getCurrentFieldChassisSpeeds();
-    var currentChassisSpeeds = s_Swerve.getRobotSpeed();
+    var currentChassisSpeeds = s_Swerve.getCurrentFieldChassisSpeeds();
+    // var currentChassisSpeeds = s_Swerve.getRobotSpeed();
     
     // Translation of the shooter on the field (used for distance/angle calculations).
     var rightShooterTranslation = RightShooterSS.getShooterTranslation(robotPose);
@@ -137,7 +159,32 @@ public class ShootAtTargetCommand extends Command {
 
     // If the shooter is under the trench or over the bump, don't shoot
     var rightShooterX = rightShooterTranslation.getX();
-    var leftShooterX = rightShooterTranslation.getX();
+    var leftShooterX = leftShooterTranslation.getX();
+    InterpolatingTreeMap<Double, LeftShooterSetpoints> lookupTableL;
+    InterpolatingTreeMap<Double, RightShooterSetpoints> lookupTableR;
+    
+    if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue){
+      if ((rightShooterX < AUTO_SHOOTER_BARRIER_BLUE.in(Meters))
+       || (leftShooterX < AUTO_SHOOTER_BARRIER_BLUE.in(Meters))){
+        lookupTableR = Hub_SetPoints_Right;
+        lookupTableL = Hub_SetPoints_Left;
+      }
+      else {
+        lookupTableR = Shuttle_SetPoints_Right;
+        lookupTableL = Shuttle_SetPoints_Left;
+      }
+    }
+    else{
+      if ((rightShooterX > AUTO_SHOOTER_BARRIER_RED.in(Meters))
+       || (leftShooterX > AUTO_SHOOTER_BARRIER_RED.in(Meters))){
+        lookupTableR = Hub_SetPoints_Right;
+        lookupTableL = Hub_SetPoints_Left;
+      }
+      else {
+        lookupTableR = Shuttle_SetPoints_Right;
+        lookupTableL = Shuttle_SetPoints_Left;
+      }
+    }
 
     // 1. Compute the velocity of the fuel at the shooter's location on the field.
     //
@@ -187,8 +234,6 @@ public class ShootAtTargetCommand extends Command {
       RightshootingSettings = lookupTableR.get(predictedRightTargetDistance);
       LeftshootingSettings = lookupTableL.get(predictedLeftTargetDistance);
 
-      RightShooterConversion ShooterConversionR = RightShooterHoodConversion.get(RightshootingSettings.shotAngle().in(Millimeter));
-      RightShooterConversion ShooterConversionL = RightShooterHoodConversion.get(LeftshootingSettings.shotAngle().in(Millimeter));
 
 
       var RTimeUntilScored = 0.0;
@@ -197,10 +242,8 @@ public class ShootAtTargetCommand extends Command {
       var lrps = LeftshootingSettings.shotVelocity().in(RotationsPerSecond);
       var rpitch = RightshootingSettings.shotAngle();
       var lpitch = LeftshootingSettings.shotAngle();
-      var pitchConversionR = ShooterConversionR.outputAngle();
-      var pitchConversionL = ShooterConversionL.outputAngle();
 
-      if (Math.abs(rrps) > 1e-3) { // Avoid divide-by-zero if flywheel is stopped.
+      if (Math.abs(rrps) > 1e-3 || Math.abs(lrps) > 1e-3) { // Avoid divide-by-zero if flywheel is stopped.
         // Approximate time-of-flight using the horizontal component of the fuel's exit velocity. Use actual distance to
         // target (not predicted) for flight time to avoid divergence when moving away from the target.
         //
@@ -210,20 +253,18 @@ public class ShootAtTargetCommand extends Command {
         // - We approximate flight time as: time = horizontal_distance / (exit_speed * cos(rpitch)).
         double fuelExitVelocityRight = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * rrps;
         RTimeUntilScored = rightActualTargetDistance
-            / (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversionR).in(Radians)));
+            / (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(rpitch).in(Radians)));
 
         double fuelExitVelocityLeft = FLYWHEEL_TO_FUEL_VELOCITY_MULTIPLIER * lrps;
         LTimeUntilScored = leftActualTargetDistance
-            / (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversionL).in(Radians)));
+            / (fuelExitVelocityLeft * Math.cos(s_LeftShooterHood.getFuelPitch(lpitch).in(Radians)));
 
-        SmartDashboard.putNumber("RightShooterDevider", (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversionR).in(Degrees))));
-        SmartDashboard.putNumber("LeftShooterDevider", (fuelExitVelocityLeft * Math.cos(s_RightShooterHood.getFuelPitch(pitchConversionR).in(Degrees))));
+        SmartDashboard.putNumber("RightShooterDevider", (fuelExitVelocityRight * Math.cos(s_RightShooterHood.getFuelPitch(rpitch).in(Degrees))));
+        SmartDashboard.putNumber("LeftShooterDevider", (fuelExitVelocityLeft * Math.cos(s_LeftShooterHood.getFuelPitch(lpitch).in(Degrees))));
         SmartDashboard.putNumber("fuelexitvelocityl", fuelExitVelocityLeft);
         SmartDashboard.putNumber("fuelexitvelocityr", fuelExitVelocityRight);
-        SmartDashboard.putNumber("cos(lpitch)", Math.cos(s_LeftShooterHood.getFuelPitch(pitchConversionL).in(Radians)));
-        SmartDashboard.putNumber("cos(rpitch)", Math.cos(s_RightShooterHood.getFuelPitch(pitchConversionR).in(Radians)));
-        SmartDashboard.putNumber("RightFuelPitch", s_RightShooterHood.getFuelPitch(pitchConversionR).in(Degrees));
-        SmartDashboard.putNumber("LeftFuelPitch", s_LeftShooterHood.getFuelPitch(pitchConversionL).in(Degrees));
+        SmartDashboard.putNumber("cos(lpitch)", Math.cos(s_LeftShooterHood.getFuelPitch(lpitch).in(Radians)));
+        SmartDashboard.putNumber("cos(rpitch)", Math.cos(s_RightShooterHood.getFuelPitch(rpitch).in(Radians)));
         SmartDashboard.putNumber("LTimeUntilScored", LTimeUntilScored);
         SmartDashboard.putNumber("RTimeUntilScored", RTimeUntilScored);
       }
@@ -234,15 +275,15 @@ public class ShootAtTargetCommand extends Command {
       // - If the robot is moving forward, the fuel will land further forward relative to a stationary shot. To hit the
       // desired (static) target we need to aim backwards relative to the instantaneous target position by the amount
       // the fuel will be carried during flight.
-      targetRightPredictedOffset = effectiveRightShooterVelocity.times(-RTimeUntilScored);
-      targetLeftPredictedOffset = effectiveLeftShooterVelocity.times(-LTimeUntilScored);
-      predictedRightTargetTranslation = rightTargetTranslation.plus(targetRightPredictedOffset);
-      predictedLeftTargetTranslation = leftTargetTranslation.plus(targetLeftPredictedOffset);
+      targetRightPredictedOffset = effectiveRightShooterVelocity.times(RTimeUntilScored);
+      targetLeftPredictedOffset = effectiveLeftShooterVelocity.times(LTimeUntilScored);
+      predictedRightTargetTranslation = rightTargetTranslation.minus(targetRightPredictedOffset);
+      predictedLeftTargetTranslation = leftTargetTranslation.minus(targetLeftPredictedOffset);
 
       SmartDashboard.putNumber("Target distance Right", predictedRightTargetDistance);
       SmartDashboard.putNumber("Target distance Left", predictedLeftTargetDistance);
-      SmartDashboard.putNumber("Right Shooter Pitch", s_RightShooterHood.getFuelPitch(pitchConversionR).in(Degrees));
-      SmartDashboard.putNumber("Left Shooter Pitch", s_RightShooterHood.getFuelPitch(pitchConversionL).in(Degrees));
+      SmartDashboard.putNumber("Right Shooter Pitch", s_RightShooterHood.getFuelPitch(rpitch).in(Degrees));
+      SmartDashboard.putNumber("Left Shooter Pitch", s_LeftShooterHood.getFuelPitch(rpitch).in(Degrees));
     }
 
     SmartDashboard.putNumber("Shooting offset X Right", targetRightPredictedOffset.getX());
@@ -262,29 +303,31 @@ public class ShootAtTargetCommand extends Command {
 
     // Command the shooter pitch, yaw, and flywheel speed from the lookup table.
     s_RightTurret.setYawAngle(RightTurretYawTarget);
-    s_RightShooterHood.LinearActuator(RightshootingSettings.shotAngle());
+    s_RightShooterHood.setPitchAngle(RightshootingSettings.shotAngle());
     s_RightShooter.setSpeed(RightshootingSettings.shotVelocity());
     s_LeftTurret.setYawAngle(LeftTurretYawTarget);
-    s_LeftShooterHood.LinearActuator(LeftshootingSettings.shotAngle());
+    s_LeftShooterHood.setPitchAngle(LeftshootingSettings.shotAngle());
     s_LeftShooter.setSpeed(LeftshootingSettings.shotVelocity());
 
     // Check if all of the conditions are met to be ready to shoot
     var isRightFlywheelReady = s_RightShooter.isFlywheelAtSpeed();
     var isLeftFlywheelReady = s_LeftShooter.isFlywheelAtSpeed();
     var isRightYawReady = s_RightTurret.isYawAtSetpoint();
-    var isLeftYawReady = s_RightTurret.isYawAtSetpoint();
+    var isLeftYawReady = s_LeftTurret.isYawAtSetpoint();
+    s_Infeed.SetSpeed(RotationsPerSecond.of(1));
+    s_InfeedPivot.PID(Constants.RobotConstants.Infeed.Infeed_POS, Constants.RobotConstants.Infeed.Max_Speed);
+
     if ((isRightFlywheelReady && isRightYawReady && isShooting) || isShooting || (isLeftFlywheelReady && isLeftYawReady && isShooting) || (isRightFlywheelReady && isRightYawReady) || (isLeftFlywheelReady && isLeftYawReady)) {
       // All conditions met. Continuously feeding until the command is interrupted
-      s_Indexer.setSpeed(RotationsPerSecond.of(1));
-      s_Feeder.setSpeed(RotationsPerSecond.of(1));
-      s_Infeed.SetSpeed(RotationsPerSecond.of(1));
+      s_Indexer.setSpeed(RotationsPerSecond.of(.65));
+      // s_Indexer.setSpeed(RotationsPerSecond.of(65));
+      s_Feeder.setSpeed(RotationsPerSecond.of(.65));
 
       isShooting = true;
     } else {
       // Not ready. Don't feed and display readiness using segmented LED lights.
       s_Indexer.Stop();
       s_Feeder.Stop();
-      s_Infeed.Stop();
     }
   }
 

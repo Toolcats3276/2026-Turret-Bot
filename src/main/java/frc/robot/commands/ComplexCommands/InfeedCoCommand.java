@@ -11,17 +11,17 @@ import frc.robot.subsystems.InfeedPivotSS;
 import frc.robot.subsystems.InfeedSS;
 
 public class InfeedCoCommand extends ParallelCommandGroup {
-  public InfeedCoCommand(InfeedSS s_Infeed, InfeedPivotSS s_InfeedPivot) {
+  public InfeedCoCommand(InfeedPivotSS s_InfeedPivot) {
 
     addCommands(
-      new RepeatCommand(
+      // new RepeatCommand(
         new ParallelCommandGroup(
-          new InfeedCommand(s_Infeed, RotationsPerSecond.of(1)),
+          // new InfeedCommand(s_Infeed, RotationsPerSecond.of(1)),
           new InfeedPID(s_InfeedPivot, Constants.RobotConstants.Infeed.Infeed_POS, Constants.RobotConstants.Infeed.Max_Speed)
-        )
+        // )
       )
     );
 
-    addRequirements(s_Infeed, s_InfeedPivot);
+    addRequirements(s_InfeedPivot);
   }
 }
